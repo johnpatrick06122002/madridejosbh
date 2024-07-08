@@ -67,9 +67,9 @@ if ($dbconnection->query($sql) === TRUE) {
  ?>
 
 <div class="row">
-<div class="col-sm-2">
-<?php include('sidebar.php'); ?>
-</div>
+    <div class="col-sm-2">
+        <?php include('sidebar.php'); ?>
+    </div>
 
 <div class="col-sm-9">
 
