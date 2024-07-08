@@ -66,7 +66,21 @@ if ($dbconnection->query($sql) === TRUE) {
 }
  ?>
 
+<style>
+  .fa {
+    display: inline-block;
+    font: normal normal normal 14px / 1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    float: right; /* or */
+    text-align: right; /* or */
+    margin-left: 70px; /* or */
 
+    /* any other method to position right */
+}
+</style>
 <div class="row">
 <div class="col-sm-2">
 <?php include('sidebar.php'); ?>
