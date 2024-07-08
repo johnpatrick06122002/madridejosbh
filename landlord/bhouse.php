@@ -19,6 +19,14 @@ if (isset($_POST["delete"])) {
 ?>
 <style>
     .fa {
+    display: inline-block;
+    font: normal normal normal 14px / 1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    float: right; /* or */
+    text-align: right; /* or */
     margin-left: 70px; /* or */
 
     /* any other method to position right */
