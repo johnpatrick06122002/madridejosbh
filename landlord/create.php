@@ -65,7 +65,44 @@ if ($dbconnection->query($sql) === TRUE) {
     
 }
  ?>
+<style>
+    .sidebar {
+      width: 230px;
+      background-color: #333; /* Adjust background color as needed */
+    }
 
+    .sidebar a {
+      font-family: 'Roboto', serif;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px;
+      text-decoration: none;
+      font-size: 18px;
+      color: white; /* Adjust text color as needed */
+    }
+
+    .sidebar a i {
+      margin-left: 10px; /* Adjust the margin as needed */
+    }
+
+    .sidebar a:hover {
+      background-color: red; /* Add hover effect if needed */
+      color: #000; /* Adjust hover text color if needed */
+    }
+
+    .sidebar a:active, .sidebar a:focus {
+      background-color: red; /* Change background color when clicked or focused */
+      color: #fff; /* Change text color when clicked or focused */
+      outline: none; /* Remove default outline for better appearance */
+    }
+
+    .sidebar a.active {
+      background-color: red; /* Set different background color for the active link */
+      color: #fff; /* Set different text color for the active link */
+    }
+
+</style>
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
