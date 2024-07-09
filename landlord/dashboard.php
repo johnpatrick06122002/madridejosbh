@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 tooltip: {
                     callbacks: {
                         label: function(tooltipItem) {
-                            return tooltipItem.dataset.label + ': $' + tooltipItem.raw;
+                            return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
                         }
                     }
                 }
