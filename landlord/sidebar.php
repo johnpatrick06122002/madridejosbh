@@ -1,3 +1,18 @@
+ <?php
+$query = "SELECT profile_photo FROM landlords WHERE id = ?";
+$stmt = $dbconnection->prepare($query);
+$stmt->bind_param("i", $login_session);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result && $result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $profile_photo = $row['profile_photo'];
+} else {
+    // Default profile photo path or handle error as needed
+    $profile_photo = 'default_profile_photo.jpg';
+}
+?>
 <style>
     .sidebar {
       width: 230px;
@@ -37,6 +52,8 @@
   </style>
  
   <div class="sidebar">
+    <img src="../uploads/<?php echo $profile_photo; ?>" alt="Profile Photo" class="profile-photo">
+
     <a style="margin-top: 100px;" href="dashboard.php" onclick="setActive(event)">Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i></a>
     <a href="create.php" onclick="setActive(event)">Create New <i class="fa fa-plus-circle" aria-hidden="true"></i></a>
     <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
