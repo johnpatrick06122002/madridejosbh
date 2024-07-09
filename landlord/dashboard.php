@@ -24,7 +24,7 @@ if ($result) {
         $total_income += $row['monthly_income'];  // Accumulate total income
     }
 } else {
-    echo "Error: " . mysqli_error($dbconnection);
+    echo "Error fetching data: " . mysqli_error($dbconnection);
 }
 
 // Query to fetch brokers count for each boarding house
@@ -47,7 +47,7 @@ if ($brokers_result) {
         $total_brokers += $row['broker_count'];
     }
 } else {
-    echo "Error: " . mysqli_error($dbconnection);
+    echo "Error fetching data: " . mysqli_error($dbconnection);
 }
 
 $broker_labels = array_column($brokers_data, 'boarding_house');
@@ -290,6 +290,7 @@ foreach ($broker_counts as $count) {
 </div>
 
 <?php include('footer.php'); ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
@@ -308,11 +309,11 @@ document.addEventListener("DOMContentLoaded", function() {
         options: {
             scales: {
                 y: {
-                    beginAt: 500,
+                    beginAtZero: true, // Start y-axis at 0
                     ticks: {
-                        stepSize: 1000, // Set the increment step to 1000
+                        stepSize: 1000, // Increment step size by 1000
                         callback: function(value) {
-                            return value >= 500 ? Math.round(value) : ''; // Show value only if it's greater than or equal to 500
+                            return '' + value; // Prefix with $ sign
                         }
                     }
                 }
