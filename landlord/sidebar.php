@@ -1,17 +1,23 @@
 <?php
-$query = "SELECT profile_photo FROM landlords WHERE id = ?";
-$stmt = $dbconnection->prepare($query);
-$stmt->bind_param("i", $login_session);
-$stmt->execute();
-$result = $stmt->get_result();
+// Function to fetch profile photo based on user ID
+function fetchProfilePhoto($dbconnection, $login_session) {
+    $query = "SELECT profile_photo FROM landlords WHERE id = ?";
+    $stmt = $dbconnection->prepare($query);
+    $stmt->bind_param("i", $login_session);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-if ($result && $result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $profile_photo = $row['profile_photo'];
-} else {
-    // Default profile photo path or handle error as needed
-    $profile_photo = 'default_profile_photo.jpg';
+    if ($result && $result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        return $row['profile_photo'];
+    } else {
+        // Default profile photo path or handle error as needed
+        return 'default_profile_photo.jpg';
+    }
 }
+
+// Fetch profile photo for the logged-in user
+$profile_photo = fetchProfilePhoto($dbconnection, $login_session);
 ?>
 
 <style>
@@ -23,7 +29,7 @@ if ($result && $result->num_rows > 0) {
     }
 
     .sidebar a {
-        font-family: 'Roboto', serif;
+        font-family: serif;
         display: flex;
         justify-content: space-between;
         align-items: center;
