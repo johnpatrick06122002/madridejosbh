@@ -49,6 +49,15 @@ if ($result && $result->num_rows > 0) {
       background-color: red; /* Set different background color for the active link */
       color: #fff; /* Set different text color for the active link */
     }
+     .profile-photo {
+      width: 120px; /* Adjust width as needed */
+      height: 120px; /* Adjust height as needed */
+      border-radius: 50%; /* Rounded shape for the photo */
+      position: absolute; /* Position absolute for precise placement */
+      top: 10px; /* Adjust top position */
+      left:   100px; /* Adjust left position */
+      transform: translateX(-50%);
+    }
   </style>
  
   <div class="sidebar">
