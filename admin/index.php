@@ -1,20 +1,23 @@
-<?php //include('header.php'); ?>
+<?php
+session_start(); // Start session at the beginning of the script
 
-<?php 
 if(isset($_POST["login"])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-$username = $_POST['username'];
-$password = $_POST['password'];
-
-	if ($username == "admin" & $password == "admin123") {
-		header('location: dashboard.php');
-	} else {
-		echo "<script>alert('Username or Password is Incorrect');</script>";
-	}
-
+    // Hardcoded credentials for simplicity (replace with secure authentication)
+    if ($username == "admin" && $password == "admin123") {
+        // Set session variable indicating user is logged in
+        $_SESSION['admin_loggedin'] = true;
+        
+        // Redirect to dashboard upon successful login
+        header('location: dashboard.php');
+        exit; // Stop further execution
+    } else {
+        echo "<script>alert('Username or Password is Incorrect');</script>";
+    }
 }
-
- ?>
+?>
 <style type="text/css">
 	@import url(https://fonts.googleapis.com/css?family=Roboto:300);
 

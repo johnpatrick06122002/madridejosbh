@@ -1,5 +1,15 @@
-<?php include('header.php'); ?>
+<?php
+session_start(); // Start session at the beginning of the script
 
+// Check if the admin is logged in
+if (!isset($_SESSION['admin_loggedin']) || $_SESSION['admin_loggedin'] !== true) {
+    // Redirect to login page if not logged in
+    header("Location: index.php");
+    exit; // Stop further execution
+}
+
+include('header.php'); // Include header.php which contains necessary HTML and PHP code
+?>
 <?php
 // Initialize variables
 $total_income = 0;
