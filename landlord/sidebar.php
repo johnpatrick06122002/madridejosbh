@@ -28,6 +28,8 @@ if ($result && $result->num_rows > 0) {
       text-decoration: none;
       font-size: 18px;
       color: white; /* Adjust text color as needed */
+            margin-top: 220px; /* Adjust margin top for the content */
+
     }
 
     .sidebar a i {
@@ -59,7 +61,7 @@ if ($result && $result->num_rows > 0) {
       transform: translateX(-50%);
     }
     .sidebar-content {
-      margin-top: 290px; /* Adjust margin top for the content */
+      margin-top: 220px; /* Adjust margin top for the content */
     }
   </style>
  
