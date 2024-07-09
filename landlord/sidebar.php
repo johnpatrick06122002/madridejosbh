@@ -1,4 +1,4 @@
- <?php
+<?php
 $query = "SELECT profile_photo FROM landlords WHERE id = ?";
 $stmt = $dbconnection->prepare($query);
 $stmt->bind_param("i", $login_session);
@@ -13,101 +13,107 @@ if ($result && $result->num_rows > 0) {
     $profile_photo = 'default_profile_photo.jpg';
 }
 ?>
+
 <style>
     .sidebar {
-      width: 230px;
-      background-color: #333; /* Adjust background color as needed */
+        width: 230px;
+        background-color: #333; /* Adjust background color as needed */
+        padding-top: 20px; /* Adjust padding top as needed */
+        text-align: center; /* Center align the contents */
     }
 
     .sidebar a {
-      font-family: 'Roboto', serif;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 13px;
-      text-decoration: none;
-      font-size: 18px;
-      color: white; /* Adjust text color as needed */
-      
+        font-family: 'Roboto', serif;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 13px;
+        text-decoration: none;
+        font-size: 18px;
+        color: white; /* Adjust text color as needed */
     }
 
     .sidebar a i {
-      margin-left: 10px; /* Adjust the margin as needed */
+        margin-left: 10px; /* Adjust the margin as needed */
     }
 
     .sidebar a:hover {
-      background-color: red; /* Add hover effect if needed */
-      color: #000; /* Adjust hover text color if needed */
+        background-color: red; /* Add hover effect if needed */
+        color: #000; /* Adjust hover text color if needed */
     }
 
     .sidebar a:active, .sidebar a:focus {
-      background-color: red; /* Change background color when clicked or focused */
-      color: #fff; /* Change text color when clicked or focused */
-      outline: none; /* Remove default outline for better appearance */
+        background-color: red; /* Change background color when clicked or focused */
+        color: #fff; /* Change text color when clicked or focused */
+        outline: none; /* Remove default outline for better appearance */
     }
 
     .sidebar a.active {
-      background-color: red; /* Set different background color for the active link */
-      color: #fff; /* Set different text color for the active link */
+        background-color: red; /* Set different background color for the active link */
+        color: #fff; /* Set different text color for the active link */
     }
-     .profile-photo {
-      width: 130px; /* Adjust width as needed */
-      height: 130px; /* Adjust height as needed */
-      border-radius: 50%; /* Rounded shape for the photo */
-      position: absolute; /* Position absolute for precise placement */
-      top: 40px; /* Adjust top position */
-      left:   100px; /* Adjust left position */
-      transform: translateX(-50%);
+
+    .profile-photo {
+        width: 130px; /* Adjust width as needed */
+        height: 130px; /* Adjust height as needed */
+        border-radius: 50%; /* Rounded shape for the photo */
+        margin: 0 auto; /* Center the photo */
     }
+
     .sidebar-content {
-      margin-top: 220px; /* Adjust margin top for the content */
+        margin-top: 20px; /* Adjust margin top for the content */
     }
-  </style>
- 
-  <div class="sidebar">
-    <img src="../uploads/<?php echo $profile_photo; ?>" alt="Profile Photo" class="profile-photo">
+</style>
 
-    <a style="margin-top: 100px;" href="dashboard.php" onclick="setActive(event)">Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i></a>
-    <a href="create.php" onclick="setActive(event)">Create New <i class="fa fa-plus-circle" aria-hidden="true"></i></a>
-    <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
-    <a href="booker.php" onclick="setActive(event)">Booker List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
-    <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-file-text" aria-hidden="true"></i></a>
-    <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
-  </div>
+<div class="sidebar">
+    <!-- Profile Photo -->
+    <img src="../uploads/<?php echo htmlspecialchars($profile_photo); ?>" alt="Profile Photo" class="profile-photo">
 
-  <script>
+    <!-- Content Links -->
+    <div class="sidebar-content">
+        <a href="dashboard.php" onclick="setActive(event)">
+            Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i>
+        </a>
+        <a href="create.php" onclick="setActive(event)">Create New <i class="fa fa-plus-circle" aria-hidden="true"></i></a>
+        <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
+        <a href="booker.php" onclick="setActive(event)">Booker List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
+        <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-file-text" aria-hidden="true"></i></a>
+        <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
+    </div>
+</div>
+
+<script>
     // Set active class based on the current page
     document.addEventListener("DOMContentLoaded", function() {
-      var activeLink = localStorage.getItem("activeLink");
-      if (activeLink) {
-        var link = document.querySelector('.sidebar a[href="' + activeLink + '"]');
-        if (link) {
-          link.classList.add("active");
+        var activeLink = localStorage.getItem("activeLink");
+        if (activeLink) {
+            var link = document.querySelector('.sidebar a[href="' + activeLink + '"]');
+            if (link) {
+                link.classList.add("active");
+            }
         }
-      }
     });
 
     function setActive(event) {
-      // Prevent default link behavior
-      event.preventDefault();
+        // Prevent default link behavior
+        event.preventDefault();
 
-      // Get the clicked link element
-      var element = event.currentTarget;
+        // Get the clicked link element
+        var element = event.currentTarget;
 
-      // Remove 'active' class from all sidebar links
-      var links = document.querySelectorAll('.sidebar a');
-      links.forEach(function(link) {
-        link.classList.remove('active');
-      });
+        // Remove 'active' class from all sidebar links
+        var links = document.querySelectorAll('.sidebar a');
+        links.forEach(function(link) {
+            link.classList.remove('active');
+        });
 
-      // Add 'active' class to the clicked link
-      element.classList.add('active');
+        // Add 'active' class to the clicked link
+        element.classList.add('active');
 
-      // Store the active link in localStorage
-      localStorage.setItem("activeLink", element.getAttribute("href"));
+        // Store the active link in localStorage
+        localStorage.setItem("activeLink", element.getAttribute("href"));
 
-      // Navigate to the clicked link
-      window.location.href = element.getAttribute("href");
+        // Navigate to the clicked link
+        window.location.href = element.getAttribute("href");
     }
-  </script>
- 
+</script>
