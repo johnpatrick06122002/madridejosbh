@@ -58,6 +58,7 @@ foreach ($broker_counts as $count) {
     $broker_percentages[] = ($count / $total_brokers) * 100;
 }
 ?>
+
 <style>  
 /* Container styles */
 .row.pb-10 {
@@ -148,6 +149,7 @@ foreach ($broker_counts as $count) {
     /* any other method to position right */
 }
 </style>
+
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
@@ -271,8 +273,6 @@ foreach ($broker_counts as $count) {
     </div>
 </div>
 
-
-
         <br />
 
         <div class="row">
@@ -291,7 +291,7 @@ foreach ($broker_counts as $count) {
 
 <?php include('footer.php'); ?>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
     var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
     var monthlyIncomeChart = new Chart(ctx, {
         type: 'bar',
@@ -308,11 +308,11 @@ foreach ($broker_counts as $count) {
         options: {
             scales: {
                 y: {
-                    beginAtZero: true,
+                    beginAt: 500,
                     ticks: {
                         stepSize: 1000, // Set the increment step to 1000
                         callback: function(value) {
-                            return Math.round(value); // Remove decimal places
+                            return value >= 500 ? Math.round(value) : ''; // Show value only if it's greater than or equal to 500
                         }
                     }
                 }
@@ -376,5 +376,4 @@ foreach ($broker_counts as $count) {
         }
     });
 });
-
 </script>
