@@ -446,7 +446,7 @@ ul.pagination li:last-child {
     <a class="nav-link active" href="login.php"><i class="fa fa-sign-in" aria-hidden="true"></i> Login</a>
 </li>
      <li class="nav-item">
-    <a class="nav-link active" href="admin  /index.php"><i class="icon-copy fa fa-user-circle-o" aria-hidden="true"></i> Admin</a>
+    <a class="nav-link active" href="admin/index.php"><i class="icon-copy fa fa-user-circle-o" aria-hidden="true"></i> Admin</a>
 </li>
               
             <?php } else { ?>
