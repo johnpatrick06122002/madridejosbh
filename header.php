@@ -443,11 +443,12 @@ ul.pagination li:last-child {
             </li>
             <?php if(empty($login_session)) { ?>
             <li class="nav-item">
-              <a class="nav-link active" href="#" data-toggle="modal" data-target="#myLogin"><i class="fa fa-sign-in" aria-hidden="true"></i> Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="#" data-toggle="modal" data-target="#myModal"><i class="fa fa-user-plus" aria-hidden="true"></i> Register</a>
-            </li>
+    <a class="nav-link active" href="login.php"><i class="fa fa-sign-in" aria-hidden="true"></i> Login</a>
+</li>
+     <li class="nav-item">
+    <a class="nav-link active" href="admin  /index.php"><i class="icon-copy fa fa-user-circle-o" aria-hidden="true"></i> Admin</a>
+</li>
+              
             <?php } else { ?>
               <li class="nav-item">
               <a class="nav-link active" href="landlord/dashboard.php"><i class="fa fa-tachometer" aria-hidden="true"></i> Dashboard</a>
