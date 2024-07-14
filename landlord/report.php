@@ -51,8 +51,8 @@ foreach ($rows as $rental_id => $data) {
     $broker_details = '';
     $monthly_details = '';
     foreach ($data['brokers'] as $broker) {
-        $broker_details .= '<div>' . $broker['name'] . '</div>';
-        $monthly_details .= '<div>₱' . number_format($broker['monthly'], 2) . '</div>';
+        $broker_details .= '<tr><td>' . $broker['name'] . '</td></tr>';
+        $monthly_details .= '<tr><td>₱' . number_format($broker['monthly'], 2) . '</td></tr>';
     }
     $display_rows[] = [
         'title' => $data['title'],
@@ -68,19 +68,6 @@ foreach ($rows as $rental_id => $data) {
             display: none;
         }
     }
-    .fa {
-    display: inline-block;
-    font: normal normal normal 14px / 1 FontAwesome;
-    font-size: inherit;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    float: right; /* or */
-    text-align: right; /* or */
-    margin-left: 70px; /* or */
-
-    /* any other method to position right */
-}
 </style>
 
 <div class="row">
@@ -106,8 +93,16 @@ foreach ($rows as $rental_id => $data) {
                 <?php foreach ($display_rows as $row): ?>
                     <tr>
                         <td><?php echo $row['title']; ?></td>
-                        <td><?php echo $row['broker_details']; ?></td>
-                        <td><?php echo $row['monthly_details']; ?></td>
+                        <td>
+                            <table>
+                                <?php echo $row['broker_details']; ?>
+                            </table>
+                        </td>
+                        <td>
+                            <table>
+                                <?php echo $row['monthly_details']; ?>
+                            </table>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -119,3 +114,4 @@ foreach ($rows as $rental_id => $data) {
 </div>
 
 <?php include('footer.php'); ?>
+                        
