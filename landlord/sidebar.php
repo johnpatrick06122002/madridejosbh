@@ -1,23 +1,22 @@
 <?php
-// Function to fetch profile photo based on user ID
-function fetchProfilePhoto($dbconnection, $login_session) {
-    $query = "SELECT profile_photo FROM landlords WHERE id = ?";
+// Function to fetch profile photo and name based on user ID
+function fetchProfileData($dbconnection, $login_session) {
+    $query = "SELECT profile_photo, name FROM landlords WHERE id = ?";
     $stmt = $dbconnection->prepare($query);
     $stmt->bind_param("i", $login_session);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result && $result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        return $row['profile_photo'];
+        return $result->fetch_assoc();
     } else {
-        // Default profile photo path or handle error as needed
-        return 'default_profile_photo.jpg';
+        // Default profile photo and name or handle error as needed
+        return ['profile_photo' => 'default_profile_photo.jpg', 'name' => 'Default Name'];
     }
 }
 
-// Fetch profile photo for the logged-in user
-$profile_photo = fetchProfilePhoto($dbconnection, $login_session);
+// Fetch profile data for the logged-in user
+$profile_data = fetchProfileData($dbconnection, $login_session);
 ?>
 
 <style>
@@ -66,6 +65,12 @@ $profile_photo = fetchProfilePhoto($dbconnection, $login_session);
         margin: 0 auto; /* Center the photo */
     }
 
+    .profile-name {
+        margin-top: 10px; /* Adjust margin top for the name */
+        font-size: 18px; /* Adjust font size as needed */
+        color: white; /* Adjust text color as needed */
+    }
+
     .sidebar-content {
         margin-top: 20px; /* Adjust margin top for the content */
     }
@@ -73,7 +78,9 @@ $profile_photo = fetchProfilePhoto($dbconnection, $login_session);
 
 <div class="sidebar">
     <!-- Profile Photo -->
-    <img src="../uploads/<?php echo htmlspecialchars($profile_photo); ?>" alt="Profile Photo" class="profile-photo">
+    <img src="../uploads/<?php echo htmlspecialchars($profile_data['profile_photo']); ?>" alt="Profile Photo" class="profile-photo">
+    <!-- Profile Name -->
+    <div class="profile-name"><?php echo htmlspecialchars($profile_data['name']); ?></div>
 
     <!-- Content Links -->
     <div class="sidebar-content">
