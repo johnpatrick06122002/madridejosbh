@@ -63,10 +63,35 @@ foreach ($rows as $rental_id => $data) {
 ?>
 
 <style>
+    .print-logo, .print-text {
+        display: none;
+         margin-right: 200px;
+    }
+
     @media print {
         .sidebar, .btn-print {
             display: none;
         }
+        .print-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .print-logo {
+            margin-right: 20px;
+        }
+        .print-logo, .print-text {
+            display: block;
+             
+        }
+        .print-logo img {
+            width: 100px;
+            height: 100px;
+        }
+    }
+    .btn {
+        margin-right: 40px;
+        width: 90px;
     }
 </style>
 
@@ -76,6 +101,15 @@ foreach ($rows as $rental_id => $data) {
     </div>
     <div class="col-sm-10">
         <br />
+        <div class="print-header">
+            <div class="print-logo">
+                <img src="../logo.png" alt="Logo" />
+            </div>
+            <div class="print-text">
+                <h2>Madridejos Boarding House Finder</h2>
+            </div>
+        </div>
+        <br><br><br><br>
         <h3>
             Monthly Report
             <button class="btn btn-primary btn-print" style="float: right;" onclick="window.print()">Print</button>
@@ -114,4 +148,3 @@ foreach ($rows as $rental_id => $data) {
 </div>
 
 <?php include('footer.php'); ?>
-                        
