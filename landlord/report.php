@@ -31,7 +31,8 @@ while ($row = mysqli_fetch_assoc($result)) {
         $rows[$rental_id] = [
             'title' => $title,
             'brokers' => [],
-            'has_approved_booking' => false
+            'has_approved_booking' => false,
+            'total_monthly' => 0  // Initialize total monthly rent accumulator
         ];
     }
 
@@ -41,7 +42,8 @@ while ($row = mysqli_fetch_assoc($result)) {
             'monthly' => $monthly
         ];
         $rows[$rental_id]['has_approved_booking'] = true; // Mark that there is an approved booking
-        $total_income += $monthly; // Sum each broker's monthly rent
+        $rows[$rental_id]['total_monthly'] += $monthly; // Accumulate monthly rent for this boarding house
+        $total_income += $monthly; // Sum each broker's monthly rent to the total income
     }
 }
 
@@ -57,7 +59,8 @@ foreach ($rows as $rental_id => $data) {
     $display_rows[] = [
         'title' => $data['title'],
         'broker_details' => $broker_details,
-        'monthly_details' => $monthly_details
+        'monthly_details' => $monthly_details,
+        'total_monthly' => $data['total_monthly']  // Include total monthly rent for this boarding house
     ];
 }
 ?>
@@ -65,7 +68,7 @@ foreach ($rows as $rental_id => $data) {
 <style>
     .print-logo, .print-text {
         display: none;
-         margin-right: 200px;
+        margin-right: 200px;
     }
 
     @media print {
@@ -84,6 +87,7 @@ foreach ($rows as $rental_id => $data) {
             display: block;
              
         }
+
         .print-logo img {
             width: 100px;
             height: 100px;
@@ -92,7 +96,8 @@ foreach ($rows as $rental_id => $data) {
     .btn {
         margin-right: 40px;
         width: 90px;
-    }
+    } 
+   
 </style>
 
 <div class="row">
@@ -121,6 +126,7 @@ foreach ($rows as $rental_id => $data) {
                     <th>Title</th>
                     <th>Broker Name</th>
                     <th>Monthly Rent</th>
+                    <th>Total Monthly Rent</th> <!-- New column for total monthly rent per boarding house -->
                 </tr>
             </thead>
             <tbody>
@@ -137,12 +143,13 @@ foreach ($rows as $rental_id => $data) {
                                 <?php echo $row['monthly_details']; ?>
                             </table>
                         </td>
+                        <td>₱<?php echo number_format($row['total_monthly'], 2); ?></td> <!-- Display total monthly rent -->
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
         <div>
-            <strong>Total Monthly Income: ₱<?php echo number_format($total_income, 2); ?></strong>
+            <strong style=" margin-left: 1120px";>Total Income: ₱<?php echo number_format($total_income, 2); ?></strong>
         </div>
     </div>
 </div>
