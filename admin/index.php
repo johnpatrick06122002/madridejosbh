@@ -22,13 +22,15 @@ if(isset($_POST["login"])) {
                 });
               </script>';
     } else {
-        echo "<script>
+        echo '<script>
+        document.addEventListener("DOMContentLoaded", function() {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Username or Password is Incorrect'
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Username or Password is Incorrect"
                 });
-              </script>";
+                 });
+              </script>';
     }
 }
 ?>
