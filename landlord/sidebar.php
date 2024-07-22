@@ -90,7 +90,7 @@ $profile_data = fetchProfileData($dbconnection, $login_session);
         <a href="create.php" onclick="setActive(event)">Create New <i class="fa fa-plus-circle" aria-hidden="true"></i></a>
         <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
         <a href="booker.php" onclick="setActive(event)">Booker List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
-        <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-file-text" aria-hidden="true"></i></a>
+        <a href="report.php" onclick="setActive(event)">Reports <i class="fas fa-file-alt" aria-hidden="true"></i></a>
         <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
     </div>
 </div>

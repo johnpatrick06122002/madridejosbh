@@ -64,7 +64,7 @@
   <a href="bhouse.php" onclick="setActive(event)">Boarding House List <i class="fa fa-home" aria-hidden="true"></i></a>
   <a href="owner.php" onclick="setActive(event)">Owner List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
   <a href="pending.php" onclick="setActive(event)">Pending List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
-  <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-list-ul" aria-hidden="true"></i></a>
+ <a href="report.php" onclick="setActive(event)">Reports <i class="fas fa-file-alt" aria-hidden="true"></i></a>
   <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
 </div>
 
