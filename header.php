@@ -85,7 +85,15 @@ if(isset($_POST["login"])) {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
 
 <style type="text/css">
-
+ 
+.circular-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: url('bh.jpg') no-repeat center center;
+            background-size: cover;
+}
+   
 * {box-sizing: border-box;}
 
 body {
