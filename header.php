@@ -74,20 +74,25 @@ if(isset($_POST["login"])) {
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="shortcut icon" type="x-icon" href="bh.jpg" style=" width: 50px;
+	 
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MADRIE-BH</title>
+    <link rel="shortcut icon" type="image/x-icon" href="bh.jpg">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href='src/fontawesome-stars.css' rel='stylesheet' type='text/css'>
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    <style>
+        .circular-image {
+            width: 50px;
             height: 50px;
             border-radius: 50%;
             background: url('bh.jpg') no-repeat center center;
-            background-size: cover; ">
-	<title>MADRIE-BH</title>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link href='src/fontawesome-stars.css' rel='stylesheet' type='text/css'>
-  <!-- SweetAlert2 CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
-
+            background-size: cover;
+        }
+    </style>
 <style type="text/css">
  
  
