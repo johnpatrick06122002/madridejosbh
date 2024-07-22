@@ -416,7 +416,7 @@ ul.pagination li:last-child {
         <div class="container">
         <a href="index.php" class="navbar-brand">
         <i class="fas fa-blog"></i> &nbsp;
-        <img class="logo" src="logo.png">MADRIE-BH
+        <img class="logo" src="bh.jpg">MADRIDEJOS BH FINDER
         </a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">

@@ -113,7 +113,7 @@ foreach ($rows as $rental_id => $data) {
         <br />
         <div class="print-header">
             <div class="print-logo">
-                <img src="../logo.png" alt="Logo" />
+                <img src="../bh.jpg" alt="Logo" />
             </div>
             <div class="print-text">
                 <h2>Madridejos Boarding House Finder</h2>
