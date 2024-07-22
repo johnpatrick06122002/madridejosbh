@@ -8,8 +8,16 @@ if (!isset($_SESSION['admin_loggedin']) || $_SESSION['admin_loggedin'] !== true)
     exit; // Stop further execution
 }
 
+// Check if the user just logged in to show the welcome message
+$showWelcomeMessage = false;
+if (isset($_SESSION['just_loggedin']) && $_SESSION['just_loggedin']) {
+    $showWelcomeMessage = true;
+    unset($_SESSION['just_loggedin']); // Unset the variable to prevent the message from showing again
+}
+
 include('header.php'); // Include header.php which contains necessary HTML and PHP code
 ?>
+
 <style>  
 /* Container styles */
 .row.pb-10 {
@@ -100,7 +108,23 @@ include('header.php'); // Include header.php which contains necessary HTML and P
     /* any other method to position right */
 }
 </style>
- 
+ <body>
+    <?php if ($showWelcomeMessage): ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                icon: "info",
+                title: "Welcome back, Admin!",
+                text: "HAVE A GOOD DAY!",
+                confirmButtonText: 'Thank you'
+            });
+        });
+    </script>
+    <?php endif; ?>
+
+    <?php include('footer.php'); ?>
+</body>
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
