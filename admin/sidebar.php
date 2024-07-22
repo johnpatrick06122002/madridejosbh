@@ -19,19 +19,19 @@
   }
 
   .sidebar a:hover {
-    background-color: red; /* Add hover effect if needed */
+    background-color: white; /* Add hover effect if needed */
     color: #000; /* Adjust hover text color if needed */
   }
 
   .sidebar a:active, .sidebar a:focus {
-    background-color: red; /* Change background color when clicked or focused */
+    background-color: white; /* Change background color when clicked or focused */
     color: #fff; /* Change text color when clicked or focused */
     outline: none; /* Remove default outline for better appearance */
   }
 
   .sidebar a.active {
-    background-color: red; /* Set different background color for the active link */
-    color: #fff; /* Set different text color for the active link */
+    background-color: white; /* Set different background color for the active link */
+    color: black; /* Set different text color for the active link */
   }
 
   .sidebar .admin-photo {
@@ -64,19 +64,25 @@
   <a href="bhouse.php" onclick="setActive(event)">Boarding House List <i class="fa fa-home" aria-hidden="true"></i></a>
   <a href="owner.php" onclick="setActive(event)">Owner List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
   <a href="pending.php" onclick="setActive(event)">Pending List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
- <a href="report.php" onclick="setActive(event)">Reports <i class="fas fa-file-alt" aria-hidden="true"></i></a>
+  <a href="report.php" onclick="setActive(event)">Reports <i class="fas fa-file-alt" aria-hidden="true"></i></a>
   <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
 </div>
 
 <script>
-  // Set active class based on the current page
   document.addEventListener("DOMContentLoaded", function() {
+    // Check if there's an active link stored in localStorage
     var activeLink = localStorage.getItem("activeLink");
-    if (activeLink) {
-      var link = document.querySelector('.sidebar a[href="' + activeLink + '"]');
-      if (link) {
-        link.classList.add("active");
-      }
+
+    // If there's no active link stored, set it to "dashboard.php" and store it
+    if (!activeLink) {
+      activeLink = "dashboard.php";
+      localStorage.setItem("activeLink", activeLink);
+    }
+
+    // Find the link with the href attribute equal to the activeLink and add the active class
+    var link = document.querySelector('.sidebar a[href="' + activeLink + '"]');
+    if (link) {
+      link.classList.add("active");
     }
   });
 

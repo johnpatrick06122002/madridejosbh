@@ -12,6 +12,9 @@ if (isset($_POST["login"])) {
         $_SESSION['just_loggedin'] = true; // New session variable to indicate a fresh login
         echo '<script>
                 document.addEventListener("DOMContentLoaded", function() {
+                    // Set the active link to dashboard in localStorage
+                    localStorage.setItem("activeLink", "dashboard.php");
+                    
                     Swal.fire({
                         icon: "success",
                         title: "Login Successful",
