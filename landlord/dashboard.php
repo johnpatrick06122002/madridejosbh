@@ -156,10 +156,10 @@ foreach ($broker_counts as $count) {
     </div>
 
     <div class="col-sm-10">
+      <br />
         <br />
         <h3>Dashboard</h3>
-        <br />
-        <br />
+      
        <div class="row pb-10">
     <!-- Boarding House Card -->
     <div class="col-xl-3 col-lg-3 col-md-6 mb-20">

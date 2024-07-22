@@ -130,10 +130,10 @@ include('header.php'); // Include header.php which contains necessary HTML and P
         <?php include('sidebar.php'); ?>
     </div>
 
-      <div class="col-sm-9">
+      <div class="col-sm-9"> <br />
+        <br />
         <h3>Dashboard</h3>
-        <br />
-        <br />
+       
         
         <div class="row pb-10">
             <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
