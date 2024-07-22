@@ -1,7 +1,7 @@
 <?php
 session_start(); // Start session at the beginning of the script
 
-if(isset($_POST["login"])) {
+if (isset($_POST["login"])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
@@ -9,6 +9,7 @@ if(isset($_POST["login"])) {
     if ($username == "admin" && $password == "admin123") {
         // Set session variable indicating user is logged in
         $_SESSION['admin_loggedin'] = true;
+        $_SESSION['just_loggedin'] = true; // New session variable to indicate a fresh login
         echo '<script>
                 document.addEventListener("DOMContentLoaded", function() {
                     Swal.fire({
@@ -34,6 +35,7 @@ if(isset($_POST["login"])) {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
