@@ -17,8 +17,13 @@ function fetchProfileData($dbconnection, $login_session) {
 
 // Fetch profile data for the logged-in user
 $profile_data = fetchProfileData($dbconnection, $login_session);
-?>
 
+// Check if the user has just logged in
+if (!isset($_SESSION['has_logged_in'])) {
+    $_SESSION['has_logged_in'] = true;
+    echo "<script>localStorage.setItem('activeLink', 'dashboard.php');</script>";
+}
+?>
 <style>
     .sidebar {
         width: 230px;
@@ -43,19 +48,19 @@ $profile_data = fetchProfileData($dbconnection, $login_session);
     }
 
     .sidebar a:hover {
-        background-color: red; /* Add hover effect if needed */
+        background-color: white; /* Add hover effect if needed */
         color: #000; /* Adjust hover text color if needed */
     }
 
     .sidebar a:active, .sidebar a:focus {
-        background-color: red; /* Change background color when clicked or focused */
+        background-color: white; /* Change background color when clicked or focused */
         color: #fff; /* Change text color when clicked or focused */
         outline: none; /* Remove default outline for better appearance */
     }
 
     .sidebar a.active {
-        background-color: red; /* Set different background color for the active link */
-        color: #fff; /* Set different text color for the active link */
+        background-color: white; /* Set different background color for the active link */
+        color: black; /* Set different text color for the active link */
     }
 
     .profile-photo {
@@ -75,7 +80,6 @@ $profile_data = fetchProfileData($dbconnection, $login_session);
         margin-top: 20px; /* Adjust margin top for the content */
     }
 </style>
-
 <div class="sidebar">
     <!-- Profile Photo -->
     <img src="../uploads/<?php echo htmlspecialchars($profile_data['profile_photo']); ?>" alt="Profile Photo" class="profile-photo">
@@ -90,20 +94,19 @@ $profile_data = fetchProfileData($dbconnection, $login_session);
         <a href="create.php" onclick="setActive(event)">Create New <i class="fa fa-plus-circle" aria-hidden="true"></i></a>
         <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
         <a href="booker.php" onclick="setActive(event)">Booker List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
-        <a href="report.php" onclick="setActive(event)">Reports <i class="fas fa-file-alt" aria-hidden="true"></i></a>
+        <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-file-text" aria-hidden="true"></i></a>
         <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
     </div>
 </div>
-
 <script>
-    // Set active class based on the current page
     document.addEventListener("DOMContentLoaded", function() {
-        var activeLink = localStorage.getItem("activeLink");
-        if (activeLink) {
-            var link = document.querySelector('.sidebar a[href="' + activeLink + '"]');
-            if (link) {
-                link.classList.add("active");
-            }
+        var activeLink = localStorage.getItem("activeLink") || "dashboard.php";
+        var link = document.querySelector('.sidebar a[href="' + activeLink + '"]');
+        if (link) {
+            link.classList.add("active");
+        } else {
+            // Navigate to the dashboard if no active link is stored
+            window.location.href = "dashboard.php";
         }
     });
 
@@ -130,3 +133,4 @@ $profile_data = fetchProfileData($dbconnection, $login_session);
         window.location.href = element.getAttribute("href");
     }
 </script>
+
