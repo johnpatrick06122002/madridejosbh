@@ -69,9 +69,8 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 }
 
 .text-secondary {
-    color: #858796;
+    color: black !important;
 }
-
 .weight-500 {
     font-weight: 500;
 }
