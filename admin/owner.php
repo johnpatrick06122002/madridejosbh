@@ -45,7 +45,7 @@ if (isset($_POST['records_per_page'])) {
         <?php include('sidebar.php'); ?>
     </div>
 
-    <div class="col-sm-9">
+    <div class="col-sm-9"><br>
         <h3>Owner List</h3>
 
         <form action="" method="POST">

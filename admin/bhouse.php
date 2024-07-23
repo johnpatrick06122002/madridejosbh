@@ -34,7 +34,7 @@ if ($dbconnection->query($sql) === TRUE) {
 <?php include('sidebar.php'); ?>
 </div>
 
-<div class="col-sm-8">
+<div class="col-sm-8"><br><br>
 <h3>Boarding House List</h3>
 
   <table class="table table-striped">
