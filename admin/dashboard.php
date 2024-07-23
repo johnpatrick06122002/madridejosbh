@@ -22,6 +22,7 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 /* Container styles */
 .row.pb-10 {
     padding-bottom: 10px;
+    text-color: black;
 }
 
 /* Card box styles */
@@ -104,6 +105,7 @@ include('header.php'); // Include header.php which contains necessary HTML and P
     float: right; /* or */
     text-align: right; /* or */
     margin-left: 80px; /* or */
+    color: black;
 
     /* any other method to position right */
 }
