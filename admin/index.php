@@ -45,6 +45,8 @@ if (isset($_POST["login"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="shortcut icon" type="image/x-icon" href="../bhh.jpg">
+
     <title>Login</title>
     <!-- Include SweetAlert CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -176,8 +178,8 @@ if (isset($_POST["login"])) {
 <div class="login-page">
   <div class="form">
     <form class="login-form" action="" method="POST">
-      <input type="text" name="username" placeholder="username" required/>
-      <input type="password" name="password" placeholder="password" required/>
+      <input type="text" name="username" placeholder="Username" required/>
+      <input type="password" name="password" placeholder="Password" required/>
       <button type="submit" name="login">login</button>
       <!-- <p class="message">Not registered? <a href="#">Create an account</a></p> -->
       <p class="message">Return to <a href="../index.php">WebPage</a></p>
