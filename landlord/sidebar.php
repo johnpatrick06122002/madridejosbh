@@ -26,8 +26,8 @@ if (!isset($_SESSION['has_logged_in'])) {
 ?>
 <style>
     .sidebar {
-        width: 230px;
-        background-color: #333; /* Adjust background color as needed */
+        width: 250px;
+        background-color: #80ffff; /* Adjust background color as needed */
         padding-top: 20px; /* Adjust padding top as needed */
         text-align: center; /* Center align the contents */
     }
@@ -40,7 +40,7 @@ if (!isset($_SESSION['has_logged_in'])) {
         padding: 13px;
         text-decoration: none;
         font-size: 18px;
-        color: white; /* Adjust text color as needed */
+        color: black; /* Adjust text color as needed */
     }
 
     .sidebar a i {
@@ -73,7 +73,8 @@ if (!isset($_SESSION['has_logged_in'])) {
     .profile-name {
         margin-top: 10px; /* Adjust margin top for the name */
         font-size: 18px; /* Adjust font size as needed */
-        color: white; /* Adjust text color as needed */
+        color: black; /* Adjust text color as needed */
+        font-family: san-serif;
     }
 
     .sidebar-content {

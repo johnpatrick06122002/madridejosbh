@@ -1,7 +1,7 @@
 <style>
   .sidebar {
-    width: 230px;
-    background-color: #333; /* Adjust background color as needed */
+    width: 250px;
+    background-color: #80ffff; /* Adjust background color as needed */
   }
 
   .sidebar a {
@@ -11,7 +11,7 @@
     padding: 13px;
     text-decoration: none;
     font-size: 18px;
-    color: white; /* Adjust text color as needed */
+    color: black; /* Adjust text color as needed */
   }
 
   .sidebar a i {
@@ -50,8 +50,9 @@
   }
 
   .sidebar .admin-photo .admin-name {
-    color: white; /* Adjust text color as needed */
+    color: black; /* Adjust text color as needed */
     font-size: 18px; /* Adjust font size as needed */
+    font-family: san-serif;
   }
 </style>
 
