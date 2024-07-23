@@ -1,7 +1,7 @@
 <?php
 // Function to fetch profile photo and name based on user ID
 function fetchProfileData($dbconnection, $login_session) {
-    $query = "SELECT profile_photo, name FROM landlords WHERE id = ?";
+    $query = "SELECT id, profile_photo, name FROM landlords WHERE id = ?";
     $stmt = $dbconnection->prepare($query);
     $stmt->bind_param("i", $login_session);
     $stmt->execute();
@@ -11,7 +11,7 @@ function fetchProfileData($dbconnection, $login_session) {
         return $result->fetch_assoc();
     } else {
         // Default profile photo and name or handle error as needed
-        return ['profile_photo' => 'default_profile_photo.jpg', 'name' => 'Default Name'];
+        return ['id' => 0, 'profile_photo' => 'default_profile_photo.jpg', 'name' => 'Default Name'];
     }
 }
 
@@ -26,8 +26,8 @@ if (!isset($_SESSION['has_logged_in'])) {
 ?>
 <style>
     .sidebar {
-        width: 250px;
-        background-color: #80ffff; /* Adjust background color as needed */
+        width: 230px;
+        background-color: #333; /* Adjust background color as needed */
         padding-top: 20px; /* Adjust padding top as needed */
         text-align: center; /* Center align the contents */
     }
@@ -40,7 +40,7 @@ if (!isset($_SESSION['has_logged_in'])) {
         padding: 13px;
         text-decoration: none;
         font-size: 18px;
-        color: black; /* Adjust text color as needed */
+        color: white; /* Adjust text color as needed */
     }
 
     .sidebar a i {
@@ -63,18 +63,25 @@ if (!isset($_SESSION['has_logged_in'])) {
         color: black; /* Set different text color for the active link */
     }
 
-    .profile-photo {
+    .profile-photo-container {
         width: 130px; /* Adjust width as needed */
         height: 130px; /* Adjust height as needed */
-        border-radius: 50%; /* Rounded shape for the photo */
-        margin: 0 auto; /* Center the photo */
+        margin: 0 auto; /* Center the photo container */
+        border-radius: 50%; /* Rounded shape for the photo container */
+        overflow: hidden; /* Ensure the image fits within the rounded container */
+    }
+
+    .profile-photo {
+        width: 100%; /* Make sure the image covers the container */
+        height: 100%; /* Make sure the image covers the container */
+        object-fit: cover; /* Maintain aspect ratio and cover the container */
+        cursor: pointer; /* Show pointer cursor to indicate it's clickable */
     }
 
     .profile-name {
         margin-top: 10px; /* Adjust margin top for the name */
         font-size: 18px; /* Adjust font size as needed */
-        color: black; /* Adjust text color as needed */
-        font-family: san-serif;
+        color: white; /* Adjust text color as needed */
     }
 
     .sidebar-content {
@@ -83,7 +90,9 @@ if (!isset($_SESSION['has_logged_in'])) {
 </style>
 <div class="sidebar">
     <!-- Profile Photo -->
-    <img src="../uploads/<?php echo htmlspecialchars($profile_data['profile_photo']); ?>" alt="Profile Photo" class="profile-photo">
+    <a href="edit_owner.php?owner_id=<?php echo htmlspecialchars($profile_data['id']); ?>" class="profile-photo-container">
+        <img src="../uploads/<?php echo htmlspecialchars($profile_data['profile_photo']); ?>" alt="Profile Photo" class="profile-photo">
+    </a>
     <!-- Profile Name -->
     <div class="profile-name"><?php echo htmlspecialchars($profile_data['name']); ?></div>
 
@@ -134,4 +143,3 @@ if (!isset($_SESSION['has_logged_in'])) {
         window.location.href = element.getAttribute("href");
     }
 </script>
-
