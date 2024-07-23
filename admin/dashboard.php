@@ -107,6 +107,18 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 
     /* any other method to position right */
 }
+.chart-container {
+    width: 100%;
+    height: auto;
+}
+
+.chart-container3 {
+    position: relative;
+    width: 100%;  /* Adjust the width as needed */
+    height: 400px; /* Adjust the height as needed */
+    margin-top: 150px;
+    margin-right: 300px;
+}
 </style>
  <body>
     <?php if ($showWelcomeMessage): ?>
@@ -260,12 +272,17 @@ include('header.php'); // Include header.php which contains necessary HTML and P
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <canvas id="brokerPieChart" style="margin-top: -40px; width: 330px; height: 330px;"></canvas>
-                </div>
-            </div>
+    <div class="col-md-6">
+        <div class="chart-container">
+            <canvas id="brokerPieChart" style="margin-top: -40px; width: 330px; height: 330px;"></canvas>
         </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-container3">
+            <canvas id="monthlyBookingsChart" style="margin-buttom: 225px;"></canvas>
+        </div>
+    </div>
+</div>
 
         <?php
         // Fetch monthly income for each boarding house including all houses
@@ -332,6 +349,35 @@ include('header.php'); // Include header.php which contains necessary HTML and P
             $percentage = ($brokers / $totalBrokers) * 100;
             $brokerPercentages[$rental] = round($percentage, 2);
         }
+        
+// Initialize an array for all months with zero bookings
+$allMonths = [
+    'January' => 0, 'February' => 0, 'March' => 0, 'April' => 0,
+    'May' => 0, 'June' => 0, 'July' => 0, 'August' => 0,
+    'September' => 0, 'October' => 0, 'November' => 0, 'December' => 0
+];
+
+// Fetch the number of bookings for each month
+$monthlyBookingsQuery = "
+    SELECT DATE_FORMAT(date_posted, '%Y-%m') as month, COUNT(id) as bookings
+    FROM book
+    GROUP BY month
+    ORDER BY month ASC
+";
+$monthlyBookingsResult = mysqli_query($dbconnection, $monthlyBookingsQuery);
+
+if ($monthlyBookingsResult) {
+    while ($row = mysqli_fetch_assoc($monthlyBookingsResult)) {
+        $date = DateTime::createFromFormat('Y-m', $row['month']);
+        $monthName = $date->format('F'); // Get full month name
+        $allMonths[$monthName] = $row['bookings'];
+    }
+} else {
+    echo "Error: " . mysqli_error($dbconnection);
+}
+
+$months = array_keys($allMonths);
+$bookings = array_values($allMonths);
         ?>
 
         <script>
@@ -424,8 +470,29 @@ var brokerPieChart = new Chart(ctxBroker, {
         }
     }
 });
-
-            });
+var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d');
+    var monthlyBookingsChart = new Chart(ctxBookings, {
+        type: 'line',
+        data: {
+            labels: <?php echo json_encode($months); ?>,
+            datasets: [{
+                label: 'Monthly Bookings',
+                data: <?php echo json_encode($bookings); ?>,
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+        
         </script>
 
     </div>
