@@ -27,7 +27,7 @@ if (!isset($_SESSION['has_logged_in'])) {
 <style>
     .sidebar {
         width: 230px;
-        background-color: #80ffff; /* Adjust background color as needed */
+        background-color:#80ffff; /* Adjust background color as needed */
         padding-top: 20px; /* Adjust padding top as needed */
         text-align: center; /* Center align the contents */
     }
