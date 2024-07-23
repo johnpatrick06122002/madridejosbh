@@ -148,6 +148,17 @@ foreach ($broker_counts as $count) {
 
     /* any other method to position right */
 }
+.chart-container1 {
+    position: relative;
+    width: 80%;  /* Adjust the width as needed */
+    height: 450px; /* Adjust the height as needed */
+}
+.chart-container2 {
+    position: relative;
+    width: 70%;  /* Adjust the width as needed */
+    height: 450px; /* Adjust the height as needed */
+    margin-left: 1px;
+}
 </style>
 
 <div class="row">
@@ -276,16 +287,20 @@ foreach ($broker_counts as $count) {
         <br />
 
         <div class="row">
-            <div class="col-md-6">
-                <!-- Bar Chart for Monthly Incomes of Boarding Houses -->
-                <canvas id="monthlyIncomeChart" style="width:100%; height:400px;"></canvas>
-            </div>
-
-            <div class="col-md-6">
-                <!-- Pie Chart for Brokers Percentage -->
-                <canvas id="brokerPieChart" style="width:100%; height:400px;"></canvas>
-            </div>
+    <div class="col-md-6">
+        <!-- Bar Chart for Monthly Incomes of Boarding Houses -->
+        <div class="chart-container1">
+            <canvas id="monthlyIncomeChart"></canvas>
         </div>
+    </div>
+    <div class="col-md-6">
+        <!-- Pie Chart for Brokers Percentage -->
+        <div class="chart-container2">
+            <canvas id="brokerPieChart"></canvas>
+        </div>
+    </div>
+</div>
+
     </div>
 </div>
 
