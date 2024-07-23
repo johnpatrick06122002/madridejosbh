@@ -51,23 +51,39 @@ if(isset($_POST["login"])) {
     <title>Login - MADRIE-BH</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style type="text/css">
-        @import url(https://fonts.googleapis.com/css?family=Roboto:300);
+        @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('bh.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Roboto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
 
         .login-page {
             width: 360px;
             padding: 8% 0 0;
             margin: auto;
         }
+
         .form {
             position: relative;
             z-index: 1;
-            background: #FFFFFF;
+            background: rgba(255, 255, 255, 0.85);
             max-width: 360px;
             margin: 0 auto 100px;
             padding: 45px;
             text-align: center;
             box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+            border-radius: 10px;
         }
+
         .form input {
             font-family: "Roboto", sans-serif;
             outline: 0;
@@ -78,7 +94,9 @@ if(isset($_POST["login"])) {
             padding: 15px;
             box-sizing: border-box;
             font-size: 14px;
+            border-radius: 5px;
         }
+
         .form button {
             font-family: "Roboto", sans-serif;
             text-transform: uppercase;
@@ -89,29 +107,29 @@ if(isset($_POST["login"])) {
             padding: 15px;
             color: #FFFFFF;
             font-size: 14px;
+            border-radius: 5px;
             -webkit-transition: all 0.3 ease;
             transition: all 0.3 ease;
             cursor: pointer;
         }
+
         .form button:hover, .form button:active, .form button:focus {
             background: #43A047;
         }
-        body {
-            background: #76b852; /* fallback for old browsers */
-            background: rgb(141, 194, 111);
-            background: linear-gradient(90deg, rgba(141, 194, 111, 1) 0%, rgba(118, 184, 82, 1) 50%);
-            font-family: "Roboto", sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+
         .message {
             margin: 15px 0 0;
-            color: #b3b3b3;
+            color: black;
             font-size: 14px;
         }
+
         .message a {
-            color: #4CAF50;
+            color: blue;
             text-decoration: none;
+        }
+
+        .message a:hover {
+            color: #43A047;
         }
     </style>
 </head>
@@ -123,7 +141,7 @@ if(isset($_POST["login"])) {
                 <input type="password" name="mypassword" placeholder="Password" required/>
                 <button type="submit" name="login">Login</button>
                 <p class="message">Not registered? <a href="register.php">Create an account</a></p>
-                 <p class="message"><a href="index.php">WebPage</a></p>
+                <p class="message"><a href="index.php">WebPage</a></p>
             </form>
         </div>
     </div>

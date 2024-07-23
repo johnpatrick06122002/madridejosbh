@@ -28,6 +28,7 @@ if (isset($_POST["register"])) {
                 VALUES ('$name', '$email', '$password', '$address', '$contact_number', '$facebook', '$profile_photo')";
 
         if ($dbconnection->query($sql) === TRUE) {
+            move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target);
             echo '<script>
                     document.addEventListener("DOMContentLoaded", function() {
                         Swal.fire({
@@ -40,7 +41,6 @@ if (isset($_POST["register"])) {
                         });
                     });
                   </script>';
-            move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target);
         } else {
             echo '<script>
                     document.addEventListener("DOMContentLoaded", function() {
@@ -56,30 +56,45 @@ if (isset($_POST["register"])) {
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" type="image/x-icon" href="bhh.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - MADRIE-BH</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style type="text/css">
-        @import url(https://fonts.googleapis.com/css?family=Roboto:300);
+        @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('bh.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Roboto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
 
         .register-page {
             width: 390px;
-            padding:  4% 0 0;
+            padding: 1% 0 0;
             margin: auto;
         }
+
         .form {
             position: relative;
             z-index: 1;
-            background: #FFFFFF;
+            background: rgba(255, 255, 255, 0.85);
             max-width: 360px;
             padding: 45px;
             text-align: left;
             box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+            border-radius: 10px;
         }
+
         .form input {
             font-family: "Roboto", sans-serif;
             outline: 0;
@@ -90,7 +105,9 @@ if (isset($_POST["register"])) {
             padding: 15px;
             box-sizing: border-box;
             font-size: 14px;
+            border-radius: 5px;
         }
+
         .form button {
             font-family: "Roboto", sans-serif;
             text-transform: uppercase;
@@ -101,28 +118,65 @@ if (isset($_POST["register"])) {
             padding: 15px;
             color: #FFFFFF;
             font-size: 14px;
+            border-radius: 5px;
             -webkit-transition: all 0.3 ease;
             transition: all 0.3 ease;
             cursor: pointer;
         }
+
         .form button:hover, .form button:active, .form button:focus {
             background: #43A047;
         }
-        body {
-            background: #76b852; /* fallback for old browsers */
-            background: rgb(141, 194, 111);
-            background: linear-gradient(90deg, rgba(141, 194, 111, 1) 0%, rgba(118, 184, 82, 1) 50%);
+
+        .form .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form .form-group input {
             font-family: "Roboto", sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            outline: 0;
+            background: #f2f2f2;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
-         .message {
+
+        .form .form-group .input-group-text {
+            display: flex;
+            align-items: center;
+            background: #f2f2f2;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 0 10px;
+        }
+
+        .form .form-group .input-group-text input {
+            border: none;
+            border-radius: 0;
+            padding-left: 10px;
+        }
+
+        .form .form-group .error {
+            color: #FF0000;
+            font-size: 12px;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .message {
             margin: 15px 0 0;
-            color: #b3b3b3;
-            font-size:14px;
+            color: black;
+            font-size: 14px;
         }
+
         .message a {
-            color: #4CAF50;
+            color: blue;
             text-decoration: none;
         }
     </style>
@@ -132,7 +186,7 @@ if (isset($_POST["register"])) {
         <div class="form">
             <form class="register-form" action="" method="post" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="profile_photo">Profile Picture</label>
+                    <label for="profile_photo">Profile Picture:</label>
                     <input type="file" name="profile_photo" class="form-control" required>
                 </div>
                 <div class="form-group">
@@ -143,24 +197,12 @@ if (isset($_POST["register"])) {
                     <label for="Address">Address:</label>
                     <input type="text" name="Address" class="form-control" placeholder="Enter Address" required>
                 </div>
-               <div class="form-group">
-        <label for="contact_number">Contact Number:</label>
-        <div class="input-group-text">+63
-            <input onkeypress="phnumber(event)" type="text" maxlength="10" minlength="10" name="contact_number" class="form-control" placeholder="Contact Number" required>
-        </div>
-    </div> 
-
-    <script>
-        function phnumber(event) {
-            // Allow only numeric input
-            var charCode = event.which ? event.which : event.keyCode;
-            if (charCode < 48 || charCode > 57) {
-                event.preventDefault();
-            }
-        }
-    </script>
-</body>
-</html>
+                <div class="form-group">
+                    <label for="contact_number">Contact Number:</label>
+                    <div class="input-group-text">+63
+                        <input onkeypress="phnumber(event)" type="text" maxlength="10" minlength="10" name="contact_number" class="form-control" placeholder="Contact Number" required>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="facebook">Facebook Account:</label>
                     <input type="url" name="facebook" class="form-control" placeholder="Enter Facebook Account URL" required>
@@ -169,13 +211,27 @@ if (isset($_POST["register"])) {
                     <label for="email">Email address:</label>
                     <input type="email" name="email" class="form-control" placeholder="Enter email" required>
                 </div>
-                 <div class="form-group">
-        <label for="password">Password:</label>
-        <input id="password" type="password" name="password" class="form-control" placeholder="Enter password" required>
-        <div id="password-error" class="error">Password must be at least 8 characters long and include numbers, letters, and at least one capital letter.</div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input id="password" type="password" name="password" class="form-control" placeholder="Enter password" required>
+                    <div id="password-error" class="error">Password must be at least 8 characters long and include numbers, letters, and at least one capital letter.</div>
+                </div>
+                <button type="submit" name="register" class="btn btn-primary">Register</button>
+                <p class="message">Already have an account? <a href="login.php">Login</a></p>
+            </form>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function phnumber(event) {
+            // Allow only numeric input
+            var charCode = event.which ? event.which : event.keyCode;
+            if (charCode < 48 || charCode > 57) {
+                event.preventDefault();
+            }
+        }
+
         document.getElementById('password').addEventListener('input', function () {
             const password = this.value;
             const errorElement = document.getElementById('password-error');
@@ -190,11 +246,5 @@ if (isset($_POST["register"])) {
             }
         });
     </script>
-                <button type="submit" name="register" class="btn btn-primary">Register</button>
-                <p class="message">Already have an account? <a href="login.php">Login</a></p>
-            </form>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
