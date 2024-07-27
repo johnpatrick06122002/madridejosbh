@@ -286,25 +286,27 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 </div>
 
         <?php
-        // Fetch monthly income for each boarding house including all houses
-        $incomeQuery = "
-            SELECT r.title as rental_name, IFNULL(SUM(r.monthly), 0) as total_income
-            FROM rental r
-            LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-            GROUP BY r.title
-        ";
-        $incomeResult = mysqli_query($dbconnection, $incomeQuery);
-        $rentalNames = [];
-        $totalIncomes = [];
+        $year = date('Y'); // Get the current year
 
-        if ($incomeResult) {
-            while ($row = mysqli_fetch_assoc($incomeResult)) {
-                $rentalNames[] = $row['rental_name'];
-                $totalIncomes[] = $row['total_income'];
-            }
-        } else {
-            echo "Error: " . mysqli_error($dbconnection);
-        }
+$incomeQuery = "
+    SELECT r.title as rental_name, IFNULL(COUNT(b.id) * r.monthly, 0) as total_income
+    FROM rental r
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved' AND YEAR(b.date_posted) = '$year'
+    GROUP BY r.title
+";
+$incomeResult = mysqli_query($dbconnection, $incomeQuery);
+$rentalNames = [];
+$totalIncomes = [];
+
+if ($incomeResult) {
+    while ($row = mysqli_fetch_assoc($incomeResult)) {
+        $rentalNames[] = $row['rental_name'];
+        $totalIncomes[] = $row['total_income'];
+    }
+} else {
+    echo "Error: " . mysqli_error($dbconnection);
+}
+
 
         // Fetch ratings for each boarding house and include only those with ratings greater than 0
         $ratingQuery = "
@@ -352,16 +354,20 @@ include('header.php'); // Include header.php which contains necessary HTML and P
         }
         
 // Initialize an array for all months with zero bookings
+
 $allMonths = [
     'January' => 0, 'February' => 0, 'March' => 0, 'April' => 0,
     'May' => 0, 'June' => 0, 'July' => 0, 'August' => 0,
     'September' => 0, 'October' => 0, 'November' => 0, 'December' => 0
 ];
 
-// Fetch the number of bookings for each month
+$year = date('Y'); // Get the current year
+
+// Fetch the number of bookings for each month of the current year
 $monthlyBookingsQuery = "
     SELECT DATE_FORMAT(date_posted, '%Y-%m') as month, COUNT(id) as bookings
     FROM book
+    WHERE YEAR(date_posted) = '$year'
     GROUP BY month
     ORDER BY month ASC
 ";
@@ -389,7 +395,7 @@ $bookings = array_values($allMonths);
                     data: {
                         labels: <?php echo json_encode($rentalNames); ?>,
                         datasets: [{
-                            label: 'Boarding House Monthly Income',
+                            label: 'Boarding House Monthly Income (This Year)',
                             data: <?php echo json_encode($totalIncomes); ?>,
                             backgroundColor: 'rgba(54, 162, 235, 0.2)',
                             borderColor: 'rgba(54, 162, 235, 1)',
@@ -477,7 +483,7 @@ var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d
         data: {
             labels: <?php echo json_encode($months); ?>,
             datasets: [{
-                label: 'Bookings',
+                label: 'Monthly Bookings (This Year)    ',
                 data: <?php echo json_encode($bookings); ?>,
                 fill: false,
                 borderColor: 'rgb(75, 192, 192)',
