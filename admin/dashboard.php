@@ -451,7 +451,7 @@ $bookings = array_values($allMonths);
 
            var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
 var brokerPieChart = new Chart(ctxBroker, {
-    type: 'pie',
+    type: 'doughnut',
     data: {
         labels: <?php echo json_encode(array_keys($brokerPercentages)); ?>,
         datasets: [{
@@ -478,14 +478,28 @@ var brokerPieChart = new Chart(ctxBroker, {
     },
     options: {
         responsive: true,
+        cutout: '65%', // Adjust the size of the hole here (e.g., 55%)
         plugins: {
             legend: {
-                position: 'left', // Align legend to the left side
+                position: 'left',
+            },
+            title: {
+                display: true,
+                text: 'Broker Distribution',
+                padding: {
+                    top: 120, // Adjust top padding
+                  
+                }
             },
             tooltip: {
                 callbacks: {
-                    label: function(tooltipItem) {
-                        return tooltipItem.label + ': ' + tooltipItem.raw.toFixed(2) + '%';
+                    label: function(context) {
+                        let label = context.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        label += context.raw.toFixed(2) + '%';
+                        return label;
                     }
                 }
             }
