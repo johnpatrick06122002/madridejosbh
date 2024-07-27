@@ -192,6 +192,21 @@ if ($monthly_income_result) {
     height: 420px;
      
 }
+@keyframes pulse {
+    0% {
+        transform: scale(1.5);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.animated-icon {
+    animation: pulse 1.3s infinite;
+}
 </style>
 
 <div class="row">
@@ -228,7 +243,7 @@ if ($monthly_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-home" aria-hidden="true"></i>
+                        <i class="fa fa-home animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -258,7 +273,7 @@ if ($monthly_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <i class="fa fa-envelope animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -288,7 +303,7 @@ if ($monthly_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+                        <i class="fa fa-thumbs-o-up animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -309,7 +324,7 @@ if ($monthly_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-money" aria-hidden="true"></i>
+                        <i class="fa fa-money animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
