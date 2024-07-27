@@ -483,7 +483,7 @@ var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d
         data: {
             labels: <?php echo json_encode($months); ?>,
             datasets: [{
-                label: 'Monthly Bookings (This Year)    ',
+                label: 'Monthly Bookings (This Year)',
                 data: <?php echo json_encode($bookings); ?>,
                 fill: false,
                 borderColor: 'rgb(75, 192, 192)',
