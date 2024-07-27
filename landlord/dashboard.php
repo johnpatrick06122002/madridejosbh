@@ -105,6 +105,9 @@ if ($monthly_income_result) {
 .card-box.height-100-p {
     height: 100%;
 }
+.text-secondary {
+    color: black !important;
+}
 
 /* Widget styles */
 .widget-style3 {
