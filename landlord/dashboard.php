@@ -175,6 +175,7 @@ if ($monthly_income_result) {
     float: right; /* or */
     text-align: right; /* or */
     margin-left: 70px; /* or */
+    color: black;
 
     /* any other method to position right */
 }
