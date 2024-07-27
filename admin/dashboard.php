@@ -449,7 +449,7 @@ $bookings = array_values($allMonths);
                     }
                 });
 
-           var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
+          var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
 var brokerPieChart = new Chart(ctxBroker, {
     type: 'doughnut',
     data: {
@@ -478,17 +478,24 @@ var brokerPieChart = new Chart(ctxBroker, {
     },
     options: {
         responsive: true,
-        cutout: '65%', // Adjust the size of the hole here (e.g., 55%)
+        cutout: '65%', // Adjust the size of the hole here (e.g., 65%)
         plugins: {
             legend: {
                 position: 'left',
+                align: 'center', // Align legend items to the center
+                labels: {
+                    padding: 20, // Add padding around legend items
+                    font: {
+                        size: 14 // Adjust font size of legend items
+                    }
+                }
             },
             title: {
                 display: true,
                 text: 'Broker Distribution',
                 padding: {
-                    top: 120, // Adjust top padding
-                  
+                    top: 20, // Adjust top padding
+                    bottom: 20 // Adjust bottom padding
                 }
             },
             tooltip: {
@@ -506,6 +513,7 @@ var brokerPieChart = new Chart(ctxBroker, {
         }
     }
 });
+
 var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d');
     var monthlyBookingsChart = new Chart(ctxBookings, {
         type: 'line',
