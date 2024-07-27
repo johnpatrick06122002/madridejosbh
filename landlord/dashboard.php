@@ -304,7 +304,7 @@ if ($monthly_income_result) {
                         <?php echo number_format($total_income); ?>
                     </div>
                     <div class="font-14 text-secondary weight-500">
-                        Total Monthly Income
+                        Total Income this Year
                     </div>
                 </div>
                 <div class="widget-icon ml-auto">
