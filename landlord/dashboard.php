@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
     var brokerPieChart = new Chart(ctxBroker, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
             labels: <?php echo json_encode($broker_labels); ?>,
             datasets: [{
