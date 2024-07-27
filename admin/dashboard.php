@@ -492,7 +492,7 @@ var brokerPieChart = new Chart(ctxBroker, {
             },
             title: {
                 display: true,
-                text: 'Broker Distribution',
+                text: ' ',
                 padding: {
                     top: 20, // Adjust top padding
                     bottom: 20 // Adjust bottom padding
