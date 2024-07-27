@@ -5,13 +5,14 @@
 $boarding_houses = [];
 $monthly_incomes = [];
 $total_income = 0;
+$current_year = date('Y'); // Get the current year
 
 // Query to fetch all boarding houses and their monthly incomes for the current landlord
 $query = "
     SELECT r.title as boarding_house, IFNULL(SUM(r.monthly), 0) as monthly_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session'
+    WHERE r.landlord_id = '$login_session' AND YEAR(b.date_posted) = '$current_year'
     GROUP BY r.title
 ";
 
@@ -26,7 +27,6 @@ if ($result) {
 } else {
     echo "Error fetching data: " . mysqli_error($dbconnection);
 }
-
 // Query to fetch brokers count for each boarding house
 $brokers_query = "
     SELECT r.title as boarding_house, COUNT(b.id) as broker_count
@@ -57,6 +57,33 @@ $broker_percentages = [];
 foreach ($broker_counts as $count) {
     $broker_percentages[] = ($count / $total_brokers) * 100;
 }
+
+// Initialize array for monthly income
+$monthly_total_income = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
+
+$current_year = date('Y'); // Get the current year
+
+// Query to fetch monthly income data for the current year
+$monthly_income_query = "
+    SELECT MONTH(b.date_posted) as month, SUM(r.monthly) as total_income
+    FROM rental r
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
+    WHERE r.landlord_id = '$login_session' AND YEAR(b.date_posted) = '$current_year'
+    GROUP BY MONTH(b.date_posted)
+";
+
+$monthly_income_result = mysqli_query($dbconnection, $monthly_income_query);
+
+if ($monthly_income_result) {
+    while ($row = mysqli_fetch_assoc($monthly_income_result)) {
+        $month = $row['month'];
+        $total_income = $row['total_income'];
+        $monthly_total_income[$month] = $total_income;
+    }
+} else {
+    echo "Error fetching monthly income data: " . mysqli_error($dbconnection);
+}
+
 ?>
 
 <style>  
@@ -159,6 +186,12 @@ foreach ($broker_counts as $count) {
     height: 450px; /* Adjust the height as needed */
     margin-left: 1px;
 }
+.chart-container3 {
+    
+    width: 82%;  /* Adjust the width as needed */
+    height: 420px;
+     
+}
 </style>
 
 <div class="row">
@@ -167,10 +200,10 @@ foreach ($broker_counts as $count) {
     </div>
 
     <div class="col-sm-10">
-      <br />
         <br />
         <h3>Dashboard</h3>
-      
+        <br />
+        <br />
        <div class="row pb-10">
     <!-- Boarding House Card -->
     <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
@@ -299,6 +332,13 @@ foreach ($broker_counts as $count) {
             <canvas id="brokerPieChart"></canvas>
         </div>
     </div>
+    <!-- Line Chart for Monthly Incomes -->
+<div class="col-md-12">
+    <div class="chart-container3">
+        <canvas id="monthlyIncomeLineChart"></canvas>
+    </div>
+</div>
+
 </div>
 
     </div>
@@ -385,6 +425,45 @@ document.addEventListener("DOMContentLoaded", function() {
                     callbacks: {
                         label: function(tooltipItem) {
                             return tooltipItem.label + ': ' + Math.round(tooltipItem.raw) + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+     // Line Chart for Monthly Income
+    var ctxLine = document.getElementById('monthlyIncomeLineChart').getContext('2d');
+    var monthlyIncomeLineChart = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            datasets: [{
+                label: 'Monthly Income',
+                data: <?php echo json_encode(array_values($monthly_total_income)); ?>,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1000,
+                        callback: function(value) {
+                            return '' + value;
+                        }
+                    }
+                }
+            },
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
                         }
                     }
                 }
