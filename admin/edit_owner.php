@@ -107,5 +107,13 @@ if (isset($_POST["update"])) {
     </form>
 </div>
 </div>
-
+ <script>
+        function phnumber(event) {
+            // Allow only numeric input
+            var charCode = event.which ? event.which : event.keyCode;
+            if (charCode < 48 || charCode > 57) {
+                event.preventDefault();
+            }
+        }
+</script>
 <?php include('footer.php'); ?>
