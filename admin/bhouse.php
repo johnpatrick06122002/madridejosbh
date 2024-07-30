@@ -86,7 +86,7 @@ if (isset($_GET['pageno'])) {
         <td class="col-md-1">
           <form action="" method="POST">
               <input type="hidden" name="rowid" value="<?php echo $row['id']; ?>">
-              <button type="submit" name="delete" id="<?php echo $rent_id; ?>" class="btn btn-danger delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+              <button type="submit" name="delete" id="<?php echo $rent_id; ?>" class="btn btn-danger delete"><i  aria-hidden="true">Delete</i></button>
             </form>
           
         </td>
