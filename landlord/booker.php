@@ -164,7 +164,7 @@ if (isset($_POST["search"])) {
                         <form action="" method="POST" style="display:inline;">
                             <input type="hidden" name="rowid" value="<?php echo htmlspecialchars($row['id']); ?>">
                             <button type="submit" name="delete" class="btn btn-danger delete">
-                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                <i  aria-hidden="true">Delete</i>
                             </button>
                         </form>
 
