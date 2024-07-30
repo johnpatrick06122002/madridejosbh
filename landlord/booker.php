@@ -170,7 +170,7 @@ if (isset($_POST["search"])) {
 
                         <?php if ($status == 'Approved') { ?>
                             <button class="btn btn-warning edit" data-toggle="modal" data-target="#editModal<?php echo htmlspecialchars($row['id']); ?>">
-                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                <i  aria-hidden="true">Edit</i>
                             </button>
                         <?php } ?>
 
