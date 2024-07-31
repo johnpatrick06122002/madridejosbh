@@ -84,7 +84,7 @@ $result = mysqli_query($dbconnection, $sql);
                         </td>
                         <td class="col-md-1"><a href="../view.php?bh_id=<?php echo $rent_id; ?>" class="btn btn-success"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
                         <td class="col-md-1">
-                            <button type="button" class="btn btn-danger" onclick="confirmDelete('<?php echo $rent_id; ?>')"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                            <button type="button" class="btn btn-danger" onclick="confirmDelete('<?php echo $rent_id; ?>')"><i  aria-hidden="true">Delete</i></button>
                         </td>
                     </tr>
                 <?php } ?>
