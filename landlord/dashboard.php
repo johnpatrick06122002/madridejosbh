@@ -58,28 +58,28 @@ foreach ($broker_counts as $count) {
     $broker_percentages[] = ($count / $total_brokers) * 100;
 }
 
+// Initialize array for monthly income
 $monthly_total_income = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
 
+// Query to fetch monthly income data
 $monthly_income_query = "
-    SELECT MONTH(b.date_posted) as month, IFNULL(SUM(r.monthly), 0) as total_income
+    SELECT MONTH(b.date_posted) as month, SUM(r.monthly) as total_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = ?
+    WHERE r.landlord_id = '$login_session'
     GROUP BY MONTH(b.date_posted)
 ";
 
-if ($stmt = mysqli_prepare($dbconnection, $monthly_income_query)) {
-    mysqli_stmt_bind_param($stmt, "i", $login_session); // Assuming $login_session is an integer
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $month, $total_income);
+$monthly_income_result = mysqli_query($dbconnection, $monthly_income_query);
 
-    while (mysqli_stmt_fetch($stmt)) {
+if ($monthly_income_result) {
+    while ($row = mysqli_fetch_assoc($monthly_income_result)) {
+        $month = $row['month'];
+        $total_income = $row['total_income'];
         $monthly_total_income[$month] = $total_income;
     }
-
-    mysqli_stmt_close($stmt);
 } else {
-    echo "Error preparing the query: " . mysqli_error($dbconnection);
+    echo "Error fetching monthly income data: " . mysqli_error($dbconnection);
 }
 
 // Query to fetch total monthly income across all boarding houses for the current landlord
@@ -127,6 +127,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 }
 
 ?>
+
 <style>  
 /* Container styles */
 .row.pb-10 {
@@ -406,7 +407,8 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     <!-- Line Chart for Monthly Incomes -->
 <div class="col-md-12">
     <div class="chart-container3">
-        <canvas id="monthlyBookingsChart" ></canvas>
+        
+<canvas id="monthlyBookingsChart" ></canvas>
     </div>
 </div>
 
@@ -545,7 +547,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-});const ctx = document.getElementById('monthlyBookingsChart').getContext('2d');
+});
+ const ctx = document.getElementById('monthlyBookingsChart').getContext('2d');
     
     const monthlyBookings = <?php echo json_encode(array_values($monthly_bookings)); ?>;
     const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
