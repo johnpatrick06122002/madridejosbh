@@ -8,38 +8,38 @@ if(isset($_POST["login"])) {
     // Database connection (assuming $dbconnection is your database connection variable)
     include('connection.php');
 
-    $sql = "SELECT id FROM landlords WHERE email = '$myusername' and password = '$mypassword'";
+$sql = "SELECT id FROM landlords WHERE email = '$myusername' AND password = '$mypassword' AND status = 'approved'";
     $result = mysqli_query($dbconnection, $sql);
     $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
     $count = mysqli_num_rows($result);
 
-    if($count == 1) {
-        // Set session variable indicating user is logged in
-        $_SESSION['login_user'] = $myusername;
+   if ($count == 1) {
+    // Set session variable indicating user is logged in
+    $_SESSION['login_user'] = $myusername;
 
-        echo '<script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Login Successful",
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(function() {
-                        window.location.href = "landlord/dashboard.php";
-                    });
+    echo '<script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    icon: "success",
+                    title: "Login Successful",
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(function() {
+                    window.location.href = "landlord/dashboard.php";
                 });
-              </script>';
-    } else {
-        echo '<script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Login Failed",
-                        text: "Username or Password is Incorrect",
-                    });
+            });
+          </script>';
+} else {
+    echo '<script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    icon: "error",
+                    title: "Login Failed",
+                    text: "Username or Password is Incorrect or Account not approved",
                 });
-              </script>';
-    }
+            });
+          </script>';
+}
 }
 ?>
 <!DOCTYPE html>
