@@ -1,6 +1,6 @@
 <?php include('header.php'); ?>
-
 <?php 
+
 // Initialize arrays
 $boarding_houses = [];
 $monthly_incomes = [];
@@ -61,14 +61,12 @@ foreach ($broker_counts as $count) {
 // Initialize array for monthly income
 $monthly_total_income = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
 
-$current_year = date('Y'); // Get the current year
-
-// Query to fetch monthly income data for the current year
+// Query to fetch monthly income data
 $monthly_income_query = "
     SELECT MONTH(b.date_posted) as month, SUM(r.monthly) as total_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session' AND YEAR(b.date_posted) = '$current_year'
+    WHERE r.landlord_id = '$login_session'
     GROUP BY MONTH(b.date_posted)
 ";
 
@@ -103,7 +101,6 @@ if ($total_income_result) {
 
 ?>
 
-
 <style>  
 /* Container styles */
 .row.pb-10 {
@@ -122,9 +119,6 @@ if ($total_income_result) {
 
 .card-box.height-100-p {
     height: 100%;
-}
-.text-secondary {
-    color: black !important;
 }
 
 /* Widget styles */
@@ -193,7 +187,6 @@ if ($total_income_result) {
     float: right; /* or */
     text-align: right; /* or */
     margin-left: 70px; /* or */
-    color: black;
 
     /* any other method to position right */
 }
@@ -213,21 +206,6 @@ if ($total_income_result) {
     width: 82%;  /* Adjust the width as needed */
     height: 420px;
      
-}
-@keyframes pulse {
-    0% {
-        transform: scale(1.5);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
-.animated-icon {
-    animation: pulse 1.3s infinite;
 }
 </style>
 
@@ -265,7 +243,7 @@ if ($total_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-home animated-icon" aria-hidden="true"></i>
+                        <i class="fa fa-home" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -295,7 +273,7 @@ if ($total_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-envelope animated-icon" aria-hidden="true"></i>
+                        <i class="fa fa-envelope" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -325,7 +303,7 @@ if ($total_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-thumbs-o-up animated-icon" aria-hidden="true"></i>
+                        <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -341,12 +319,12 @@ if ($total_income_result) {
                         <?php echo number_format($total_income); ?>
                     </div>
                     <div class="font-14 text-secondary weight-500">
-                        Total Income this Year
+                        Total Monthly Income
                     </div>
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-money animated-icon" aria-hidden="true"></i>
+                        <i class="fa fa-money" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -384,6 +362,7 @@ if ($total_income_result) {
 <?php include('footer.php'); ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    <?php if (!empty($boarding_houses)): ?>
 document.addEventListener("DOMContentLoaded", function() {
     var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
     var monthlyIncomeChart = new Chart(ctx, {
@@ -422,7 +401,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-
+<?php endif; ?>
+<?php if (!empty($brokers_data)): ?>
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
     var brokerPieChart = new Chart(ctxBroker, {
@@ -468,6 +448,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+    <?php endif; ?>
+    <?php if (!empty($boarding_houses)): ?>
      // Line Chart for Monthly Income
     var ctxLine = document.getElementById('monthlyIncomeLineChart').getContext('2d');
     var monthlyIncomeLineChart = new Chart(ctxLine, {
@@ -508,4 +490,5 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+<?php endif; ?>
 </script>
