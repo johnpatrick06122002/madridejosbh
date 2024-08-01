@@ -141,50 +141,89 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
     </div>
     <div class="col-md-4">
         <h3>LANDLORD INFO</h3>
+<?php
+ 
+// Fetch landlord details
+$sql_ll = "SELECT name, email, contact_number, profile_photo FROM landlords WHERE id='$landlordid'";
+$result_ll = mysqli_query($dbconnection, $sql_ll);
 
-        <?php
-        $sql_ll = "SELECT name, email, contact_number, profile_photo FROM landlords WHERE id='$landlordid'";
-        $result_ll = mysqli_query($dbconnection, $sql_ll);
-        while ($row_ll = $result_ll->fetch_assoc()) {
-            $name = $row_ll['name'];
-            $email = $row_ll['email'];
-            $contact_number = $row_ll['contact_number'];
-            $profile_photo = $row_ll['profile_photo'];
-        }
-        ?>
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-sm-3">
-                        <p class="mb-0"><i class="fa fa-user" aria-hidden="true"></i></p>
-                    </div>
-                    <div class="col-sm-9">
-                        <p class="text-muted mb-0"><?php echo $name; ?></p>
-                    </div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-sm-3">
-                        <p class="mb-0"><i class="fa fa-envelope" aria-hidden="true"></i></p>
-                    </div>
-                    <div class="col-sm-9">
-                        <p class="text-muted mb-0"><?php echo $email; ?></p>
-                    </div>
-                </div>
-                <hr>
-                <div class="row">
-                    <div class="col-sm-3">
-                        <p class="mb-0"><i class="fa fa-phone-square" aria-hidden="true"></i></p>
-                    </div>
-                    <div class="col-sm-9">
-                        <p class="text-muted mb-0"><?php echo $contact_number; ?></p>
-                    </div>
-                </div>
+if ($result_ll && $row_ll = $result_ll->fetch_assoc()) {
+    $name = $row_ll['name'];
+    $email = $row_ll['email'];
+    $contact_number = $row_ll['contact_number'];
+    $profile_photo = $row_ll['profile_photo'];
+} else {
+    echo "Error fetching landlord details.";
+}
+
+// Fetch rental details to check slots
+$sql_rental = "SELECT slots FROM rental WHERE rental_id='$rental_id'";
+$result_rental = mysqli_query($dbconnection, $sql_rental);
+
+if ($result_rental && $rental = $result_rental->fetch_assoc()) {
+    $availableSlots = (int) $rental['slots']; // Ensure it's an integer
+
+    // Fetch current number of bookings
+    $sql_bookings = "SELECT COUNT(*) as booked_count FROM book WHERE bhouse_id='$rental_id'";
+    $result_bookings = mysqli_query($dbconnection, $sql_bookings);
+
+    if ($result_bookings && $bookings = $result_bookings->fetch_assoc()) {
+        $bookedCount = (int) $bookings['booked_count'];
+        $slotsAvailable = $availableSlots - $bookedCount;
+        $bookNowButtonDisabled = $slotsAvailable <= 0;
+    } else {
+        echo "Error fetching booking details.";
+        $bookNowButtonDisabled = true; // Default to disabled if there’s an error
+    }
+} else {
+    echo "Error fetching rental details.";
+}
+?>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-3">
+                <p class="mb-0"><i class="fa fa-user" aria-hidden="true"></i></p>
+            </div>
+            <div class="col-sm-9">
+                <p class="text-muted mb-0"><?php echo htmlspecialchars($name); ?></p>
             </div>
         </div>
+        <hr>
+        <div class="row">
+            <div class="col-sm-3">
+                <p class="mb-0"><i class="fa fa-envelope" aria-hidden="true"></i></p>
+            </div>
+            <div class="col-sm-9">
+                <p class="text-muted mb-0"><?php echo htmlspecialchars($email); ?></p>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-sm-3">
+                <p class="mb-0"><i class="fa fa-phone-square" aria-hidden="true"></i></p>
+            </div>
+            <div class="col-sm-9">
+                <p class="text-muted mb-0"><?php echo htmlspecialchars($contact_number); ?></p>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <button data-toggle="modal" data-target="#bookNow" class="btn btn-primary">BOOK NOW</button>
-        <button data-toggle="modal" data-target="#feedback" class="btn btn-danger">FEEDBACK</button>
+<!-- Conditionally Disable the "BOOK NOW" Button -->
+<button 
+    data-toggle="modal" 
+    data-target="#bookNow" 
+    class="btn btn-primary"
+    <?php echo $bookNowButtonDisabled ? 'disabled' : ''; ?>
+>
+    BOOK NOW
+</button>
+
+
+<button data-toggle="modal" data-target="#feedback" class="btn btn-danger">FEEDBACK</button>
+
     </div>
 </div>
 
