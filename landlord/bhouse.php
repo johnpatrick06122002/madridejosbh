@@ -92,12 +92,12 @@ if (isset($_POST["delete"])) {
                 </td>
                 <td class="col-md-1"><?php echo htmlspecialchars($occupied); ?></td>
                 <td class="col-md-1"><a href="../view.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-success"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
-                <td class="col-md-1"><a href="edit.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-warning"><i class="fa fa-pencil-square" aria-hidden="true"></i></a></td>
+                <td class="col-md-1"><a href="edit.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-warning"><i   aria-hidden="true">Edit</i></a></td>
                 <td class="col-md-1">
                     <form action="" method="POST" class="delete-form">
                         <input type="hidden" name="rowid" value="<?php echo htmlspecialchars($row['id']); ?>">
                         <input type="hidden" name="delete" value="1">
-                        <button type="button" class="btn btn-danger delete-btn"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-danger delete-btn"><i   aria-hidden="true">Delete</i></button>
                     </form>
                 </td>
             </tr>
