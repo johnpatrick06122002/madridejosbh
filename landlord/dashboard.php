@@ -120,7 +120,9 @@ if ($total_income_result) {
 .card-box.height-100-p {
     height: 100%;
 }
-
+.text-secondary {
+    color: black !important;
+}
 /* Widget styles */
 .widget-style3 {
     display: flex;
@@ -206,6 +208,21 @@ if ($total_income_result) {
     width: 82%;  /* Adjust the width as needed */
     height: 420px;
      
+}
+@keyframes pulse {
+    0% {
+        transform: scale(1.5);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.animated-icon {
+    animation: pulse 1.3s infinite;
 }
 </style>
 
