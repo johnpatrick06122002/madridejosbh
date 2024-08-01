@@ -579,11 +579,20 @@ document.addEventListener("DOMContentLoaded", function() {
                         display: true,
                         text: 'Total Bookings'
                     },
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1, // Ensure ticks are whole numbers
+                        callback: function(value) {
+                            if (Number.isInteger(value)) {
+                                return value;
+                            }
+                        }
+                    }
                 }
             }
         }
     });
+
 
 <?php endif; ?>
 </script>
