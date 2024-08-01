@@ -299,14 +299,11 @@ include('header.php'); // Include header.php which contains necessary HTML and P
         </div>
     </div>
 </div>
-
-        <?php
-        $year = date('Y'); // Get the current year
-
+<?php
 $incomeQuery = "
     SELECT r.title as rental_name, IFNULL(COUNT(b.id) * r.monthly, 0) as total_income
     FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved' AND YEAR(b.date_posted) = '$year'
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
     GROUP BY r.title
 ";
 $incomeResult = mysqli_query($dbconnection, $incomeQuery);
@@ -322,67 +319,62 @@ if ($incomeResult) {
     echo "Error: " . mysqli_error($dbconnection);
 }
 
+// Fetch ratings for each boarding house and include only those with ratings greater than 0
+$ratingQuery = "
+    SELECT r.title as rental_name, IFNULL(ROUND(AVG(NULLIF(b.ratings, 0)), 2), 0) as average_rating
+    FROM rental r
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id
+    GROUP BY r.title
+";
+$ratingResult = mysqli_query($dbconnection, $ratingQuery);
+$rentalRatings = [];
 
-        // Fetch ratings for each boarding house and include only those with ratings greater than 0
-        $ratingQuery = "
-            SELECT r.title as rental_name, IFNULL(ROUND(AVG(NULLIF(b.ratings, 0)), 2), 0) as average_rating
-            FROM rental r
-            LEFT JOIN book b ON r.rental_id = b.bhouse_id
-            GROUP BY r.title
-        ";
-        $ratingResult = mysqli_query($dbconnection, $ratingQuery);
-        $rentalRatings = [];
+if ($ratingResult) {
+    while ($row = mysqli_fetch_assoc($ratingResult)) {
+        $rentalRatings[] = $row['average_rating'];
+    }
+} else {
+    echo "Error: " . mysqli_error($dbconnection);
+}
 
-        if ($ratingResult) {
-            while ($row = mysqli_fetch_assoc($ratingResult)) {
-                $rentalRatings[] = $row['average_rating'];
-            }
-        } else {
-            echo "Error: " . mysqli_error($dbconnection);
-        }
+// Fetch count of brokers for each boarding house
+$brokerQuery = "
+    SELECT r.title as rental_name, COUNT(b.id) as broker_count
+    FROM rental r
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
+    GROUP BY r.title
+";
+$brokerResult = mysqli_query($dbconnection, $brokerQuery);
+$rentalBrokers = [];
+$totalBrokers = 0;
 
-        // Fetch count of brokers for each boarding house
-        $brokerQuery = "
-            SELECT r.title as rental_name, COUNT(b.id) as broker_count
-            FROM rental r
-            LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-            GROUP BY r.title
-        ";
-        $brokerResult = mysqli_query($dbconnection, $brokerQuery);
-        $rentalBrokers = [];
-        $totalBrokers = 0;
+if ($brokerResult) {
+    while ($row = mysqli_fetch_assoc($brokerResult)) {
+        $rentalBrokers[$row['rental_name']] = $row['broker_count'];
+        $totalBrokers += $row['broker_count'];
+    }
+} else {
+    echo "Error: " . mysqli_error($dbconnection);
+}
 
-        if ($brokerResult) {
-            while ($row = mysqli_fetch_assoc($brokerResult)) {
-                $rentalBrokers[$row['rental_name']] = $row['broker_count'];
-                $totalBrokers += $row['broker_count'];
-            }
-        } else {
-            echo "Error: " . mysqli_error($dbconnection);
-        }
+// Calculate percentages for brokers
+$brokerPercentages = [];
+foreach ($rentalBrokers as $rental => $brokers) {
+    $percentage = ($brokers / $totalBrokers) * 100;
+    $brokerPercentages[$rental] = round($percentage, 2);
+}
 
-        // Calculate percentages for brokers
-        $brokerPercentages = [];
-        foreach ($rentalBrokers as $rental => $brokers) {
-            $percentage = ($brokers / $totalBrokers) * 100;
-            $brokerPercentages[$rental] = round($percentage, 2);
-        }
-        
 // Initialize an array for all months with zero bookings
-
 $allMonths = [
     'January' => 0, 'February' => 0, 'March' => 0, 'April' => 0,
     'May' => 0, 'June' => 0, 'July' => 0, 'August' => 0,
     'September' => 0, 'October' => 0, 'November' => 0, 'December' => 0
 ];
 
-$year = date('Y'); // Get the current year
-
-// Fetch the number of bookings for each month of the current year
+// Fetch the number of bookings for each month
 $monthlyBookingsQuery = "
     SELECT DATE_FORMAT(date_posted, '%Y-%m') as month, COUNT(id) as bookings
     FROM book
-    WHERE YEAR(date_posted) = '$year'
     GROUP BY month
     ORDER BY month ASC
 ";
@@ -400,7 +392,7 @@ if ($monthlyBookingsResult) {
 
 $months = array_keys($allMonths);
 $bookings = array_values($allMonths);
-        ?>
+?>
 
         <script>
             document.addEventListener("DOMContentLoaded", function() {
