@@ -225,7 +225,7 @@ color:#f9f5f4;
         <input type="password" name="mypassword" placeholder="Password" required/>
       </div>
       <button type="submit" name="login">login</button>
-        <p class="message">Not registered? <a href="register.php">Create an account</a></p>
+        <p class="message" style="color: white;">Not registered? <a href="register.php">Create an account</a></p>
                 <p class="message"><a href="index.php">WebPage</a></p>
     </form>
   </div>
