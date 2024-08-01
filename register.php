@@ -87,12 +87,13 @@ if (isset($_POST["register"])) {
         .form {
             position: relative;
             z-index: 1;
-            background: rgba(255, 255, 255, 0.85);
+            background:none;
             max-width: 360px;
             padding: 45px;
             text-align: left;
             box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
             border-radius: 10px;
+            color: white ;
         }
 
         .form input {
@@ -106,19 +107,20 @@ if (isset($_POST["register"])) {
             box-sizing: border-box;
             font-size: 14px;
             border-radius: 5px;
+            color: white ; 
         }
 
         .form button {
             font-family: "Roboto", sans-serif;
             text-transform: uppercase;
             outline: 0;
-            background: #4CAF50;
+            background: white;
             width: 100%;
             border: 0;
             padding: 15px;
-            color: #FFFFFF;
+            color: black;
             font-size: 14px;
-            border-radius: 5px;
+            border-radius: 50px;
             -webkit-transition: all 0.3 ease;
             transition: all 0.3 ease;
             cursor: pointer;
@@ -136,30 +138,35 @@ if (isset($_POST["register"])) {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            color: #333;
+            color: white;
         }
 
         .form .form-group input {
             font-family: "Roboto", sans-serif;
             outline: 0;
-            background: #f2f2f2;
+            background: none;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 50px;
+            color: white ;
         }
 
         .form .form-group .input-group-text {
             display: flex;
             align-items: center;
-            background: #f2f2f2;
+            background: none;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 50px;
             padding: 0 10px;
+            color: white ;
+            height: 60px;
+
         }
 
         .form .form-group .input-group-text input {
             border: none;
             border-radius: 0;
             padding-left: 10px;
+            color: white;
         }
 
         .form .form-group .error {
@@ -167,17 +174,23 @@ if (isset($_POST["register"])) {
             font-size: 12px;
             display: none;
             margin-top: 5px;
+            color: white;
         }
 
         .message {
             margin: 15px 0 0;
-            color: black;
+            color: white;
             font-size: 14px;
+
         }
+           .form input::placeholder {
+        color: white; /* Set placeholder text color to white */
+    }
 
         .message a {
             color: blue;
             text-decoration: none;
+            
         }
     </style>
 </head>
