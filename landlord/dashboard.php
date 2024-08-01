@@ -61,12 +61,14 @@ foreach ($broker_counts as $count) {
 // Initialize array for monthly income
 $monthly_total_income = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
 
-// Query to fetch monthly income data
+$current_year = date('Y'); // Get the current year
+
+// Query to fetch monthly income data for the current year
 $monthly_income_query = "
     SELECT MONTH(b.date_posted) as month, SUM(r.monthly) as total_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session'
+    WHERE r.landlord_id = '$login_session' AND YEAR(b.date_posted) = '$current_year'
     GROUP BY MONTH(b.date_posted)
 ";
 
@@ -81,22 +83,7 @@ if ($monthly_income_result) {
 } else {
     echo "Error fetching monthly income data: " . mysqli_error($dbconnection);
 }
-// Query to fetch total monthly income across all boarding houses for the current landlord
-$total_income_query = "
-    SELECT IFNULL(SUM(r.monthly), 0) as total_income
-    FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session'
-";
 
-$total_income_result = mysqli_query($dbconnection, $total_income_query);
-
-if ($total_income_result) {
-    $row = mysqli_fetch_assoc($total_income_result);
-    $total_income = $row['total_income']; // Use the total income sum
-} else {
-    echo "Error fetching total income: " . mysqli_error($dbconnection);
-}
 
 ?>
 
