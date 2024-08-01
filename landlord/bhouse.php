@@ -9,9 +9,16 @@ if (isset($_POST["delete"])) {
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
-        echo "<script>Swal.fire('Deleted!', 'Record Deleted Successfully', 'success');</script>";
+        echo "<script>
+            Swal.fire('Deleted!', 'Record Deleted Successfully', 'success')
+                .then(() => {
+                    window.location.href = window.location.pathname + window.location.search;
+                });
+        </script>";
     } else {
-        echo "Error Deleting record: " . $stmt->error;
+        echo "<script>
+            Swal.fire('Error!', 'Error Deleting Record: " . addslashes($stmt->error) . "', 'error');
+        </script>";
     }
 
     $stmt->close();
@@ -85,11 +92,12 @@ if (isset($_POST["delete"])) {
                 </td>
                 <td class="col-md-1"><?php echo htmlspecialchars($occupied); ?></td>
                 <td class="col-md-1"><a href="../view.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-success"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
-                <td class="col-md-1"><a href="edit.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-warning"><i   aria-hidden="true">Edit</i></a></td>
+                <td class="col-md-1"><a href="edit.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-warning"><i class="fa fa-pencil-square" aria-hidden="true"></i></a></td>
                 <td class="col-md-1">
                     <form action="" method="POST" class="delete-form">
                         <input type="hidden" name="rowid" value="<?php echo htmlspecialchars($row['id']); ?>">
-                        <button type="button" class="btn btn-danger delete-btn"><i  aria-hidden="true">Delete</i></button>
+                        <input type="hidden" name="delete" value="1">
+                        <button type="button" class="btn btn-danger delete-btn"><i class="fa fa-trash" aria-hidden="true"></i></button>
                     </form>
                 </td>
             </tr>

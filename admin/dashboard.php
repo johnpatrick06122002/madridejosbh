@@ -301,7 +301,7 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 </div>
 
         <?php
-     
+        $year = date('Y'); // Get the current year
 
 $incomeQuery = "
     SELECT r.title as rental_name, IFNULL(COUNT(b.id) * r.monthly, 0) as total_income

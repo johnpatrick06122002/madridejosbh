@@ -5,14 +5,13 @@
 $boarding_houses = [];
 $monthly_incomes = [];
 $total_income = 0;
-$current_year = date('Y'); // Get the current year
 
 // Query to fetch all boarding houses and their monthly incomes for the current landlord
 $query = "
     SELECT r.title as boarding_house, IFNULL(SUM(r.monthly), 0) as monthly_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session' AND YEAR(b.date_posted) = '$current_year'
+    WHERE r.landlord_id = '$login_session'
     GROUP BY r.title
 ";
 
@@ -27,6 +26,7 @@ if ($result) {
 } else {
     echo "Error fetching data: " . mysqli_error($dbconnection);
 }
+
 // Query to fetch brokers count for each boarding house
 $brokers_query = "
     SELECT r.title as boarding_house, COUNT(b.id) as broker_count
@@ -61,14 +61,12 @@ foreach ($broker_counts as $count) {
 // Initialize array for monthly income
 $monthly_total_income = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
 
-$current_year = date('Y'); // Get the current year
-
-// Query to fetch monthly income data for the current year
+// Query to fetch monthly income data
 $monthly_income_query = "
     SELECT MONTH(b.date_posted) as month, SUM(r.monthly) as total_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session' AND YEAR(b.date_posted) = '$current_year'
+    WHERE r.landlord_id = '$login_session'
     GROUP BY MONTH(b.date_posted)
 ";
 
@@ -85,6 +83,7 @@ if ($monthly_income_result) {
 }
 
 ?>
+
 
 <style>  
 /* Container styles */
