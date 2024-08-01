@@ -170,7 +170,20 @@ if ($total_income_result) {
     font-size: 2em;
     color: #00eccf;
 }
+.fa {
+    display: inline-block;
+    font: normal normal normal 14px / 1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    float: right; /* or */
+    text-align: right; /* or */
+    margin-left: 80px; /* or */
+    color: black;
 
+    /* any other method to position right */
+}
 /* Custom width for .col-xl-3 on screens that are at least 1200px wide */
 @media (min-width: 1200px) {
     .col-xl-3 {
@@ -260,7 +273,7 @@ if ($total_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-home" aria-hidden="true"></i>
+                        <i class="fa fa-home animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -290,7 +303,7 @@ if ($total_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <i class="fa fa-envelope animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -320,7 +333,7 @@ if ($total_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+                        <i class="fa fa-thumbs-o-up animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -341,7 +354,7 @@ if ($total_income_result) {
                 </div>
                 <div class="widget-icon ml-auto">
                     <div class="icon" data-color="#00eccf">
-                        <i class="fa fa-money" aria-hidden="true"></i>
+                        <i class="fa fa-money animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
