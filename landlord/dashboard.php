@@ -545,6 +545,42 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-});
+});const ctx = document.getElementById('monthlyBookingsChart').getContext('2d');
+    
+    const monthlyBookings = <?php echo json_encode(array_values($monthly_bookings)); ?>;
+    const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    const monthlyBookingsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Bookings per Month',
+                data: monthlyBookings,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Total Bookings'
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
 <?php endif; ?>
 </script>
