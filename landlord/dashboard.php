@@ -81,6 +81,22 @@ if ($monthly_income_result) {
 } else {
     echo "Error fetching monthly income data: " . mysqli_error($dbconnection);
 }
+// Query to fetch total monthly income across all boarding houses for the current landlord
+$total_income_query = "
+    SELECT IFNULL(SUM(r.monthly), 0) as total_income
+    FROM rental r
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
+    WHERE r.landlord_id = '$login_session'
+";
+
+$total_income_result = mysqli_query($dbconnection, $total_income_query);
+
+if ($total_income_result) {
+    $row = mysqli_fetch_assoc($total_income_result);
+    $total_income = $row['total_income']; // Use the total income sum
+} else {
+    echo "Error fetching total income: " . mysqli_error($dbconnection);
+}
 
 ?>
 
