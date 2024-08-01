@@ -50,6 +50,8 @@ if(isset($_POST["login"])) {
     <link rel="shortcut icon" type="image/x-icon" href="bhh.jpg">
     <title>Login - MADRIE-BH</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <style type="text/css">
         @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
 
@@ -75,7 +77,7 @@ if(isset($_POST["login"])) {
         .form {
             position: relative;
             z-index: 1;
-            background: rgba(255, 255, 255, 0.85);
+            background:none;
             max-width: 360px;
             margin: 0 auto 100px;
             padding: 45px;
@@ -87,27 +89,28 @@ if(isset($_POST["login"])) {
         .form input {
             font-family: "Roboto", sans-serif;
             outline: 0;
-            background: #f2f2f2;
+            background: none;
             width: 100%;
             border: 0;
             margin: 0 0 15px;
             padding: 15px;
             box-sizing: border-box;
             font-size: 14px;
-            border-radius: 5px;
+            border-radius: 50px;
+            text-color: white;
         }
 
         .form button {
             font-family: "Roboto", sans-serif;
             text-transform: uppercase;
             outline: 0;
-            background: #4CAF50;
+            background:#f9f5f4;
             width: 100%;
             border: 0;
             padding: 15px;
-            color: #FFFFFF;
+            color: black;
             font-size: 14px;
-            border-radius: 5px;
+            border-radius: 50px;
             -webkit-transition: all 0.3 ease;
             transition: all 0.3 ease;
             cursor: pointer;
@@ -117,34 +120,117 @@ if(isset($_POST["login"])) {
             background: #43A047;
         }
 
-        .message {
+        .form .message {
             margin: 15px 0 0;
             color: black;
-            font-size: 14px;
+            font-size: 12px;
         }
 
-        .message a {
+        .form .message a {
             color: blue;
             text-decoration: none;
         }
 
-        .message a:hover {
+        .form .message a:hover {
             color: #43A047;
         }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .container:before, .container:after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+
+        .container .info {
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .container .info h1 {
+            margin: 0 0 15px;
+            padding: 0;
+            font-size: 36px;
+            font-weight: 300;
+            color: #1a1a1a;
+        }
+
+        .container .info span {
+            color: #4d4d4d;
+            font-size: 12px;
+        }
+
+        .container .info span a {
+            color: #000000;
+            text-decoration: none;
+        }
+
+        .container .info span .fa {
+            color: #EF3B3A;
+        }
+        .input-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.input-container .icon {
+  position: absolute;
+  left: 15px;
+  top: 35%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.input-container input {
+  width: 100%;
+  height: 50px;
+  padding: 10px 10px 10px 40px; /* Adjust padding to make space for the icon */
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 50px;
+  color: white;
+}
+
+.input-container input::placeholder {
+    color: white; /* Set placeholder text color to white */
+}
+.input-container input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+h2{
+color:#f9f5f4;
+
+}
     </style>
 </head>
 <body>
-    <div class="login-page">
-        <div class="form">
-            <form class="login-form" action="" method="POST">
-                <input type="text" name="myemail" placeholder="Email" required/>
-                <input type="password" name="mypassword" placeholder="Password" required/>
-                <button type="submit" name="login">Login</button>
-                <p class="message">Not registered? <a href="register.php">Create an account</a></p>
+<div class="login-page">
+  <div class="form">
+    <h2>Login</h2>
+    <form class="login-form" action="" method="POST">
+      <div class="input-container">
+        <i class="fa fa-envelope icon"></i>
+
+        <input type="text" name="myemail" placeholder="Email" required/>
+      </div>
+      <div class="input-container">
+        <i class="fa fa-lock icon"></i>
+        <input type="password" name="mypassword" placeholder="Password" required/>
+      </div>
+      <button type="submit" name="login">login</button>
+        <p class="message">Not registered? <a href="register.php">Create an account</a></p>
                 <p class="message"><a href="index.php">WebPage</a></p>
-            </form>
-        </div>
-    </div>
+    </form>
+  </div>
+</div>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
