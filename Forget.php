@@ -167,7 +167,35 @@ if (isset($_POST['reset_password'])) {
             </div>
         </div>
     </div>
+<!-- Disable right-click and F12 key -->
+<script>
+  // Disable right-click
+  document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+  });
 
+  // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, and Ctrl+U (View Source)
+  document.addEventListener('keydown', function(e) {
+      // Check for F12 key
+      if (e.keyCode === 123) {
+          e.preventDefault();
+          return false;
+      }
+      // Check for Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+      if ((e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
+          e.preventDefault();
+          return false;
+      }
+  });
+
+  // Disable Ctrl+S (Save Page)
+  document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey && e.keyCode === 83) || (e.ctrlKey && e.keyCode === 67)) {
+          e.preventDefault();
+          return false;
+      }
+  });
+</script>
     <script src="app.js"></script>
 </body>
 
