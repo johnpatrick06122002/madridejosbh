@@ -86,12 +86,10 @@ if (isset($_POST["update"])) {
             <input name="address" type="text" class="form-control" value="<?php echo $address; ?>" required>
         </div>
 
-       <div class="form-group">
-                    <label for="contact_number">Contact Number:</label>
-                    <div class="input-group-text">+63
-                        <input onkeypress="phnumber(event)" type="text" maxlength="10" minlength="10" name="contact_number" class="form-control" placeholder="Contact Number" required>
-                    </div>
-                </div>
+        <div class="form-group">
+            <label>Contact Number</label>
+            <input name="contact_number" type="text" class="form-control" value="<?php echo $contact_number; ?>" required>
+        </div>
 
         <div class="form-group">
             <label>Facebook</label>
@@ -107,13 +105,5 @@ if (isset($_POST["update"])) {
     </form>
 </div>
 </div>
- <script>
-        function phnumber(event) {
-            // Allow only numeric input
-            var charCode = event.which ? event.which : event.keyCode;
-            if (charCode < 48 || charCode > 57) {
-                event.preventDefault();
-            }
-        }
-</script>
+
 <?php include('footer.php'); ?>

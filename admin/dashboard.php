@@ -17,14 +17,15 @@ if (isset($_SESSION['just_loggedin']) && $_SESSION['just_loggedin']) {
 
 include('header.php'); // Include header.php which contains necessary HTML and PHP code
 ?>
-
 <style>  
 /* Container styles */
 .row.pb-10 {
     padding-bottom: 10px;
-    text-color: black;
+    
 }
-
+.text-secondary {
+    color: black !important;
+}
 /* Card box styles */
 .card-box {
     background-color: #ffffff;
@@ -33,6 +34,7 @@ include('header.php'); // Include header.php which contains necessary HTML and P
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
     padding: 20px;
     margin-bottom: 20px;
+    text-color: black;
 }
 
 .card-box.height-100-p {
@@ -69,8 +71,9 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 }
 
 .text-secondary {
-    color: black !important;
+    color: #858796;
 }
+
 .weight-500 {
     font-weight: 500;
 }
@@ -116,8 +119,8 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 .chart-container3 {
     position: relative;
     width: 100%;  /* Adjust the width as needed */
-    height: 400px; /* Adjust the height as needed */
-    margin-top: 150px;
+    height: 450px; /* Adjust the height as needed */
+    margin-top: 210px;
     margin-right: 300px;
 }
 @keyframes pulse {
@@ -135,9 +138,11 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 .animated-icon {
     animation: pulse 1.3s infinite;
 }
+
 </style>
  <body>
     <?php if ($showWelcomeMessage): ?>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -158,36 +163,37 @@ include('header.php'); // Include header.php which contains necessary HTML and P
         <?php include('sidebar.php'); ?>
     </div>
 
-      <div class="col-sm-9"> <br />
-        <br />
+      <div class="col-sm-9">  <br /> <br />
         <h3>Dashboard</h3>
+      
        
         
-        <div class="row pb-10">
+        <div class="row pb-10" >
             <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-                <div class="card-box height-100-p widget-style3">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-dark">
-                                <?php
-                                $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental");
-                                $row = mysqli_fetch_array($result);
-                                $total_boarding_houses = $row[0];
-                                echo $total_boarding_houses;
-                                ?>
-                            </div>
-                            <div class="font-14 text-secondary weight-500">
-                                Boarding House
-                            </div>
-                        </div>
-                        <div class="widget-icon">
-                            <div class="icon" data-color="#00eccf">
-                                <i class="fa fa-home animated-icon"></i>
-                            </div>
-                        </div>
-                    </div>
+    <div class="card-box height-100-p widget-style3">
+        <div class="d-flex flex-wrap">
+            <div class="widget-data">
+                <div class="weight-700 font-24 text-dark">
+                    <?php
+                    $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental");
+                    $row = mysqli_fetch_array($result);
+                    $total_boarding_houses = $row[0];
+                    echo $total_boarding_houses;
+                    ?>
+                </div>
+                <div class="font-14 text-secondary weight-500">
+                    Boarding House
                 </div>
             </div>
+            <div class="widget-icon">
+                <div class="icon" data-color="#00eccf">
+                    <i class="fa fa-home animated-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
             <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
                 <div class="card-box height-100-p widget-style3">
                     <div class="d-flex flex-wrap">
@@ -200,7 +206,7 @@ include('header.php'); // Include header.php which contains necessary HTML and P
                                 echo $total_requests;
                                 ?>
                             </div>
-                            <div class="font-14 text-secondary weight-500">
+                            <div class="font-14 text-secondary weight-500 ">
                                 Requesting for Approval
                             </div>
                         </div>
@@ -274,20 +280,15 @@ include('header.php'); // Include header.php which contains necessary HTML and P
         </div>
         <br />
         <br />
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <canvas id="incomeChart" style="margin-top: -40px;"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <canvas id="ratingChart" style="margin-top: -40px;"></canvas>
-                </div>
-            </div>
+        <br/>
+<div class="row">
+    <div class="col-md-12">
+        <div class="chart-container">
+            <canvas id="ratingChart" style="margin-top: -40px;"></canvas>
         </div>
-        <div class="row">
+    </div>
+</div>
+<div class="row">
     <div class="col-md-6">
         <div class="chart-container">
             <canvas id="brokerPieChart" style="margin-top: -40px; width: 330px; height: 330px;"></canvas>
@@ -295,30 +296,14 @@ include('header.php'); // Include header.php which contains necessary HTML and P
     </div>
     <div class="col-md-6">
         <div class="chart-container3">
-            <canvas id="monthlyBookingsChart" style="margin-buttom: 225px;"></canvas>
+            <canvas id="monthlyBookingsChart" style="margin-bottom: 225px;"></canvas>
         </div>
     </div>
 </div>
 
-     <?php
-$incomeQuery = "
-    SELECT r.title as rental_name, IFNULL(COUNT(b.id) * r.monthly, 0) as total_income
-    FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    GROUP BY r.title
-";
-$incomeResult = mysqli_query($dbconnection, $incomeQuery);
-$rentalNames = [];
-$totalIncomes = [];
+<?php
 
-if ($incomeResult) {
-    while ($row = mysqli_fetch_assoc($incomeResult)) {
-        $rentalNames[] = $row['rental_name'];
-        $totalIncomes[] = $row['total_income'];
-    }
-} else {
-    echo "Error: " . mysqli_error($dbconnection);
-}
+// Removed the income query and PHP code related to fetching and processing income data
 
 // Fetch ratings for each boarding house and include only those with ratings greater than 0
 $ratingQuery = "
@@ -328,10 +313,12 @@ $ratingQuery = "
     GROUP BY r.title
 ";
 $ratingResult = mysqli_query($dbconnection, $ratingQuery);
+$rentalNames = [];
 $rentalRatings = [];
 
 if ($ratingResult) {
     while ($row = mysqli_fetch_assoc($ratingResult)) {
+        $rentalNames[] = $row['rental_name'];
         $rentalRatings[] = $row['average_rating'];
     }
 } else {
@@ -365,22 +352,17 @@ foreach ($rentalBrokers as $rental => $brokers) {
     $brokerPercentages[$rental] = round($percentage, 2);
 }
 
-        
 // Initialize an array for all months with zero bookings
-
 $allMonths = [
     'January' => 0, 'February' => 0, 'March' => 0, 'April' => 0,
     'May' => 0, 'June' => 0, 'July' => 0, 'August' => 0,
     'September' => 0, 'October' => 0, 'November' => 0, 'December' => 0
 ];
 
-$year = date('Y'); // Get the current year
-
-// Fetch the number of bookings for each month of the current year
+// Fetch the number of bookings for each month
 $monthlyBookingsQuery = "
     SELECT DATE_FORMAT(date_posted, '%Y-%m') as month, COUNT(id) as bookings
     FROM book
-    WHERE YEAR(date_posted) = '$year'
     GROUP BY month
     ORDER BY month ASC
 ";
@@ -398,144 +380,128 @@ if ($monthlyBookingsResult) {
 
 $months = array_keys($allMonths);
 $bookings = array_values($allMonths);
-        ?>
+?>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                var ctxIncome = document.getElementById('incomeChart').getContext('2d');
-                var incomeChart = new Chart(ctxIncome, {
-                    type: 'bar',
-                    data: {
-                        labels: <?php echo json_encode($rentalNames); ?>,
-                        datasets: [{
-                            label: 'Boarding House Monthly Income (This Year)',
-                            data: <?php echo json_encode($totalIncomes); ?>,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-
-                var ctxRating = document.getElementById('ratingChart').getContext('2d');
-                var ratingChart = new Chart(ctxRating, {
-                    type: 'bar',
-                    data: {
-                        labels: <?php echo json_encode($rentalNames); ?>,
-                        datasets: [{
-                            label: 'Boarding House Ratings',
-                            data: <?php echo json_encode($rentalRatings); ?>,
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 5 // Set max to 5 for ratings
-                            }
-                        }
-                    }
-                });
-
-          var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
-var brokerPieChart = new Chart(ctxBroker, {
-    type: 'doughnut',
-    data: {
-        labels: <?php echo json_encode(array_keys($brokerPercentages)); ?>,
-        datasets: [{
-            label: 'Broker Distribution',
-            data: <?php echo json_encode(array_values($brokerPercentages)); ?>,
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        cutout: '65%', // Adjust the size of the hole here (e.g., 65%)
-        plugins: {
-            legend: {
-                position: 'left',
-                align: 'center', // Align legend items to the center
-                labels: {
-                    padding: 20, // Add padding around legend items
-                    font: {
-                        size: 14 // Adjust font size of legend items
-                    }
-                }
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var ctxRating = document.getElementById('ratingChart').getContext('2d');
+        var ratingChart = new Chart(ctxRating, {
+            type: 'bar',
+            data: {
+                labels: <?php echo json_encode($rentalNames); ?>,
+                datasets: [{
+                    label: 'Boarding House Ratings',
+                    data: <?php echo json_encode($rentalRatings); ?>,
+                    backgroundColor: '#40bf40',
+                    borderColor: '#40bf40', 
+                    borderWidth: 1
+                }]
             },
-            title: {
-                display: true,
-                text: ' ',
-                padding: {
-                    top: 20, // Adjust top padding
-                    bottom: 20 // Adjust bottom padding
-                }
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.label || '';
-                        if (label) {
-                            label += ': ';
-                        }
-                        label += context.raw.toFixed(2) + '%';
-                        return label;
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5 // Set max to 5 for ratings
                     }
                 }
             }
-        }
-    }
-});
+        });
 
-var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d');
-    var monthlyBookingsChart = new Chart(ctxBookings, {
-        type: 'line',
-        data: {
-            labels: <?php echo json_encode($months); ?>,
-            datasets: [{
-                label: 'Monthly Bookings (This Year)',
-                data: <?php echo json_encode($bookings); ?>,
-                fill: false,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+        var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
+        var brokerPieChart = new Chart(ctxBroker, {
+            type: 'doughnut',
+            data: {
+                labels: <?php echo json_encode(array_keys($brokerPercentages)); ?>,
+                datasets: [{
+                    label: 'Broker Distribution',
+                    data: <?php echo json_encode(array_values($brokerPercentages)); ?>,
+                    backgroundColor: [
+                        '#40bf40',
+                        '#ff1a1a',
+                        '#ff00ff',
+                        '#000066',
+                        '#006600',
+                        '#33cc33',
+                        '#ffbf80',
+                        '#ffff00',
+                        '#ff4da6',
+                        '#805500',
+                        '#adad85',
+                        '#6699ff',
+                        '#00ffff',
+                        '#ff9966',
+                        '#1f1f14',
+                        '#331a33',
+                        '#00ffcc',
+                        '#b30000'
+                    ],
+                    borderColor: '#ffffff', // Border color of the slices
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '65%', // Adjust the size of the hole here (e.g., 65%)
+                plugins: {
+                    legend: {
+                        position: 'left',
+                        align: 'center', // Align legend items to the center
+                        labels: {
+                            padding: 20, // Add padding around legend items
+                            font: {
+                                size: 14 // Adjust font size of legend items
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: ' ',
+                        padding: {
+                            top: 20, // Adjust top padding
+                            bottom: 20 // Adjust bottom padding
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.raw.toFixed(2) + '%';
+                                return label;
+                            }
+                        }
+                    }
                 }
             }
-        }
+        });
+
+        var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d');
+        var monthlyBookingsChart = new Chart(ctxBookings, {
+            type: 'line',
+            data: {
+                labels: <?php echo json_encode($months); ?>,
+                datasets: [{
+                    label: 'Monthly Bookings',
+                    data: <?php echo json_encode($bookings); ?>,
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     });
-});
-        
-        </script>
+</script>
+
+
 
     </div>
 </div>

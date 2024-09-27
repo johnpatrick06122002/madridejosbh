@@ -1,29 +1,22 @@
 <?php
-// Function to fetch profile photo and name based on user ID
+//include('db_connect.php'); // Include your database connection file
+include('session.php'); // Include session to get $login_session
+
+// Function to fetch profile data
 function fetchProfileData($dbconnection, $login_session) {
-    $query = "SELECT id, profile_photo, name FROM landlords WHERE id = ?";
+    $query = "SELECT * FROM landlords WHERE id = ?";
     $stmt = $dbconnection->prepare($query);
-    $stmt->bind_param("i", $login_session);
+    $stmt->bind_param('s', $login_session);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if ($result && $result->num_rows > 0) {
-        return $result->fetch_assoc();
-    } else {
-        // Default profile photo and name or handle error as needed
-        return ['id' => 0, 'profile_photo' => 'default_profile_photo.jpg', 'name' => 'Default Name'];
-    }
+    return $result->fetch_assoc();
 }
 
-// Fetch profile data for the logged-in user
-$profile_data = fetchProfileData($dbconnection, $login_session);
-
-// Check if the user has just logged in
-if (!isset($_SESSION['has_logged_in'])) {
-    $_SESSION['has_logged_in'] = true;
-    echo "<script>localStorage.setItem('activeLink', 'dashboard.php');</script>";
-}
+$profileData = fetchProfileData($dbconnection, $login_session);
 ?>
+<!-- Continue with your sidebar HTML below -->
+
 <style>
     .sidebar {
         width: 230px;
@@ -98,12 +91,10 @@ if (!isset($_SESSION['has_logged_in'])) {
 
     <!-- Content Links -->
     <div class="sidebar-content">
-        <a href="dashboard.php" onclick="setActive(event)">
-            Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i>
-        </a>
+        <a href="dashboard.php" onclick="setActive(event)">Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i></a>
         <a href="create.php" onclick="setActive(event)">Create New <i class="fa fa-plus-circle" aria-hidden="true"></i></a>
         <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
-        <a href="booker.php" onclick="setActive(event)">Booker List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
+        <a href="booker.php" onclick="setActive(event)">Boarder List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
         <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-file-text" aria-hidden="true"></i></a>
         <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
     </div>

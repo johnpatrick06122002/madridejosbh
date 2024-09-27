@@ -164,13 +164,13 @@ if (isset($_POST["search"])) {
                         <form action="" method="POST" style="display:inline;">
                             <input type="hidden" name="rowid" value="<?php echo htmlspecialchars($row['id']); ?>">
                             <button type="submit" name="delete" class="btn btn-danger delete">
-                                <i  aria-hidden="true">Delete</i>
+                                <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>
                         </form>
 
                         <?php if ($status == 'Approved') { ?>
                             <button class="btn btn-warning edit" data-toggle="modal" data-target="#editModal<?php echo htmlspecialchars($row['id']); ?>">
-                                <i  aria-hidden="true">Edit</i>
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
                             </button>
                         <?php } ?>
 

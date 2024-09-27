@@ -45,7 +45,7 @@ if (isset($_POST['records_per_page'])) {
         <?php include('sidebar.php'); ?>
     </div>
 
-    <div class="col-sm-9"><br>
+    <div class="col-sm-9">
         <h3>Owner List</h3>
 
         <form action="" method="POST">
@@ -139,14 +139,14 @@ if (isset($_POST['records_per_page'])) {
                     <td><?php echo $row['facebook']; ?></td>
                     <td class="col-md-1">
                         <a href="edit_owner.php?owner_id=<?php echo $row['id']; ?><?php echo $query_param; ?>&records_per_page=<?php echo $no_of_records_per_page; ?>" class="btn btn-warning">
-                            <i  aria-hidden="true">Edit</i>
+                            <i class="fa fa-pencil-square" aria-hidden="true"></i> Edit
                         </a>
                     </td>
                     <td class="col-md-1">
                         <form action="" method="POST">
                             <input type="hidden" name="rowid" value="<?php echo $row['id']; ?>">
                             <button type="submit" name="delete" class="btn btn-danger delete">
-                                <i  aria-hidden="true">Delete</i>
+                                <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>
                         </form>
                     </td>

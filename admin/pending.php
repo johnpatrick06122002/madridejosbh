@@ -45,7 +45,7 @@ if (isset($_POST["delete"])) {
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
     </div>
-    <div class="col-sm-8"><br><br>
+    <div class="col-sm-8">
         <h3>Pending for Approval</h3>
         <table class="table table-striped">
             <thead>

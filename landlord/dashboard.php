@@ -58,28 +58,28 @@ foreach ($broker_counts as $count) {
     $broker_percentages[] = ($count / $total_brokers) * 100;
 }
 
-// Initialize array for monthly income
 $monthly_total_income = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
 
-// Query to fetch monthly income data
 $monthly_income_query = "
-    SELECT MONTH(b.date_posted) as month, SUM(r.monthly) as total_income
+    SELECT MONTH(b.date_posted) as month, IFNULL(SUM(r.monthly), 0) as total_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session'
+    WHERE r.landlord_id = ?
     GROUP BY MONTH(b.date_posted)
 ";
 
-$monthly_income_result = mysqli_query($dbconnection, $monthly_income_query);
+if ($stmt = mysqli_prepare($dbconnection, $monthly_income_query)) {
+    mysqli_stmt_bind_param($stmt, "i", $login_session); // Assuming $login_session is an integer
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $month, $total_income);
 
-if ($monthly_income_result) {
-    while ($row = mysqli_fetch_assoc($monthly_income_result)) {
-        $month = $row['month'];
-        $total_income = $row['total_income'];
+    while (mysqli_stmt_fetch($stmt)) {
         $monthly_total_income[$month] = $total_income;
     }
+
+    mysqli_stmt_close($stmt);
 } else {
-    echo "Error fetching monthly income data: " . mysqli_error($dbconnection);
+    echo "Error preparing the query: " . mysqli_error($dbconnection);
 }
 
 // Query to fetch total monthly income across all boarding houses for the current landlord
@@ -147,9 +147,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 .card-box.height-100-p {
     height: 100%;
 }
-.text-secondary {
-    color: black !important;
-}
+
 /* Widget styles */
 .widget-style3 {
     display: flex;
@@ -197,20 +195,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     font-size: 2em;
     color: #00eccf;
 }
-.fa {
-    display: inline-block;
-    font: normal normal normal 14px / 1 FontAwesome;
-    font-size: inherit;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    float: right; /* or */
-    text-align: right; /* or */
-    margin-left: 80px; /* or */
-    color: black;
 
-    /* any other method to position right */
-}
 /* Custom width for .col-xl-3 on screens that are at least 1200px wide */
 @media (min-width: 1200px) {
     .col-xl-3 {
@@ -248,6 +233,20 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     width: 82%;  /* Adjust the width as needed */
     height: 420px;
      
+}
+.fa {
+    display: inline-block;
+    font: normal normal normal 14px / 1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    float: right; /* or */
+    text-align: right; /* or */
+    margin-left: 80px; /* or */
+    color: black;
+
+    /* any other method to position right */
 }
 @keyframes pulse {
     0% {
@@ -404,13 +403,8 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
             <canvas id="brokerPieChart"></canvas>
         </div>
     </div>
-    <!-- Line Chart for Monthly Incomes -->
-<div class="col-md-12">
-    <div class="chart-container3">
-        
-<canvas id="monthlyBookingsChart" ></canvas>
-    </div>
-</div>
+ <canvas id="monthlyBookingsChart" width="400" height="200"></canvas>
+
 
 </div>
 
@@ -420,7 +414,6 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 <?php include('footer.php'); ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    <?php if (!empty($boarding_houses)): ?>
 document.addEventListener("DOMContentLoaded", function() {
     var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
     var monthlyIncomeChart = new Chart(ctx, {
@@ -459,8 +452,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-<?php endif; ?>
-<?php if (!empty($brokers_data)): ?>
+
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
     var brokerPieChart = new Chart(ctxBroker, {
@@ -506,8 +498,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-    <?php endif; ?>
-    <?php if (!empty($boarding_houses)): ?>
      // Line Chart for Monthly Income
     var ctxLine = document.getElementById('monthlyIncomeLineChart').getContext('2d');
     var monthlyIncomeLineChart = new Chart(ctxLine, {
@@ -548,7 +538,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
- const ctx = document.getElementById('monthlyBookingsChart').getContext('2d');
+const ctx = document.getElementById('monthlyBookingsChart').getContext('2d');
     
     const monthlyBookings = <?php echo json_encode(array_values($monthly_bookings)); ?>;
     const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -592,7 +582,4 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-
-
-<?php endif; ?>
 </script>

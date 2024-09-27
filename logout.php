@@ -1,7 +1,8 @@
 <?php
- session_start();
-
-  echo "Logout Successfully ";
-  session_destroy();   // function that Destroys Session 
-  header("Location: index.php");
+// logout.php
+session_start();
+session_unset();
+session_destroy();
+header("Location: index.php"); // Redirect to login page after logout
+exit();
 ?>

@@ -124,7 +124,7 @@ foreach ($rows as $rental_id => $data) {
             <thead>
                 <tr>
                     <th>Title</th>
-                    <th>Broker Name</th>
+                    <th>Boarders Name</th>
                     <th>Monthly Rent</th>
                     <th>Total Monthly Rent</th> <!-- New column for total monthly rent per boarding house -->
                 </tr>

@@ -1,16 +1,16 @@
 <?php
-   session_start();
-   
-   $user_check = $_SESSION['login_user'];
-   
-   $ses_sql = mysqli_query($dbconnection,"select * from landlords where email = '$user_check' ");
-   
-   $row = mysqli_fetch_array($ses_sql,MYSQLI_ASSOC);
-   
-   $login_session = $row['id'];
-   
-   // if(!isset($_SESSION['login_user'])){
-   //    header("location:index.php");
-   //    die();
-   // }
+session_start();
+
+// Check if login_user is not set or empty, redirect to index.php
+if (!isset($_SESSION['login_user']) || empty($_SESSION['login_user'])) {
+    header("Location: index.php");
+    exit();
+}
+
+// Database connection
+$dbconnection = mysqli_connect("localhost", "username", "password", "database_name");
+
+if (!$dbconnection) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
 ?>

@@ -76,7 +76,7 @@ if (isset($_POST["login"])) {
         .form {
             position: relative;
             z-index: 1;
-            background:none;
+            background:white;
             max-width: 360px;
             margin: 0 auto 100px;
             padding: 45px;
@@ -96,7 +96,7 @@ if (isset($_POST["login"])) {
             box-sizing: border-box;
             font-size: 14px;
             border-radius: 50px;
-            text-color: white;
+            text-color: black;
         }
 
         .form button {
@@ -121,7 +121,7 @@ if (isset($_POST["login"])) {
 
         .form .message {
             margin: 15px 0 0;
-            color: black;
+            color: black!important;
             font-size: 12px;
         }
 
@@ -193,18 +193,18 @@ if (isset($_POST["login"])) {
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 50px;
-  color: white;
+  color: black;
 }
 
 .input-container input::placeholder {
-    color: white; /* Set placeholder text color to white */
+    color: black; /* Set placeholder text color to white */
 }
 .input-container input:focus {
   border-color: #007bff;
   outline: none;
 }
 h2{
-color:#f9f5f4;
+color:black;
 
 }
     </style>

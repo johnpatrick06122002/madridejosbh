@@ -74,21 +74,22 @@ if(isset($_POST["login"])) {
 <!DOCTYPE html>
 <html>
 <head>
-	 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MADRIE-BH</title>
-    <link rel="shortcut icon" type="image/x-icon" href="bhh.jpg">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="x-icon" href="bhh.jpg">
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- FontAwesome Stars CSS -->
     <link href='src/fontawesome-stars.css' rel='stylesheet' type='text/css'>
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
-     
+ 
 <style type="text/css">
- 
- 
-   
+
 * {box-sizing: border-box;}
 
 body {
@@ -466,102 +467,7 @@ ul.pagination li:last-child {
     </div>
 </nav>
 
-
-<!-- The Modal -->
-<div class="modal" id="myModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">Register</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-
-      <!-- Modal body -->
-      <div class="modal-body">
-  <form action="" method="post" enctype="multipart/form-data">
-  <div class="form-group">
-    <label for="name">Profile Picture</label>
-    <input type="file" name="profile_photo" class="form-control" placeholder="Enter name">
-  </div>    
-   <div class="form-group">
-    <label for="name">Full Name:</label>
-    <input type="text" name="name" class="form-control" placeholder="Enter name">
-  </div>
-  <div class="form-group">
-    <label for="email">Address:</label>
-    <input type="text" name="Address" class="form-control" placeholder="Enter Address">
-  </div>
-  <div class="form-group">
-      <div class="input-group-text">+63
-      <input onkeypress='phnumber(event)' type="text" maxlength="10" minlength="10" name="contact_number" class="form-control" placeholder="Contact Number" required>
-      </div>
-  </div>
-  <div class="form-group">
-    <label for="email">Facebook Account:</label>
-    <input type="url" name="facebook" class="form-control" placeholder="Enter Facebook Account URL">
-  </div>
-  <div class="form-group">
-    <label for="email">Email address:</label>
-    <input type="email" name="email" class="form-control" placeholder="Enter email">
-  </div>
-  
-  <div class="form-group">
-    <label for="pwd">Password:</label>
-    <input type="password" name="password" class="form-control" placeholder="Enter password">
-  </div>
-  <div class="form-group form-check">
-    <label class="form-check-label">
-      <input class="form-check-input" type="checkbox"> Remember me
-    </label>
-  </div>
-  <button type="submit" name="register" class="btn btn-primary">Register</button>
-</form>
-      </div>
-
-      <!-- Modal footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-
-
-
-
-
-  <!-- The Modal -->
-<div class="modal" id="myLogin">
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">Login</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-
-      <!-- Modal body -->
-      <div class="modal-body">
-
-
-<form action="" method="post">
-  <div class="form-group">
-    <label for="exampleInputEmail1">Email address</label>
-    <input name="myemail" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Password</label>
-    <input name="mypassword" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-  </div>
-
-  <button type="submit" name="login" class="btn btn-primary">Login</button>
-</form>
+<!-- header.php -->
 
 
   </div>

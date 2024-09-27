@@ -1,9 +1,9 @@
 <style>
   .sidebar {
-    width: 250px;
+    width: 230px;
     background-color: #80ffff; /* Adjust background color as needed */
   }
-
+  
   .sidebar a {
     font-family: 'Roboto', serif;
     display: flex;
@@ -63,7 +63,7 @@
   </div>
   <a href="dashboard.php" onclick="setActive(event)">Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i></a>
   <a href="bhouse.php" onclick="setActive(event)">Boarding House List <i class="fa fa-home" aria-hidden="true"></i></a>
-  <a href="owner.php" onclick="setActive(event)">Owner List <i class="fa fa-users" aria-hidden="true"></i></a>
+<a href="owner.php" onclick="setActive(event)">Owner List <i class="fa fa-users" aria-hidden="true"></i></a>
   <a href="pending.php" onclick="setActive(event)">Pending List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
   <a href="report.php" onclick="setActive(event)">Reports <i class="fas fa-file-alt" aria-hidden="true"></i></a>
   <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>

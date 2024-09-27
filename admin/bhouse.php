@@ -12,7 +12,7 @@ if (!isset($_SESSION['admin_loggedin']) || $_SESSION['admin_loggedin'] !== true)
 include('header.php');
 
 // Database connection
-$dbconnection = new mysqli('127.0.0.1', 'u510162695_bhouse_root', '1Bhouse_root', 'u510162695_bhouse'); // Add your database connection details
+$dbconnection = new mysqli('localhost', 'root', '', 'bhouse'); // Add your database connection details
 
 // Handle delete operation
 if (isset($_POST["delete_id"])) {
@@ -84,7 +84,7 @@ $result = mysqli_query($dbconnection, $sql);
                         </td>
                         <td class="col-md-1"><a href="../view.php?bh_id=<?php echo $rent_id; ?>" class="btn btn-success"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
                         <td class="col-md-1">
-                            <button type="button" class="btn btn-danger" onclick="confirmDelete('<?php echo $rent_id; ?>')"><i  aria-hidden="true">Delete</i></button>
+                            <button type="button" class="btn btn-danger" onclick="confirmDelete('<?php echo $rent_id; ?>')"><i class="fa fa-trash" aria-hidden="true"></i></button>
                         </td>
                     </tr>
                 <?php } ?>
