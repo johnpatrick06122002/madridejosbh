@@ -157,25 +157,25 @@ $count = 0;
     e.preventDefault();
   });
 
-  // Disable Ctrl+Shift+I, Ctrl+U, and F12
   document.addEventListener('keydown', function(e) {
-    // Prevent F12 (Developer Tools)
-    if (e.key === 'F12') {
-      e.preventDefault();
-    }
-    // Prevent Ctrl+Shift+I (Open Developer Tools)
-    if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-      e.preventDefault();
-    }
-    // Prevent Ctrl+Shift+J (Open Developer Tools Console)
-    if (e.ctrlKey && e.shiftKey && e.key === 'J') {
-      e.preventDefault();
-    }
-    // Prevent Ctrl+U (View Page Source)
-    if (e.ctrlKey && e.key === 'U') {
-      e.preventDefault();
-    }
-  });
+  // Prevent F12 (Developer Tools)
+  if (e.key === 'F12') {
+    e.preventDefault();
+  }
+  // Prevent Ctrl+Shift+I (Open Developer Tools)
+  if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+    e.preventDefault();
+  }
+  // Prevent Ctrl+Shift+J (Open Developer Tools Console)
+  if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+    e.preventDefault();
+  }
+  // Prevent Ctrl+U (View Page Source)
+  if (e.ctrlKey && e.key === 'U') {
+    e.preventDefault();
+  }
+});
+
 </script>
 
 
