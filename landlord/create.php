@@ -42,7 +42,8 @@ if (isset($_POST['free_kuryente'])) {
   $freekuryente = 'no';
 }
 
-$sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, register1_id, monthly, wifi, water, kuryente) VALUES ('$rental_id','$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente')";
+$sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, register1_id, monthly, wifi, water, kuryente) 
+        VALUES ('$rental_id','$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente')";
 
 if ($dbconnection->query($sql) === TRUE) {
   move_uploaded_file($_FILES['photo']['tmp_name'], $target);
@@ -61,18 +62,21 @@ if ($dbconnection->query($sql) === TRUE) {
       mysqli_query($dbconnection, $insert);
     }
   }
+
+  // Success Alert and Redirect
   echo '<script type="text/javascript">
     Swal.fire({
       title: "Success!",
       text: "Successfully Added",
-      icon: "success", 
+      icon: "success",
       confirmButtonText: "OK"
     }).then(function() {
-      window.location.href = "dashboard.php"; // Redirect to dashboard
+      window.location.href = "dashboard.php"; // Redirect to dashboard after OK click
     });
   </script>';
-  
+
 } else {
+  // Error Alert
   echo '<script type="text/javascript">
     Swal.fire({
       title: "Error!",
@@ -85,6 +89,7 @@ if ($dbconnection->query($sql) === TRUE) {
 }
 
 ?>
+
 
 <style>
   .sidebar {
@@ -131,7 +136,7 @@ if ($dbconnection->query($sql) === TRUE) {
 
   <div class="col-sm-9">
 
-    <?php 
+ <?php 
     // Check if the user has an active subscription
     $sql_check = "SELECT status FROM subscriptions WHERE register1_id='$login_session' AND status='active'";
     $result_check = mysqli_query($dbconnection, $sql_check);
@@ -219,7 +224,7 @@ if ($dbconnection->query($sql) === TRUE) {
       } else {
         echo "<h1 class='pending'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i> You account is pending for approval.</h1>";
       }
-    
+  
     ?>
   </div>
 </div>

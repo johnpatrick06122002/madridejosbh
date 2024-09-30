@@ -101,7 +101,7 @@ if (!isset($_SESSION['has_logged_in'])) {
         <a href="dashboard.php" onclick="setActive(event)">
             Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i>
         </a>
-        <a href="create.php" onclick="setActive(event)"> <i class="fa fa-plus-circle" aria-hidden="true"></i></a>
+         <!--<a href="create.php" onclick="setActive(event)"> <i class="fa fa-plus-circle" aria-hidden="true"></i></a>-->
         <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
         <a href="booker.php" onclick="setActive(event)">Boarder List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
         <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-file-text" aria-hidden="true"></i></a>
