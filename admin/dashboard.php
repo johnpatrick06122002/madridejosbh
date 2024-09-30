@@ -142,6 +142,7 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 </style>
  <body>
     <?php if ($showWelcomeMessage): ?>
+        
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

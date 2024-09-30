@@ -9,7 +9,7 @@ $query = "
     SELECT r.rental_id AS rental_id, r.title, r.monthly, b.name AS broker_name
     FROM rental AS r
     LEFT JOIN book AS b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session'
+    WHERE r.id = '$login_session'
 ";
 $result = mysqli_query($dbconnection, $query);
 

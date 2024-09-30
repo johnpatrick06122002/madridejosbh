@@ -3,7 +3,7 @@
     width: 230px;
     background-color: #80ffff; /* Adjust background color as needed */
   }
-  
+
   .sidebar a {
     font-family: 'Roboto', serif;
     display: flex;

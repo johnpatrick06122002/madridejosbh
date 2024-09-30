@@ -42,7 +42,7 @@ if (isset($_POST['free_kuryente'])) {
   $freekuryente = 'no';
 }
 
-$sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, landlord_id, monthly, wifi, water, kuryente) VALUES ('$rental_id','$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente')";
+$sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, register1_id, monthly, wifi, water, kuryente) VALUES ('$rental_id','$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente')";
 
 if ($dbconnection->query($sql) === TRUE) {
   move_uploaded_file($_FILES['photo']['tmp_name'], $target);
@@ -65,10 +65,13 @@ if ($dbconnection->query($sql) === TRUE) {
     Swal.fire({
       title: "Success!",
       text: "Successfully Added",
-      icon: "success",
+      icon: "success", 
       confirmButtonText: "OK"
+    }).then(function() {
+      window.location.href = "dashboard.php"; // Redirect to dashboard
     });
   </script>';
+  
 } else {
   echo '<script type="text/javascript">
     Swal.fire({
@@ -123,19 +126,19 @@ if ($dbconnection->query($sql) === TRUE) {
 
 <div class="row">
   <div class="col-sm-2">
-    <?php include('sidebar.php'); ?>
+    
   </div>
 
   <div class="col-sm-9">
 
     <?php 
-    //check if already approved
-    $sql_check = "SELECT status FROM landlords WHERE id='$login_session'";
-    $result_check = mysqli_query($dbconnection,$sql_check);
-    while($row_check = $result_check->fetch_assoc()) {
-      $status = $row_check['status'];
-      if ($status == 'Approved') {
-    ?>
+    // Check if the user has an active subscription
+    $sql_check = "SELECT status FROM subscriptions WHERE register1_id='$login_session' AND status='active'";
+    $result_check = mysqli_query($dbconnection, $sql_check);
+
+    // If the result exists and the status is 'active', proceed with posting
+    if (mysqli_num_rows($result_check) > 0) {
+?>
 
     <br />
     <h3>POST NEW BOARDING HOUSE</h3>  
@@ -216,7 +219,7 @@ if ($dbconnection->query($sql) === TRUE) {
       } else {
         echo "<h1 class='pending'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i> You account is pending for approval.</h1>";
       }
-    }
+    
     ?>
   </div>
 </div>

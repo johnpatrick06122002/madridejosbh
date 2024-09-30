@@ -1,139 +1,120 @@
 <?php
 session_start();
+if (!isset($_SESSION['email'])) {
+    header("Location: register_step1.php");
+    exit();
+}
+
 include('connection.php');
-$msg = "";
 
-// Check if user_id is set in session
-if (!isset($_SESSION['user_id'])) {
-    $msg = "<div class='alert alert-danger'>You need to log in to select a subscription.</div>";
-} else {
-    if (isset($_POST['select_subscription'])) {
-        $subscription = $_POST['subscription'];
-        $user_id = $_SESSION['user_id']; // Get the user ID from the session
-        $start_date = date('Y-m-d');
-        $end_date = '';
+if (isset($_POST['subscribe'])) {
+    $subscription_plan = $_POST['plan'];
+    $user_email = $_SESSION['email'];
 
-        // Calculate the end date based on the selected subscription
-        if ($subscription == 'free_trial') {
-            $end_date = date('Y-m-d', strtotime('+1 month'));
-        } elseif ($subscription == '6_months') {
-            $end_date = date('Y-m-d', strtotime('+6 months'));
-        } elseif ($subscription == '1_year') {
-            $end_date = date('Y-m-d', strtotime('+1 year'));
-        }
+    // Get the register1_id of the user based on their email
+    $stmt = $dbconnection->prepare("SELECT id FROM register1 WHERE email = ?");
+    $stmt->bind_param("s", $user_email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $register1_id = $row['id'];
 
-        // Insert the subscription details into the database
-        $query = "INSERT INTO subscriptions (user_id, subscription_type, start_date, end_date, status) 
-                  VALUES ('$user_id', '$subscription', '$start_date', '$end_date', 'active')";
-        
-        if (mysqli_query($dbconnection, $query)) {
-            // Successful insertion, redirect to create.php
-            header("Location: landlord/create.php"); // Adjust the path if necessary
-            exit();
-        } else {
-            $msg = "<div class='alert alert-danger'>Failed to select subscription. Please try again.</div>";
-        }
+    // Insert the subscription plan into a subscription table
+    $stmt2 = $dbconnection->prepare("INSERT INTO subscriptions (register1_id, plan, status, start_date) VALUES (?, ?, 'active', NOW())");
+    $stmt2->bind_param("is", $register1_id, $subscription_plan);
+
+    if ($stmt2->execute()) {
+        // Redirect to create.php upon successful subscription
+        header("Location: landlord/createhouse.php");
+        exit(); // Ensure no further code is executed
+    } else {
+        // Display simple error message in case of failure
+        echo "<p>Subscription failed. Please try again.</p>";
     }
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css" />
-    <title>Select Subscription</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Subscription Plan</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
-        .alert {
-            padding: 1rem;
-            border-radius: 5px;
-            color: white;
-            margin: 1rem 0;
-            font-weight: 500;
-            width: 65%;
-        }
-
-        .alert-success {
-            background-color: #42ba96;
-        }
-
-        .alert-danger {
-            background-color: #fc5555;
-        }
-
-        .subscription-options {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .subscription-option {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            width: 100%;
-            max-width: 400px;
-            padding: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .subscription-option:hover {
+        body {
+            font-family: Arial, sans-serif;
             background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
 
-        .subscription-option input {
-            margin-right: 1rem;
+        .subscription-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
         }
 
-        .note {
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            color: #666;
+        h2 {
             text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .plan {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .plan label {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .plan input {
+            width: auto;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="forms-container">
-            <div class="signin-signup" style="left: 50%; z-index: 99;">
-                <form action="create.php" method="POST" class="sign-in-form">
-                    <h2 class="title">Select Your Subscription</h2>
-                    <?php echo $msg ?>
-                    <div class="subscription-options">
-                        <label class="subscription-option">
-                            <input type="radio" name="subscription" value="free_trial" required />
-                            <span>One Month Free Trial</span>
-                        </label>
-                        <label class="subscription-option">
-                            <input type="radio" name="subscription" value="6_months" required />
-                            <span>6 Months - 400 pesos</span>
-                        </label>
-                        <label class="subscription-option">
-                            <input type="radio" name="subscription" value="1_year" required />
-                            <span>One Year - 7500 pesos</span>
-                        </label>
-                    </div>
-                    <div class="note">
-                        <p>* Monthly subscription of 80 pesos applies after the free trial expires.</p>
-                    </div>
-                    <input type="submit" name="select_subscription" value="Subscribe" class="btn solid" />
-                </form>
+    <div class="subscription-form">
+        <h2>Select Your Subscription Plan</h2>
+        <form action="subscription.php" method="POST">
+            <div class="plan">
+                <label for="plan1">Monthly Plan - $10/month</label>
+                <input type="radio" name="plan" id="plan1" value="monthly" required>
             </div>
-        </div>
+            <div class="plan">
+                <label for="plan2">Yearly Plan - $100/year</label>
+                <input type="radio" name="plan" id="plan2" value="yearly" required>
+            </div>
+
+            <button type="submit" name="subscribe">Subscribe</button>
+        </form>
     </div>
 
-    <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
-
 </html>

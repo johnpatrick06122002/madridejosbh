@@ -64,7 +64,7 @@ if (isset($_POST["delete"])) {
         $total_rows = mysqli_fetch_array($result_pages)[0];
         $total_pages = ceil($total_rows / $no_of_records_per_page);
 
-        $sql = "SELECT * FROM rental WHERE landlord_id=? LIMIT ?, ?";
+        $sql = "SELECT * FROM rental WHERE register1_id=? LIMIT ?, ?";
         $stmt = $dbconnection->prepare($sql);
         $stmt->bind_param("iii", $login_session, $offset, $no_of_records_per_page);
         $stmt->execute();

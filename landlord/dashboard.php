@@ -11,7 +11,7 @@ $query = "
     SELECT r.title as boarding_house, IFNULL(SUM(r.monthly), 0) as monthly_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session'
+    WHERE r.id = '$login_session'
     GROUP BY r.title
 ";
 
@@ -32,7 +32,7 @@ $brokers_query = "
     SELECT r.title as boarding_house, COUNT(b.id) as broker_count
     FROM rental r
     JOIN book b ON r.rental_id = b.bhouse_id
-    WHERE r.landlord_id = '$login_session' AND b.status = 'Approved'
+    WHERE r.id = '$login_session' AND b.status = 'Approved'
     GROUP BY r.title
 ";
 
@@ -64,7 +64,7 @@ $monthly_income_query = "
     SELECT MONTH(b.date_posted) as month, IFNULL(SUM(r.monthly), 0) as total_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = ?
+    WHERE r.id  = ?
     GROUP BY MONTH(b.date_posted)
 ";
 
@@ -87,7 +87,7 @@ $total_income_query = "
     SELECT IFNULL(SUM(r.monthly), 0) as total_income
     FROM rental r
     LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    WHERE r.landlord_id = '$login_session'
+    WHERE r.id  = '$login_session'
 ";
 
 $total_income_result = mysqli_query($dbconnection, $total_income_query);
@@ -107,7 +107,7 @@ $monthly_bookings_query = "
     SELECT MONTH(date_posted) AS month, COUNT(*) AS total_bookings
     FROM book
     WHERE YEAR(date_posted) = YEAR(CURDATE())
-    AND landlord_id = ?
+    AND id  = ?
     GROUP BY MONTH(date_posted)
     ORDER BY MONTH(date_posted)
 ";
@@ -283,7 +283,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
                 <div class="widget-data">
                     <div class="weight-700 font-24 text-dark">
                         <?php
-                        $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental WHERE landlord_id='$login_session'");
+                        $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental WHERE register1_id ='$login_session'");
                         if ($result) {
                             $row = mysqli_fetch_array($result);
                             $total = $row[0];
