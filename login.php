@@ -270,8 +270,12 @@ color:black;
                 <input type="password" name="mypassword" id="mypassword" placeholder="Password" required/>
                 <i class="fa fa-eye" id="togglePassword" style="cursor: pointer; position: absolute; right: 15px; top: 35%; transform: translateY(-50%); color: #888;"></i>
             </div>
+            <!-- Forgot Password link positioned to the right under the password field -->
+            <p style="text-align: left; margin-top: -15px; margin-bottom: 15px; font-size: 12px;">
+                <a href="forgot_pass.php" style="color: blue; text-decoration: none;">Forgot Password?</a>
+            </p>
             <button type="submit" name="login">login</button>
-            <p class="message" style="color: white;">Not registered? <a href="register_step1.php">Create an account</a></p>
+            <p class="message" style="color: white;">Don't have an account? <a href="register_step1.php">Sign up</a></p>
             <p class="message"><a href="index.php">WebPage</a></p>
         </form>
     </div>

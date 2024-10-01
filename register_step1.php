@@ -70,8 +70,6 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,7 +77,8 @@ if (isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Step 1</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-     <style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
@@ -121,6 +120,9 @@ if (isset($_POST['submit'])) {
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
+            position: relative; /* Keep relative for icon positioning */
+            width: 100%; /* Ensure it takes full width */
+            box-sizing: border-box; /* Include padding in the total width */
         }
         
         .register-form button {
@@ -137,24 +139,19 @@ if (isset($_POST['submit'])) {
             background-color: #0056b3;
         }
 
-        .password-container {
-        position: relative; /* Make the container relative for absolute positioning of the icon */
+        .input-container {
+            position: relative; /* Relative positioning for absolute children */
+            margin-bottom: 16px; /* Space between input fields */
         }
 
-        .password-container input[type="password"] {
-        padding-right: 110px; /* Add padding to the right to make space for the icon */
-        box-sizing: border-box; /* Include padding in width calculation */
-        }
-
-        .password-container i {
-            position: absolute; /* Position the icon absolutely */
-            right: 15px; /* Align the icon to the right */ 
-            top: 35%; /* Center the icon vertically */
-            transform: translateY(-50%); /* Adjust the position to be exactly in the middle */
+        .input-container i {
+            position: absolute; /* Absolute positioning of the icon */
+            right: 15px; /* Align icon to the right */
+            top: 40%; /* Center icon vertically */
+            transform: translateY(-50%); /* Adjust for exact vertical centering */
             color: #555; /* Change icon color if needed */
+            cursor: pointer;
         }
-
-        
     </style>	
 </head>
 <body>
@@ -165,15 +162,29 @@ if (isset($_POST['submit'])) {
             <input type="email" name="email" id="email" required>
 
             <label for="password">Password</label>
-            <div class="password-container">
-                <input type="password" name="password" id="password" required>
-                <i class="fas fa-eye" id="togglePassword" style="cursor: pointer;"></i>
+            <div class="input-container">
+                <input type="password" style=" width: 100%; padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            position: relative; 
+            width: 100%;  
+            box-sizing: border-box;" name="password" id="password" required>
+                <i class="fas fa-eye" id="togglePassword"></i>
             </div>
 
             <label for="confirm_password">Confirm Password</label>
-            <div class="password-container">
-                <input type="password" name="confirm_password" id="confirm_password" required>
-                <i class="fas fa-eye" id="toggleConfirmPassword" style="cursor: pointer;"></i>
+            <div class="input-container">
+                <input type="password" style=" width: 100%; padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            position: relative; 
+            width: 100%;  
+            box-sizing: border-box;"name="confirm_password" id="confirm_password" required>
+                <i class="fas fa-eye" id="toggleConfirmPassword"></i>
             </div>
 
             <button type="submit" name="submit">Send OTP</button>
@@ -183,7 +194,7 @@ if (isset($_POST['submit'])) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
    
-   <script>
+    <script>
         // Toggle password visibility
         const togglePassword = document.getElementById('togglePassword');
         const passwordField = document.getElementById('password');
