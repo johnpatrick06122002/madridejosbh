@@ -30,8 +30,8 @@ if (isset($_POST['verify'])) {
         $_SESSION['otp_verified'] = true;
 
         // Redirect to the same page
-        header("Location: register_step2.php" . $_SERVER['PHP_SELF']);
-        exit();
+         header("Location: register_step2.php"); // Corrected redirection
+exit();
     } else {
         $msg = "<div class='alert alert-danger'>Invalid OTP code. Please try again.</div>";
     }
