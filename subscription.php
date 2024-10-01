@@ -25,7 +25,7 @@ if (isset($_POST['subscribe'])) {
 
     if ($stmt2->execute()) {
         // Redirect to create.php upon successful subscription
-        header("Location: landlord/createhouse.php");
+        header("Location: landlord/create.php");
         exit(); // Ensure no further code is executed
     } else {
         // Display simple error message in case of failure
