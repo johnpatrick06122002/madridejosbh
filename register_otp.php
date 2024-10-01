@@ -1,12 +1,19 @@
 <?php
 session_start();
 include('connection.php');
+require 'vendor/autoload.php'; // PHPMailer autoload
 $msg = "";
 
+// Check if the session variable 'email' is set
+if (!isset($_SESSION['email'])) {
+    header('Location: forgot_pass.php'); // Redirect if no email is found in session
+    exit();
+}
+
+// Handle OTP verification
 if (isset($_POST['verify'])) {
-    // Use mysqli_real_escape_string to sanitize user input
     $otp_input = mysqli_real_escape_string($dbconnection, $_POST['otp']);
-    $email = $_SESSION['email']; // Assuming the email is stored in session after registration
+    $email = $_SESSION['email'];
 
     // Query to verify OTP
     $result = mysqli_query($dbconnection, "SELECT * FROM register1 WHERE email='$email' AND otp='$otp_input'");
@@ -17,7 +24,7 @@ if (isset($_POST['verify'])) {
         
         // Fetch user ID and store it in the session
         $row = mysqli_fetch_assoc($result);
-        $_SESSION['user_id'] = $row['ID']; // Store the user ID in session
+        $_SESSION['user_id'] = $row['ID'];
         
         // Set a session variable to trigger the SweetAlert
         $_SESSION['otp_verified'] = true;
@@ -27,6 +34,41 @@ if (isset($_POST['verify'])) {
         exit();
     } else {
         $msg = "<div class='alert alert-danger'>Invalid OTP code. Please try again.</div>";
+    }
+}
+
+if (isset($_POST['resend_otp'])) {
+    $email = $_SESSION['email'];
+    $new_otp = rand(100000, 999999); // Generate a new OTP
+
+    // Update the new OTP in the database
+    $update_otp = mysqli_query($dbconnection, "UPDATE register1 SET otp = '$new_otp' WHERE email = '$email'");
+
+    // Create a new PHPMailer instance
+    $mail = new PHPMailer\PHPMailer\PHPMailer();
+
+    try {
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';  // Set the SMTP server to send through
+        $mail->SMTPAuth = true;
+        $mail->Username = 'lucklucky2100@gmail.com'; // Your SMTP username
+        $mail->Password = 'kjxf ptjv erqn yygv'; // Your SMTP password
+        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+
+        // Recipients
+        $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
+        $mail->addAddress($email);
+        $mail->Subject = 'Your OTP Code';
+        $mail->Body = "Your new OTP code is: $new_otp";
+
+        if ($mail->send()) {
+            $msg = "<div class='alert alert-success'>New OTP sent to your email!</div>";
+        } else {
+            $msg = "<div class='alert alert-danger'>Failed to send OTP. Please try again later.</div>";
+        }
+    } catch (Exception $e) {
+        $msg = "<div class='alert alert-danger'>Mailer Error: {$mail->ErrorInfo}</div>";
     }
 }
 ?>
@@ -42,7 +84,7 @@ if (isset($_POST['verify'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Verify OTP</title>
-    <style>     
+    <style>
         .alert {
             padding: 1rem;
             border-radius: 5px;
@@ -111,6 +153,19 @@ if (isset($_POST['verify'])) {
         .btn:hover {
             background-color: #0056b3;
         }
+
+        .resend-btn {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        #resendOtpButton:disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
@@ -123,24 +178,46 @@ if (isset($_POST['verify'])) {
                 <input type="text" name="otp" placeholder="Enter 6-digit code" required />
             </div>
             <input type="submit" name="verify" value="Verify" class="btn" />
+            <div class="resend-btn">
+                <button type="button" id="resendOtpButton" onclick="resendOtp()">Resend OTP</button>
+                  <span id="countdown" style="display:none;"> (60)</span>
+            </div>
         </form>
     </div>
 
-    <script>
-        <?php if (isset($_SESSION['otp_verified'])): ?>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Your OTP has been verified!',
-                showConfirmButton: true,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Redirect to the next step if needed
-                    window.location.href = 'register_step2.php';
+     <script>
+        let countdown = 60; // 60 seconds countdown
+        let resendButton = document.getElementById('resendOtpButton');
+        let countdownDisplay = document.getElementById('countdown');
+
+        function resendOtp() {
+            resendButton.disabled = true; // Disable the button
+            countdownDisplay.style.display = "inline"; // Show the countdown display
+            countdownDisplay.innerText = ` (${countdown})`; // Show initial countdown value
+
+            let interval = setInterval(function() {
+                countdown--;
+                countdownDisplay.innerText = ` (${countdown})`; // Update countdown display
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    resendButton.disabled = false; // Re-enable the button
+                    countdownDisplay.style.display = "none"; // Hide the countdown display
+                    countdown = 60; // Reset countdown
                 }
-            });
-            <?php unset($_SESSION['otp_verified']); // Clear the session variable after displaying the alert ?>
-        <?php endif; ?>
+            }, 1000);
+
+            // AJAX request to resend OTP
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Handle response
+                    alert("New OTP sent to your email!"); // Show success message
+                }
+            };
+            xhr.send("resend_otp=1"); // Send request to PHP script
+        }
     </script>
 </body>
 
