@@ -6,7 +6,7 @@ $msg = "";
 
 // Check if the session variable 'email' is set
 if (!isset($_SESSION['email'])) {
-    header('Location: forgot_pass.php'); // Redirect if no email is found in session
+    header('Location: register_step1.php'); // Redirect if no email is found in session
     exit();
 }
 
@@ -30,7 +30,7 @@ if (isset($_POST['verify'])) {
         $_SESSION['otp_verified'] = true;
 
         // Redirect to the same page
-        header("Location: " . $_SERVER['PHP_SELF']);
+        header("Location: register_step2.php" . $_SERVER['PHP_SELF']);
         exit();
     } else {
         $msg = "<div class='alert alert-danger'>Invalid OTP code. Please try again.</div>";
