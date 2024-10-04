@@ -26,10 +26,13 @@ if (!isset($_SESSION['has_logged_in'])) {
 ?>
 <style>
     .sidebar {
-        width: 230px;
-        background-color:#80ffff; /* Adjust background color as needed */
+        width: 230px; /* Default width */
+        background-color: #80ffff; /* Adjust background color as needed */
         padding-top: 20px; /* Adjust padding top as needed */
         text-align: center; /* Center align the contents */
+        position: fixed; /* Fix the sidebar to the left */
+        height: 100%; /* Full height */
+        overflow-y: auto; /* Scroll if content is too long */
     }
 
     .sidebar a {
@@ -87,6 +90,47 @@ if (!isset($_SESSION['has_logged_in'])) {
     .sidebar-content {
         margin-top: 20px; /* Adjust margin top for the content */
     }
+
+    /* Dropdown Styles */
+    .dropdown-toggle {
+        display: none; /* Initially hide the dropdown button */
+        padding: 13px;
+        background-color: #80ffff; /* Match the sidebar background */
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        width: 100%; /* Full width */
+    }
+
+    .dropdown-content {
+        display: none; /* Hide dropdown content initially */
+        background-color: #80ffff; /* Match the sidebar background */
+        text-align: left;
+    }
+
+    .dropdown-content a {
+        display: block; /* Block-level links */
+    }
+
+    @media (max-width: 768px) { /* Adjust the max-width as needed */
+        .sidebar {
+            width: 100%; /* Full width on mobile */
+            position: relative; /* Make sidebar relative on mobile */
+            height: auto; /* Allow height to be auto on mobile */
+        }
+
+        .dropdown-toggle {
+            display: block; /* Show the dropdown button on mobile */
+        }
+
+        .sidebar-content {
+            display: none; /* Optionally hide the sidebar links on mobile */
+        }
+
+        .dropdown-content.show {
+            display: block; /* Show dropdown when toggled */
+        }
+    }
 </style>
 <div class="sidebar">
     <!-- Profile Photo -->
@@ -96,14 +140,24 @@ if (!isset($_SESSION['has_logged_in'])) {
     <!-- Profile Name -->
     <div class="profile-name"><?php echo htmlspecialchars($profile_data['firstname']); ?></div>
 
+    <!-- Mobile Dropdown Button -->
+    <button class="dropdown-toggle" onclick="toggleDropdown()">Menu <i class="fa fa-chevron-down"></i></button>
+    <div class="dropdown-content" id="dropdownMenu">
+        <a href="dashboard.php" onclick="setActive(event)">Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i></a>
+        <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
+        <a href="booker.php" onclick="setActive(event)">Boarder List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
+        <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-file-text" aria-hidden="true"></i></a>
+        <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
+    </div>
+
     <!-- Content Links -->
     <div class="sidebar-content">
         <a href="dashboard.php" onclick="setActive(event)">
             Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i>
         </a>
-         <!--<a href="create.php" onclick="setActive(event)"> <i class="fa fa-plus-circle" aria-hidden="true"></i></a>-->
         <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
         <a href="booker.php" onclick="setActive(event)">Boarder List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
+        <a href="pending.php" onclick="setActive(event)">Pending  <i class="fa fa-home" aria-hidden="true"></i></a>
         <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-file-text" aria-hidden="true"></i></a>
         <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
     </div>
@@ -141,5 +195,23 @@ if (!isset($_SESSION['has_logged_in'])) {
 
         // Navigate to the clicked link
         window.location.href = element.getAttribute("href");
+    }
+
+    function toggleDropdown() {
+        var dropdownMenu = document.getElementById("dropdownMenu");
+        dropdownMenu.classList.toggle("show");
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropdown-toggle')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
     }
 </script>

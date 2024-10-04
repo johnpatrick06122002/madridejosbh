@@ -412,7 +412,7 @@ ul.pagination li:last-child {
 </style>
 </head>
 
-<body>
+
 
 
 
@@ -447,10 +447,10 @@ ul.pagination li:last-child {
             </li>
             <?php if(empty($login_session)) { ?>
             <li class="nav-item">
-    <a class="nav-link active" href="login.php"><i class="fa fa-sign-in" aria-hidden="true"></i> Login</a>
+    <a class="nav-link active" href="login.php"><i class="fa fa-sign-in" aria-hidden="true"></i> Sign In</a>
 </li>
      <li class="nav-item">
-    <a class="nav-link active" href="admin/index.php"><i class="icon-copy fa fa-user-circle-o" aria-hidden="true"></i> Admin</a>
+    <a class="nav-link active" href="register_step1.php"><i class="icon-copy fa fa-user-circle-o" aria-hidden="true"></i> Sign Up</a>
 </li>
               
             <?php } else { ?>

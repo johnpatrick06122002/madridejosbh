@@ -7,6 +7,34 @@ if (!isset($_SESSION['email'])) {
 
 include('connection.php');
 
+// Check if the user's subscription has expired
+$user_email = $_SESSION['email'];
+
+// Get the user's active subscription
+$stmt = $dbconnection->prepare("SELECT id, plan, start_date, status FROM subscriptions WHERE register1_id = (SELECT id FROM register1 WHERE email = ?) AND status = 'active'");
+$stmt->bind_param("s", $user_email);
+$stmt->execute();
+$result = $stmt->get_result();
+$subscription = $result->fetch_assoc();
+
+if ($subscription) {
+   $current_date = new DateTime(); // This will capture your laptop's time, i.e., October 31, 9:00 PM.
+$start_date = new DateTime('2024-10-01 09:00:00'); // Start date from the database.
+
+if ($subscription['plan'] == 'monthly') {
+    $expiration_date = (clone $start_date)->modify('+30 days'); // Expiration date is October 31, 9:00 AM.
+}
+
+if ($current_date > $expiration_date) {
+    // Current time (9:00 PM) is later than expiration (9:00 AM).
+    $stmt2 = $dbconnection->prepare("UPDATE subscriptions SET status = 'inactive' WHERE id = ?");
+    $stmt2->bind_param("i", $subscription['id']);
+    $stmt2->execute();
+}
+
+}
+
+// Subscription processing logic
 if (isset($_POST['subscribe'])) {
     $subscription_plan = $_POST['plan'];
     $user_email = $_SESSION['email'];
@@ -19,13 +47,13 @@ if (isset($_POST['subscribe'])) {
     $row = $result->fetch_assoc();
     $register1_id = $row['id'];
 
-    // Insert the subscription plan into a subscription table
+    // Insert the subscription plan into the subscriptions table
     $stmt2 = $dbconnection->prepare("INSERT INTO subscriptions (register1_id, plan, status, start_date) VALUES (?, ?, 'active', NOW())");
     $stmt2->bind_param("is", $register1_id, $subscription_plan);
 
     if ($stmt2->execute()) {
-        // Redirect to create.php upon successful subscription
-        header("Location: landlord/create.php");
+        // Redirect to login.php upon successful subscription
+        header("Location: login.php");
         exit(); // Ensure no further code is executed
     } else {
         // Display simple error message in case of failure
@@ -33,6 +61,7 @@ if (isset($_POST['subscribe'])) {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

@@ -78,7 +78,7 @@ if (isset($_POST["delete"])) {
                 <td><?php echo htmlspecialchars($row['title']); ?></td>
                 <td class="col-md-1">
                     <?php 
-                    $sql_book = "SELECT COUNT(*) FROM book WHERE bhouse_id=? AND landlord_id=? AND status='Approved'";
+                    $sql_book = "SELECT COUNT(*) FROM book WHERE bhouse_id=? AND register1_id=? AND status='Approved'";
                     $stmt_book = $dbconnection->prepare($sql_book);
                     $stmt_book->bind_param("ii", $rent_id, $login_session);
                     $stmt_book->execute();

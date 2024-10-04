@@ -313,7 +313,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
                 <div class="widget-data">
                     <div class="weight-700 font-24 text-dark">
                         <?php
-                        $result = mysqli_query($dbconnection, "SELECT count(1) FROM book WHERE landlord_id='$login_session' AND status=''");
+                        $result = mysqli_query($dbconnection, "SELECT count(1) FROM book WHERE register1_id='$login_session' AND status=''");
                         if ($result) {
                             $row = mysqli_fetch_array($result);
                             $total = $row[0];
@@ -343,7 +343,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
                 <div class="widget-data">
                     <div class="weight-700 font-24 text-dark">
                         <?php
-                        $result = mysqli_query($dbconnection, "SELECT count(1) FROM book WHERE landlord_id='$login_session' AND status='Approved'");
+                        $result = mysqli_query($dbconnection, "SELECT count(1) FROM book WHERE register1_id='$login_session' AND status='Approved'");
                         if ($result) {
                             $row = mysqli_fetch_array($result);
                             $total = $row[0];

@@ -2,40 +2,67 @@
 session_start(); // Start session at the beginning of the script
 
 if (isset($_POST["login"])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $email = $_POST['email']; // Use email for login
+    $password = $_POST['password']; // Password field
 
-    // Hardcoded credentials for simplicity (replace with secure authentication)
-    if ($username == "admin" && $password == "admin123") {
-        // Set session variable indicating user is logged in
-        $_SESSION['admin_loggedin'] = true;
-        $_SESSION['just_loggedin'] = true; // New session variable to indicate a fresh login
+    // Database connection (adjust parameters as needed)
+  include('../connection.php');
+    // Prepare and bind
+    $stmt = $dbconnection->prepare("SELECT * FROM admins WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Check if user exists
+    if ($result->num_rows > 0) {
+        $admin = $result->fetch_assoc();
+        // Verify password
+        if (password_verify($password, $admin['password'])) {
+            // Set session variable indicating user is logged in
+            $_SESSION['admin_loggedin'] = true;
+            $_SESSION['firstname'] = $admin['firstname'];
+            $_SESSION['just_loggedin'] = true; // New session variable to indicate a fresh login
+            echo '<script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        // Set the active link to dashboard in localStorage
+                        localStorage.setItem("activeLink", "dashboard.php");
+                        
+                        Swal.fire({
+                            icon: "success",
+                            title: "Login Successful",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(function() {
+                            window.location.href = "dashboard.php";
+                        });
+                    });
+                  </script>';
+        } else {
+            echo '<script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Username or Password is Incorrect"
+                        });
+                    });
+                  </script>';
+        }
+    } else {
         echo '<script>
                 document.addEventListener("DOMContentLoaded", function() {
-                    // Set the active link to dashboard in localStorage
-                    localStorage.setItem("activeLink", "dashboard.php");
-                    
                     Swal.fire({
-                        icon: "success",
-                        title: "Login Successful",
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(function() {
-                        window.location.href = "dashboard.php";
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Username or Password is Incorrect"
                     });
                 });
               </script>';
-    } else {
-        echo '<script>
-        document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: "Username or Password is Incorrect"
-                });
-                 });
-              </script>';
     }
+
+    // Close statement and connection
+    $stmt->close();
+    $dbconnection->close();
 }
 ?>
 
@@ -207,31 +234,55 @@ h2{
 color:black;
 
 }
+ .input-container .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 35%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+        }
     </style>
 </head>
 <body>
 
 <div class="login-page">
-  <div class="form">
-    <h2>Login</h2>
-    <form class="login-form" action="" method="POST">
-      <div class="input-container">
-        <i class="fa fa-user icon"></i>
-        <input type="text" name="username" placeholder="Username" required/>
-      </div>
-      <div class="input-container">
-        <i class="fa fa-lock icon"></i>
-        <input type="password" name="password" placeholder="Password" required/>
-      </div>
-      <button type="submit" name="login">login</button>
-      <p class="message" style="color: #f9f5f4;"> Return to <a href="../index.php">WebPage</a></p>
-    </form>
-  </div>
+    <div class="form">
+        <h2>Login</h2>
+        <form class="login-form" action="" method="POST">
+            <div class="input-container">
+                <i class="fa fa-user icon"></i>
+                <input type="email" name="email" placeholder="Email" required/>
+            </div>
+            <div class="input-container">
+                <i class="fa fa-lock icon"></i>
+                <input type="password" name="password" placeholder="Password" id="password" required/>
+                <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility()"></i>
+            </div>
+            <button type="submit" name="login">Login</button>
+            <p class="message" style="color: #f9f5f4;"> Return to <a href="../index.php">WebPage</a></p>
+        </form>
+    </div>
 </div>
-
 
 <!-- Include SweetAlert JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.querySelector('.toggle-password');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+</script>
 <?php include('footer.php'); ?>
 </body>
 </html>

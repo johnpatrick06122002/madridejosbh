@@ -44,13 +44,15 @@ $sql = "SELECT * FROM rental ORDER BY id DESC LIMIT $offset, $no_of_records_per_
 $result = mysqli_query($dbconnection, $sql);
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boarding House List</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body>
+
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
@@ -127,7 +129,8 @@ function confirmDelete(id) {
 }
 </script>
 
-</body>
-</html>
+
 
 <?php include('footer.php'); ?>
+</body>
+</html>

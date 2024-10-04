@@ -13,7 +13,7 @@ if (isset($_GET['pageno'])) {
   $no_of_records_per_page = 6;
   $offset = ($pageno-1) * $no_of_records_per_page;
 
-  $total_pages_sql = "SELECT COUNT(*) FROM landlords";
+  $total_pages_sql = "SELECT COUNT(*) FROM register1";
   $result_pages = mysqli_query($dbconnection,$total_pages_sql);
   $total_rows = mysqli_fetch_array($result_pages)[0];
   $total_pages = ceil($total_rows / $no_of_records_per_page);
@@ -80,7 +80,7 @@ if(isset($_POST["search"])) {
         <div class="col-md-4">
 
 <?php
-$result_book = mysqli_query($dbconnection,"SELECT count(1) FROM book WHERE bhouse_id='$rent_id' AND landlord_id='$landlord_id' AND status='Approved'");
+$result_book = mysqli_query($dbconnection,"SELECT count(1) FROM book WHERE bhouse_id='$rent_id' AND register1_id='$register1_id' AND status='Approved'");
 $row_book = mysqli_fetch_array($result_book);
 $reserved = $row_book[0];
 ?>
@@ -151,32 +151,6 @@ $count = 0;
 </div>
 </div>
 
-<script>
-  // Disable Right Click
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-  });
-
-  document.addEventListener('keydown', function(e) {
-  // Prevent F12 (Developer Tools)
-  if (e.key === 'F12') {
-    e.preventDefault();
-  }
-  // Prevent Ctrl+Shift+I (Open Developer Tools)
-  if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-    e.preventDefault();
-  }
-  // Prevent Ctrl+Shift+J (Open Developer Tools Console)
-  if (e.ctrlKey && e.shiftKey && e.key === 'J') {
-    e.preventDefault();
-  }
-  // Prevent Ctrl+U (View Page Source)
-  if (e.ctrlKey && e.key === 'U') {
-    e.preventDefault();
-  }
-});
-
-</script>
 
 
 

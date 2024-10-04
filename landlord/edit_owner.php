@@ -5,34 +5,35 @@
 <?php
 // Fetch owner details
 $owner_id = $_GET['owner_id'];
-$sql_edit = "SELECT * FROM landlords WHERE id='$owner_id'";
+$sql_edit = "SELECT * FROM register2 WHERE id='$owner_id'";
 $result_edit = mysqli_query($dbconnection, $sql_edit);
 
 while ($row_edit = $result_edit->fetch_assoc()) {
-    $name = $row_edit['name'];
-    $email = $row_edit['email'];
-    $address = $row_edit['Address'];
+    $firstname = $row_edit['firstname'];
+    $middlename = $row_edit['middlename'];
+    $lastname = $row_edit['lastname'];
+    $address = $row_edit['address'];
     $contact_number = $row_edit['contact_number'];
-    $facebook = $row_edit['facebook'];
+    $profile_photo = $row_edit['profile_photo'];
 }
 ?>
 
 <?php
 if (isset($_POST["update"])) {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
+    $firstname = $_POST['firstname'];
+    $middlename = $_POST['middlename'];
+    $lastname = $_POST['lastname'];
     $address = $_POST['address'];
     $contact_number = $_POST['contact_number'];
-    $facebook = $_POST['facebook'];
 
-    $profile_photo = $_FILES['profile_photo']['name'];
-    $target = "../uploads/" . basename($profile_photo);
+    $new_profile_photo = $_FILES['profile_photo']['name'];
+    $target = "../uploads/" . basename($new_profile_photo);
 
-    if (!empty($profile_photo)) {
+    if (!empty($new_profile_photo)) {
         move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target);
-        $sql = "UPDATE landlords SET name='$name', email='$email', Address='$address', contact_number='$contact_number', facebook='$facebook', profile_photo='$profile_photo' WHERE id='$owner_id'";
+        $sql = "UPDATE register2 SET firstname='$firstname', middlename='$middlename', lastname='$lastname', address='$address', contact_number='$contact_number', profile_photo='$new_profile_photo' WHERE id='$owner_id'";
     } else {
-        $sql = "UPDATE landlords SET name='$name', email='$email', Address='$address', contact_number='$contact_number', facebook='$facebook' WHERE id='$owner_id'";
+        $sql = "UPDATE register2 SET firstname='$firstname', middlename='$middlename', lastname='$lastname', address='$address', contact_number='$contact_number' WHERE id='$owner_id'";
     }
 
     if ($dbconnection->query($sql) === TRUE) {
@@ -72,13 +73,18 @@ if (isset($_POST["update"])) {
     <br />
     <form action="" method="POST" enctype="multipart/form-data">
         <div class="form-group">
-            <label>Full Name</label>
-            <input name="name" type="text" class="form-control" value="<?php echo $name; ?>" required>
+            <label>First Name</label>
+            <input name="firstname" type="text" class="form-control" value="<?php echo $firstname; ?>" required>
         </div>
 
         <div class="form-group">
-            <label>Email</label>
-            <input name="email" type="email" class="form-control" value="<?php echo $email; ?>" required>
+            <label>Middle Name</label>
+            <input name="middlename" type="text" class="form-control" value="<?php echo $middlename; ?>">
+        </div>
+
+        <div class="form-group">
+            <label>Last Name</label>
+            <input name="lastname" type="text" class="form-control" value="<?php echo $lastname; ?>" required>
         </div>
 
         <div class="form-group">
@@ -89,11 +95,6 @@ if (isset($_POST["update"])) {
         <div class="form-group">
             <label>Contact Number</label>
             <input name="contact_number" type="text" class="form-control" value="<?php echo $contact_number; ?>" required>
-        </div>
-
-        <div class="form-group">
-            <label>Facebook</label>
-            <input name="facebook" type="url" class="form-control" value="<?php echo $facebook; ?>" required>
         </div>
 
         <div class="form-group">

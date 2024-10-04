@@ -8,6 +8,9 @@ if (!isset($_SESSION['admin_loggedin']) || $_SESSION['admin_loggedin'] !== true)
     exit; // Stop further execution
 }
 
+// Access the first name from the session
+$firstname = isset($_SESSION['firstname']) ? $_SESSION['firstname'] : 'Admin';
+
 // Check if the user just logged in to show the welcome message
 $showWelcomeMessage = false;
 if (isset($_SESSION['just_loggedin']) && $_SESSION['just_loggedin']) {
@@ -15,7 +18,8 @@ if (isset($_SESSION['just_loggedin']) && $_SESSION['just_loggedin']) {
     unset($_SESSION['just_loggedin']); // Unset the variable to prevent the message from showing again
 }
 
-include('header.php'); // Include header.php which contains necessary HTML and PHP code
+// Include header.php which contains necessary HTML and PHP code
+include('header.php');
 ?>
 <style>  
 /* Container styles */
@@ -141,21 +145,19 @@ include('header.php'); // Include header.php which contains necessary HTML and P
 
 </style>
  <body>
-    <?php if ($showWelcomeMessage): ?>
-        
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            Swal.fire({
-                icon: "info",
-                title: "Welcome back, Admin!",
-                text: "HAVE A GOOD DAY!",
-                confirmButtonText: 'Thank you'
+   <?php if ($showWelcomeMessage): ?>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    icon: "info",
+                    title: "Welcome back, <?php echo htmlspecialchars($firstname); ?>!",
+                    text: "HAVE A GOOD DAY!",
+                    confirmButtonText: 'Thank you'
+                });
             });
-        });
-    </script>
+        </script>
     <?php endif; ?>
+
 
     <?php include('footer.php'); ?>
 </body>
@@ -195,89 +197,38 @@ include('header.php'); // Include header.php which contains necessary HTML and P
     </div>
 </div>
 
-            <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-                <div class="card-box height-100-p widget-style3">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-dark">
-                                <?php
-                                $result = mysqli_query($dbconnection, "SELECT count(1) FROM landlords WHERE status=''");
-                                $row = mysqli_fetch_array($result);
-                                $total_requests = $row[0];
-                                echo $total_requests;
-                                ?>
-                            </div>
-                            <div class="font-14 text-secondary weight-500 ">
-                                Requesting for Approval
-                            </div>
-                        </div>
-                        <div class="widget-icon">
-                            <div class="icon" data-color="#00eccf">
-                                <i class="fa fa-envelope animated-icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
              <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-                <div class="card-box height-100-p widget-style3">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-dark">
-                                <?php
-                                $result = mysqli_query($dbconnection, "SELECT count(1) FROM landlords WHERE status='Approved'");
-                                $row = mysqli_fetch_array($result);
-                                $total_approved_owners = $row[0];
-                                echo $total_approved_owners;
-                                ?>
-                            </div>
-                            <div class="font-14 text-secondary weight-500">
-                                Approved Owners
-                            </div>
-                        </div>
-                        <div class="widget-icon">
-                            <div class="icon" data-color="#00eccf">
-                                <i class="fa fa-thumbs-o-up animated-icon"></i>
-                            </div>
-                        </div>
-                    </div>
+    <div class="card-box height-100-p widget-style3">
+        <div class="d-flex flex-wrap">
+            <div class="widget-data">
+                <div class="weight-700 font-24 text-dark">
+                    <?php
+                    // Count the number of active subscriptions
+                    $result = mysqli_query($dbconnection, "
+                        SELECT COUNT(DISTINCT register1_id) 
+                        FROM subscriptions 
+                        WHERE status = 'active'
+                    ");
+                    $row = mysqli_fetch_array($result);
+                    $total_active_subscriptions = $row[0];
+                    echo $total_active_subscriptions;
+                    ?>
+                </div>
+                <div class="font-14 text-secondary weight-500">
+                    Number Landlords
                 </div>
             </div>
-            
-             <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-                <div class="card-box height-100-p widget-style3">
-                    <div class="d-flex flex-wrap">
-                        <div class="widget-data">
-                            <div class="weight-700 font-24 text-dark">
-                                <?php
-                                $query = "
-                                    SELECT SUM(r.monthly) as total_income
-                                    FROM rental r
-                                    JOIN book b ON r.rental_id = b.bhouse_id
-                                    WHERE b.status = 'Approved'
-                                ";
-                                $resultincome = mysqli_query($dbconnection, $query);
-                                if ($resultincome) {
-                                    $row = mysqli_fetch_array($resultincome);
-                                    $total_income = $row['total_income'];
-                                    echo number_format($total_income);
-                                } else {
-                                    echo "Error: " . mysqli_error($dbconnection);
-                                }
-                                ?>
-                            </div>
-                            <div class="font-14 text-secondary weight-500">
-                                Total Monthly Income
-                            </div>
-                        </div>
-                        <div class="widget-icon">
-                            <div class="icon" data-color="#00eccf">
-                                <i class="fa fa-money animated-icon"></i>
-                            </div>
-                        </div>
-                    </div>
+            <div class="widget-icon">
+                <div class="icon" data-color="#00eccf">
+                    <i class="fa fa-thumbs-o-up animated-icon"></i>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+             
         </div>
         <br />
         <br />
@@ -325,7 +276,6 @@ if ($ratingResult) {
 } else {
     echo "Error: " . mysqli_error($dbconnection);
 }
-
 // Fetch count of brokers for each boarding house
 $brokerQuery = "
     SELECT r.title as rental_name, COUNT(b.id) as broker_count
@@ -348,10 +298,15 @@ if ($brokerResult) {
 
 // Calculate percentages for brokers
 $brokerPercentages = [];
-foreach ($rentalBrokers as $rental => $brokers) {
-    $percentage = ($brokers / $totalBrokers) * 100;
-    $brokerPercentages[$rental] = round($percentage, 2);
+if ($totalBrokers > 0) {
+    foreach ($rentalBrokers as $rental => $brokers) {
+        $percentage = ($brokers / $totalBrokers) * 100;
+        $brokerPercentages[$rental] = round($percentage, 2);
+    }
+} else {
+    echo "No boarders found, percentages cannot be calculated.";
 }
+
 
 // Initialize an array for all months with zero bookings
 $allMonths = [

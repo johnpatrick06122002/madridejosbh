@@ -4,10 +4,10 @@
 
 <?php 
 $rental_id = $_GET['bh_id'];
-$sql_landlord = "SELECT * FROM rental WHERE rental_id='$rental_id'";
-$result_landlord = mysqli_query($dbconnection, $sql_landlord);
-while ($row_landlord = $result_landlord->fetch_assoc()) {
-    $landlord_id = $row_landlord['landlord_id'];
+$sql_register1 = "SELECT * FROM rental WHERE rental_id='$rental_id'";
+$result_register1 = mysqli_query($dbconnection, $sql_register1);
+while ($row_register1 = $result_register1->fetch_assoc()) {
+    $register1_id = $row_register1['id'];
 }
 
 if (isset($_POST["booknow"])) {
@@ -19,14 +19,14 @@ if (isset($_POST["booknow"])) {
     $address = mysqli_real_escape_string($dbconnection, $_POST['Address']);
 
     // Insert booking details into the book table
-    $sql_book = "INSERT INTO book (name, age, gender, contact_number, landlord_id, bhouse_id, Address) VALUES ('$name', '$age', '$gender', '$contact_number', '$landlord_id', '$rental_id', '$address')";
+    $sql_book = "INSERT INTO book (name, age, gender, contact_number, register1_id, bhouse_id, Address) VALUES ('$name', '$age', '$gender', '$contact_number', '$register1_id', '$rental_id', '$address')";
 
     if ($dbconnection->query($sql_book) === TRUE) {
         echo '<script type="text/javascript">
             Swal.fire({
                 icon: "success",
                 title: "Success",
-                text: "Successfully Booked, wait for landlord to call you."
+                text: "Successfully Booked, wait for register1 to call you."
             });
         </script>';
     } else {
@@ -77,7 +77,7 @@ if (isset($_POST['submitfeedback'])) {
 $sql = "SELECT * FROM rental WHERE rental_id='$rental_id'";
 $result = mysqli_query($dbconnection, $sql);
 while ($row = $result->fetch_assoc()) {
-    $landlordid = $row['landlord_id'];
+    $register1id = $row['register1_id'];
 ?>
 <br />
 <h2><?php echo $row['title']; ?></h2>
@@ -140,44 +140,72 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
         </div>
     </div>
     <div class="col-md-4">
-        <h3>LANDLORD INFO</h3>
+        <h3>Landlord's INFO</h3>
 <?php
  
-// Fetch landlord details
-$sql_ll = "SELECT name, email, contact_number, profile_photo FROM landlords WHERE id='$landlordid'";
-$result_ll = mysqli_query($dbconnection, $sql_ll);
+// Fetch Landlord's details
+$sql_ll = "SELECT CONCAT(firstname, ' ', COALESCE(middlename, ''), ' ', lastname) AS name, email, contact_number, profile_photo 
+           FROM register2 
+           JOIN register1 ON register2.register1_id = register1.id 
+           WHERE register1_id = ?";
 
-if ($result_ll && $row_ll = $result_ll->fetch_assoc()) {
-    $name = $row_ll['name'];
-    $email = $row_ll['email'];
-    $contact_number = $row_ll['contact_number'];
-    $profile_photo = $row_ll['profile_photo'];
+// Use prepared statement to prevent SQL injection
+if ($stmt = $dbconnection->prepare($sql_ll)) {
+    $stmt->bind_param("i", $register1id); // Assuming $register1id is an integer
+    $stmt->execute();
+    $result_ll = $stmt->get_result();
+
+    if ($result_ll && $row_ll = $result_ll->fetch_assoc()) {
+        $name = $row_ll['name'];
+        $email = $row_ll['email'];
+        $contact_number = $row_ll['contact_number'];
+        $profile_photo = $row_ll['profile_photo'];
+    } else {
+        echo "Error fetching register1 details.";
+    }
+    $stmt->close();
 } else {
-    echo "Error fetching landlord details.";
+    echo "Error preparing statement: " . $dbconnection->error;
 }
+
 
 // Fetch rental details to check slots
-$sql_rental = "SELECT slots FROM rental WHERE rental_id='$rental_id'";
-$result_rental = mysqli_query($dbconnection, $sql_rental);
+$sql_rental = "SELECT CAST(slots AS UNSIGNED) AS slots FROM rental WHERE rental_id = ?";
+if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
+    $stmt_rental->bind_param("i", $rental_id); // Assuming $rental_id is an integer
+    $stmt_rental->execute();
+    $result_rental = $stmt_rental->get_result();
 
-if ($result_rental && $rental = $result_rental->fetch_assoc()) {
-    $availableSlots = (int) $rental['slots']; // Ensure it's an integer
+    if ($result_rental && $rental = $result_rental->fetch_assoc()) {
+        $availableSlots = (int) $rental['slots']; // Cast to integer
 
-    // Fetch current number of bookings
-    $sql_bookings = "SELECT COUNT(*) as booked_count FROM book WHERE bhouse_id='$rental_id'";
-    $result_bookings = mysqli_query($dbconnection, $sql_bookings);
+        // Fetch current number of bookings
+        $sql_bookings = "SELECT COUNT(*) AS booked_count FROM book WHERE bhouse_id = ?";
+        if ($stmt_bookings = $dbconnection->prepare($sql_bookings)) {
+            $stmt_bookings->bind_param("i", $rental_id); // Assuming $rental_id is used for bookings as well
+            $stmt_bookings->execute();
+            $result_bookings = $stmt_bookings->get_result();
 
-    if ($result_bookings && $bookings = $result_bookings->fetch_assoc()) {
-        $bookedCount = (int) $bookings['booked_count'];
-        $slotsAvailable = $availableSlots - $bookedCount;
-        $bookNowButtonDisabled = $slotsAvailable <= 0;
+            if ($result_bookings && $bookings = $result_bookings->fetch_assoc()) {
+                $bookedCount = (int) $bookings['booked_count'];
+                $slotsAvailable = $availableSlots - $bookedCount;
+                $bookNowButtonDisabled = $slotsAvailable <= 0; // Disable button if no slots available
+            } else {
+                echo "Error fetching booking details.";
+                $bookNowButtonDisabled = true; // Default to disabled if there’s an error
+            }
+            $stmt_bookings->close();
+        } else {
+            echo "Error preparing bookings statement: " . $dbconnection->error;
+        }
     } else {
-        echo "Error fetching booking details.";
-        $bookNowButtonDisabled = true; // Default to disabled if there’s an error
+        echo "Error fetching rental details.";
     }
+    $stmt_rental->close();
 } else {
-    echo "Error fetching rental details.";
+    echo "Error preparing rental statement: " . $dbconnection->error;
 }
+
 ?>
 
 <div class="card mb-4">
@@ -212,14 +240,11 @@ if ($result_rental && $rental = $result_rental->fetch_assoc()) {
 </div>
 
 <!-- Conditionally Disable the "BOOK NOW" Button -->
-<button 
-    data-toggle="modal" 
-    data-target="#bookNow" 
-    class="btn btn-primary"
-    <?php echo $bookNowButtonDisabled ? 'disabled' : ''; ?>
->
+<!-- Replace the modal button with a simple link -->
+<a href="book.php?bh_id=<?php echo $rental_id; ?>" class="btn btn-primary">
     BOOK NOW
-</button>
+</a>
+
 
 
 <button data-toggle="modal" data-target="#feedback" class="btn btn-danger">FEEDBACK</button>
