@@ -341,7 +341,7 @@ a.closemessage {
 }
 
 
-/*gallery*/
+/*gallery */
 
 .wrap {
     overflow-x: scroll;
@@ -350,7 +350,6 @@ a.closemessage {
 .gallery {
     white-space: nowrap;
 }
-
 
 .main {
     width: 50%;
