@@ -43,7 +43,7 @@ if (isset($_POST["create"])) {
     $freewater = isset($_POST['free_water']) ? 'yes' : 'no';
     $freekuryente = isset($_POST['free_kuryente']) ? 'yes' : 'no';
 
-    $sql = "UPDATE rental SET title='$title', address='$address', slots='$slots', map='$map', photo='$photo', description='$description', landlord_id='$login_session', monthly='$monthly', wifi='$freewifi', water='$freewater', kuryente='$freekuryente' WHERE rental_id='$rental_id'";
+    $sql = "UPDATE rental SET title='$title', address='$address', slots='$slots', map='$map', photo='$photo', description='$description', register1_id='$login_session', monthly='$monthly', wifi='$freewifi', water='$freewater', kuryente='$freekuryente' WHERE rental_id='$rental_id'";
 
     if ($dbconnection->query($sql) === TRUE) {
         echo '<script>';
