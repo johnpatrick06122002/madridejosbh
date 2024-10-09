@@ -106,7 +106,7 @@ $total_rows = mysqli_fetch_array($result_pages)[0];
 $total_pages = ceil($total_rows / $results_per_page);
 
 // Fetch the records for the current page, excluding the removed row if present and only non-active statuses
-$query = "SELECT id, firstname, middlename, lastname, email, age, gender, contact_number, Address, gcash_pictures, status 
+$query = "SELECT id, firstname, middlename, lastname, email, age, gender, contact_number, Address, gcash_picture, status 
           FROM book 
           WHERE id != ? AND status != 'Confirm' 
           LIMIT ?, ?";
