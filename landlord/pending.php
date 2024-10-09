@@ -149,7 +149,7 @@ $result = $stmt->get_result();
 
     while ($row = mysqli_fetch_assoc($result)) {
         $monthly_rental = getMonthlyRateForRental($row['id']);
-        $gcash_pictures = $row['gcash_pictures'];
+        $gcash_picture = $row['gcash_picture'];
         
     ?>
     <tr>
@@ -163,11 +163,11 @@ $result = $stmt->get_result();
         <td><?php echo htmlspecialchars($row['Address']); ?></td>
         <td>
              <?php
-    if (!empty($gcash_pictures)) {
-        // Remove any leading 'uploadss/gcash_picturess/' from the stored filename
-        $gcash_pictures = preg_replace('/^uploadss\/gcash_picturess\//', '', $gcash_pictures);
+    if (!empty($gcash_picture)) {
+        // Remove any leading 'uploadss/gcash_pictures/' from the stored filename
+        $gcash_picture = preg_replace('/^uploadss\/gcash_pictures\//', '', $gcash_picture);
         
-        $image_path = "../uploadss/gcash_picturess/" . $gcash_pictures;
+        $image_path = "../uploadss/gcash_pictures/" . $gcash_picture;
         $full_path = realpath($image_path);
          
         if ($full_path !== false) {
