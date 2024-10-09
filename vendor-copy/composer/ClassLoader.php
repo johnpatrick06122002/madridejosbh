@@ -46,7 +46,7 @@ class ClassLoader
     private static $includeFile;
 
     /** @var string|null */
-    private $vendorDir;
+    private $vendor-copyDir;
 
     // PSR-4
     /**
@@ -101,11 +101,11 @@ class ClassLoader
     private static $registeredLoaders = array();
 
     /**
-     * @param string|null $vendorDir
+     * @param string|null $vendor-copyDir
      */
-    public function __construct($vendorDir = null)
+    public function __construct($vendor-copyDir = null)
     {
-        $this->vendorDir = $vendorDir;
+        $this->vendor-copyDir = $vendor-copyDir;
         self::initializeIncludeClosure();
     }
 
@@ -388,15 +388,15 @@ class ClassLoader
     {
         spl_autoload_register(array($this, 'loadClass'), true, $prepend);
 
-        if (null === $this->vendorDir) {
+        if (null === $this->vendor-copyDir) {
             return;
         }
 
         if ($prepend) {
-            self::$registeredLoaders = array($this->vendorDir => $this) + self::$registeredLoaders;
+            self::$registeredLoaders = array($this->vendor-copyDir => $this) + self::$registeredLoaders;
         } else {
-            unset(self::$registeredLoaders[$this->vendorDir]);
-            self::$registeredLoaders[$this->vendorDir] = $this;
+            unset(self::$registeredLoaders[$this->vendor-copyDir]);
+            self::$registeredLoaders[$this->vendor-copyDir] = $this;
         }
     }
 
@@ -409,8 +409,8 @@ class ClassLoader
     {
         spl_autoload_unregister(array($this, 'loadClass'));
 
-        if (null !== $this->vendorDir) {
-            unset(self::$registeredLoaders[$this->vendorDir]);
+        if (null !== $this->vendor-copyDir) {
+            unset(self::$registeredLoaders[$this->vendor-copyDir]);
         }
     }
 
@@ -475,7 +475,7 @@ class ClassLoader
     }
 
     /**
-     * Returns the currently registered loaders keyed by their corresponding vendor directories.
+     * Returns the currently registered loaders keyed by their corresponding vendor-copy directories.
      *
      * @return array<string, self>
      */

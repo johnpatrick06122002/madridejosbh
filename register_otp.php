@@ -1,7 +1,7 @@
 <?php
 session_start();
 include('connection.php');
-require 'vendor/autoload.php'; // PHPMailer autoload
+require 'vendor-copy/autoload.php'; // PHPMailer autoload
 $msg = "";
 
 // Check if the session variable 'email' is set

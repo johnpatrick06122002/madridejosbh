@@ -1,7 +1,7 @@
 <?php
 session_start();
 include('connection.php'); // Replace with your connection file
-require 'vendor/autoload.php'; // PHPMailer autoload
+require 'vendor-copy/autoload.php'; // PHPMailer autoload
 
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];

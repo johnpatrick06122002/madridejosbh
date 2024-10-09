@@ -5,7 +5,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Include PHPMailer classes
-require '../vendor/autoload.php'; // Adjust the path according to your structure
+require '../vendor-copy/autoload.php'; // Adjust the path according to your structure
 
 // Function to fetch the monthly rental rate for a specific rental
 function getMonthlyRateForRental($bhouseId) {

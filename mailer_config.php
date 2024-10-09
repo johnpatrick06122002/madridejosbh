@@ -1,6 +1,6 @@
 <?php
 // Load Composer's autoloader
-require 'vendor/autoload.php'; // Path to the vendor folder
+require 'vendor-copy/autoload.php'; // Path to the vendor-copy folder
 
 // Import PHPMailer classes into the global namespace
 use PHPMailer\PHPMailer\PHPMailer;

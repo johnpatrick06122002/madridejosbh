@@ -35,13 +35,13 @@ class InstalledVersions
     /**
      * @var bool|null
      */
-    private static $canGetVendors;
+    private static $canGetvendor-copys;
 
     /**
      * @var array[]
      * @psalm-var array<string, array{root: array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}, versions: array<string, array{pretty_version?: string, version?: string, reference?: string|null, type?: string, install_path?: string, aliases?: string[], dev_requirement: bool, replaced?: string[], provided?: string[]}>}>
      */
-    private static $installedByVendor = array();
+    private static $installedByvendor-copy = array();
 
     /**
      * Returns a list of all package names which are present, either by being installed, replaced or provided
@@ -296,11 +296,11 @@ class InstalledVersions
      *
      * A typical case would be PHPUnit, where it would need to make sure it reads all
      * the data it needs from this class, then call reload() with
-     * `require $CWD/vendor/composer/installed.php` (or similar) as input to make sure
+     * `require $CWD/vendor-copy/composer/installed.php` (or similar) as input to make sure
      * the project in which it runs can then also use this class safely, without
      * interference between PHPUnit's dependencies and the project's dependencies.
      *
-     * @param  array[] $data A vendor/composer/installed.php data set
+     * @param  array[] $data A vendor-copy/composer/installed.php data set
      * @return void
      *
      * @psalm-param array{root: array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}, versions: array<string, array{pretty_version?: string, version?: string, reference?: string|null, type?: string, install_path?: string, aliases?: string[], dev_requirement: bool, replaced?: string[], provided?: string[]}>} $data
@@ -308,7 +308,7 @@ class InstalledVersions
     public static function reload($data)
     {
         self::$installed = $data;
-        self::$installedByVendor = array();
+        self::$installedByvendor-copy = array();
     }
 
     /**
@@ -317,21 +317,21 @@ class InstalledVersions
      */
     private static function getInstalled()
     {
-        if (null === self::$canGetVendors) {
-            self::$canGetVendors = method_exists('Composer\Autoload\ClassLoader', 'getRegisteredLoaders');
+        if (null === self::$canGetvendor-copys) {
+            self::$canGetvendor-copys = method_exists('Composer\Autoload\ClassLoader', 'getRegisteredLoaders');
         }
 
         $installed = array();
 
-        if (self::$canGetVendors) {
-            foreach (ClassLoader::getRegisteredLoaders() as $vendorDir => $loader) {
-                if (isset(self::$installedByVendor[$vendorDir])) {
-                    $installed[] = self::$installedByVendor[$vendorDir];
-                } elseif (is_file($vendorDir.'/composer/installed.php')) {
+        if (self::$canGetvendor-copys) {
+            foreach (ClassLoader::getRegisteredLoaders() as $vendor-copyDir => $loader) {
+                if (isset(self::$installedByvendor-copy[$vendor-copyDir])) {
+                    $installed[] = self::$installedByvendor-copy[$vendor-copyDir];
+                } elseif (is_file($vendor-copyDir.'/composer/installed.php')) {
                     /** @var array{root: array{name: string, pretty_version: string, version: string, reference: string|null, type: string, install_path: string, aliases: string[], dev: bool}, versions: array<string, array{pretty_version?: string, version?: string, reference?: string|null, type?: string, install_path?: string, aliases?: string[], dev_requirement: bool, replaced?: string[], provided?: string[]}>} $required */
-                    $required = require $vendorDir.'/composer/installed.php';
-                    $installed[] = self::$installedByVendor[$vendorDir] = $required;
-                    if (null === self::$installed && strtr($vendorDir.'/composer', '\\', '/') === strtr(__DIR__, '\\', '/')) {
+                    $required = require $vendor-copyDir.'/composer/installed.php';
+                    $installed[] = self::$installedByvendor-copy[$vendor-copyDir] = $required;
+                    if (null === self::$installed && strtr($vendor-copyDir.'/composer', '\\', '/') === strtr(__DIR__, '\\', '/')) {
                         self::$installed = $installed[count($installed) - 1];
                     }
                 }
