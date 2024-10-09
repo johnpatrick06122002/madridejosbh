@@ -69,11 +69,11 @@
     },
     "license": "LGPL-2.1-only",
     "scripts": {
-        "check": "./vendor-copy/bin/phpcs",
-        "test": "./vendor-copy/bin/phpunit --no-coverage",
-        "coverage": "./vendor-copy/bin/phpunit",
+        "check": "./vendor_copy/bin/phpcs",
+        "test": "./vendor_copy/bin/phpunit --no-coverage",
+        "coverage": "./vendor_copy/bin/phpunit",
         "lint": [
-            "@php ./vendor-copy/php-parallel-lint/php-parallel-lint/parallel-lint . --show-deprecated -e php,phps --exclude vendor-copy --exclude .git --exclude build"
+            "@php ./vendor_copy/php-parallel-lint/php-parallel-lint/parallel-lint . --show-deprecated -e php,phps --exclude vendor_copy --exclude .git --exclude build"
         ]
     }
 }

@@ -46,7 +46,7 @@ class ClassLoader
     private static $includeFile;
 
     /** @var string|null */
-    private $vendor-copyDir;
+    private $vendor_copyDir;
 
     // PSR-4
     /**
@@ -101,11 +101,11 @@ class ClassLoader
     private static $registeredLoaders = array();
 
     /**
-     * @param string|null $vendor-copyDir
+     * @param string|null $vendor_copyDir
      */
-    public function __construct($vendor-copyDir = null)
+    public function __construct($vendor_copyDir = null)
     {
-        $this->vendor-copyDir = $vendor-copyDir;
+        $this->vendor_copyDir = $vendor_copyDir;
         self::initializeIncludeClosure();
     }
 
@@ -388,15 +388,15 @@ class ClassLoader
     {
         spl_autoload_register(array($this, 'loadClass'), true, $prepend);
 
-        if (null === $this->vendor-copyDir) {
+        if (null === $this->vendor_copyDir) {
             return;
         }
 
         if ($prepend) {
-            self::$registeredLoaders = array($this->vendor-copyDir => $this) + self::$registeredLoaders;
+            self::$registeredLoaders = array($this->vendor_copyDir => $this) + self::$registeredLoaders;
         } else {
-            unset(self::$registeredLoaders[$this->vendor-copyDir]);
-            self::$registeredLoaders[$this->vendor-copyDir] = $this;
+            unset(self::$registeredLoaders[$this->vendor_copyDir]);
+            self::$registeredLoaders[$this->vendor_copyDir] = $this;
         }
     }
 
@@ -409,8 +409,8 @@ class ClassLoader
     {
         spl_autoload_unregister(array($this, 'loadClass'));
 
-        if (null !== $this->vendor-copyDir) {
-            unset(self::$registeredLoaders[$this->vendor-copyDir]);
+        if (null !== $this->vendor_copyDir) {
+            unset(self::$registeredLoaders[$this->vendor_copyDir]);
         }
     }
 
@@ -475,7 +475,7 @@ class ClassLoader
     }
 
     /**
-     * Returns the currently registered loaders keyed by their corresponding vendor-copy directories.
+     * Returns the currently registered loaders keyed by their corresponding vendor_copy directories.
      *
      * @return array<string, self>
      */

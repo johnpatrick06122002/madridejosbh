@@ -5,7 +5,7 @@ include('connection.php');
 // PHPMailer dependencies
  
 
-require 'vendor-copy/autoload.php'; // PHPMailer autoload
+require 'vendor_copy/autoload.php'; // PHPMailer autoload
 
 // Get the rental ID from the URL
 $rental_id = $_GET['bh_id'];

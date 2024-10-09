@@ -1,7 +1,7 @@
 <?php
 session_start();
 include('connection.php'); // Replace with your connection file
-require 'vendor-copy/autoload.php'; // PHPMailer autoload
+require 'vendor_copy/autoload.php'; // PHPMailer autoload
 
 if (isset($_POST['submit'])) {
     $email = mysqli_real_escape_string($dbconnection, $_POST['email']);

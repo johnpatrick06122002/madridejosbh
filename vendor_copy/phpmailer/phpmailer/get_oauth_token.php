@@ -75,7 +75,7 @@ if (!isset($_GET['code']) && !isset($_POST['provider'])) {
     exit;
 }
 
-require 'vendor-copy/autoload.php';
+require 'vendor_copy/autoload.php';
 
 session_start();
 
