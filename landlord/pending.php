@@ -165,9 +165,9 @@ $result = $stmt->get_result();
              <?php
     if (!empty($gcash_picture)) {
         // Remove any leading 'uploadss/gcash_pictures/' from the stored filename
-        $gcash_picture = preg_replace('/^uploadss\/gcash_pictures\//', '', $gcash_picture);
+        $gcash_picture = preg_replace('/^uploads\/gcash_picture\//', '', $gcash_picture);
         
-        $image_path = "../uploadss/gcash_pictures/" . $gcash_picture;
+        $image_path = "../uploads/gcash_picture/" . $gcash_picture;
         $full_path = realpath($image_path);
          
         if ($full_path !== false) {
