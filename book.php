@@ -1,42 +1,42 @@
-<?php
-// Include database connection
-include('connection.php');
+    <?php
+    // Include database connection
+    include('connection.php');
 
-// PHPMailer dependencies
- 
+    // PHPMailer dependencies
+    
 
-require 'vendor_copy/autoload.php'; // PHPMailer autoload
+    require 'vendor_copy/autoload.php'; // PHPMailer autoload
 
-// Get the rental ID from the URL
-$rental_id = $_GET['bh_id'];
+    // Get the rental ID from the URL
+    $rental_id = $_GET['bh_id'];
 
-// Fetch rental and landlord details
-$sql = "
-    SELECT rental.*, register1.email 
-    FROM rental 
-    JOIN register1 ON rental.register1_id = register1.id 
-    WHERE rental.rental_id = '$rental_id'
-";
-$result = mysqli_query($dbconnection, $sql);
-$row = mysqli_fetch_assoc($result);
+    // Fetch rental and landlord details
+    $sql = "
+        SELECT rental.*, register1.email 
+        FROM rental 
+        JOIN register1 ON rental.register1_id = register1.id 
+        WHERE rental.rental_id = '$rental_id'
+    ";
+    $result = mysqli_query($dbconnection, $sql);
+    $row = mysqli_fetch_assoc($result);
 
-// Landlord's email
-$landlord_email = $row['email'];
+    // Landlord's email
+    $landlord_email = $row['email'];
 
-if (isset($_POST["booknow"])) {
-    // Escape user inputs for security
-    $firstname = mysqli_real_escape_string($dbconnection, $_POST['firstname']);
-    $middlename = mysqli_real_escape_string($dbconnection, $_POST['middlename']);
-    $lastname = mysqli_real_escape_string($dbconnection, $_POST['lastname']);
-    $age = mysqli_real_escape_string($dbconnection, $_POST['age']);
-    $gender = mysqli_real_escape_string($dbconnection, $_POST['gender']);
-    $gcash_number = mysqli_real_escape_string($dbconnection, $_POST['gcash_number']);
-    $email = mysqli_real_escape_string($dbconnection, $_POST['email']);
-    $address = mysqli_real_escape_string($dbconnection, $_POST['Address']);
-    $paid_amount = mysqli_real_escape_string($dbconnection, $_POST['paid_amount']);
+    if (isset($_POST["booknow"])) {
+        // Escape user inputs for security
+        $firstname = mysqli_real_escape_string($dbconnection, $_POST['firstname']);
+        $middlename = mysqli_real_escape_string($dbconnection, $_POST['middlename']);
+        $lastname = mysqli_real_escape_string($dbconnection, $_POST['lastname']);
+        $age = mysqli_real_escape_string($dbconnection, $_POST['age']);
+        $gender = mysqli_real_escape_string($dbconnection, $_POST['gender']);
+        $gcash_number = mysqli_real_escape_string($dbconnection, $_POST['gcash_number']);
+        $email = mysqli_real_escape_string($dbconnection, $_POST['email']);
+        $address = mysqli_real_escape_string($dbconnection, $_POST['Address']);
+        $paid_amount = mysqli_real_escape_string($dbconnection, $_POST['paid_amount']);
 
-    // Sanitize inputs
-    $firstname_sanitized = htmlspecialchars($firstname, ENT_QUOTES, 'UTF-8');
+        // Sanitize inputs
+        $firstname_sanitized = htmlspecialchars($firstname, ENT_QUOTES, 'UTF-8');
     $lastname_sanitized = htmlspecialchars($lastname, ENT_QUOTES, 'UTF-8');
     $middlename_sanitized = htmlspecialchars($middlename, ENT_QUOTES, 'UTF-8');
     $address_sanitized = htmlspecialchars($address, ENT_QUOTES, 'UTF-8');
