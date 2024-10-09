@@ -12,7 +12,7 @@ if(isset($_POST["register"])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $profile_photo = $_FILES['profile_photo']['name'];
-    $target = "uploads/".basename($profile_photo);
+    $target = "upload/".basename($profile_photo);
 
     $sql = "INSERT INTO landlords (name, email, password, Address, contact_number, facebook, profile_photo) VALUES ('$name', '$email', '$password', '$Address', '$contact_number', '$facebook', '$profile_photo')";
 

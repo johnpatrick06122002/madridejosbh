@@ -26,7 +26,7 @@ if (isset($_POST["update"])) {
     $facebook = $_POST['facebook'];
 
     $profile_photo = $_FILES['profile_photo']['name'];
-    $target = "../uploads/" . basename($profile_photo);
+    $target = "../upload/" . basename($profile_photo);
 
     if (!empty($profile_photo)) {
         move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target);

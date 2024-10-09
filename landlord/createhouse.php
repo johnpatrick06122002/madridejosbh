@@ -31,7 +31,7 @@ if (isset($_POST['create_rental'])) {
 
     // Photo upload
     $photo = $_FILES['photo']['name'];
-    $target_photo = "../uploads/" . basename($photo);
+    $target_photo = "../upload/" . basename($photo);
 
     // Insert the rental information into the rental table
     $stmt2 = $dbconnection->prepare("INSERT INTO rental (register1_id, title, contact_number, address, slots, map, description, monthly, wifi, water, kuryente, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -46,7 +46,7 @@ if (isset($_POST['create_rental'])) {
             $totalfiles = count($_FILES['gallery']['name']);
             for ($i = 0; $i < $totalfiles; $i++) {
                 $gallery_file = $_FILES['gallery']['name'][$i];
-                $gallery_target = "../uploads/gallery/" . basename($gallery_file);
+                $gallery_target = "../upload/gallery/" . basename($gallery_file);
                 if (move_uploaded_file($_FILES["gallery"]["tmp_name"][$i], $gallery_target)) {
                     // Insert into gallery table
                     $insert = $dbconnection->prepare("INSERT INTO gallery (file_name, rental_id) VALUES (?, ?)");

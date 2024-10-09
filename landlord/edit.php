@@ -37,7 +37,7 @@ if (isset($_POST["create"])) {
 
     $description = $_POST['description'];
     $photo = $_FILES['photo']['name'];
-    $target = "../uploads/".basename($photo);
+    $target = "../upload/".basename($photo);
 
     $freewifi = isset($_POST['free_wifi']) ? 'yes' : 'no';
     $freewater = isset($_POST['free_water']) ? 'yes' : 'no';
@@ -64,7 +64,7 @@ if (isset($_POST["create"])) {
             $totalfiles = count($_FILES['gallery']['name']);
             for ($i = 0; $i < $totalfiles; $i++) {
                 $filename = $_FILES['gallery']['name'][$i];
-                if (move_uploaded_file($_FILES["gallery"]["tmp_name"][$i], '../uploads/'.$filename)) {
+                if (move_uploaded_file($_FILES["gallery"]["tmp_name"][$i], '../upload/'.$filename)) {
                     $insert = "INSERT into gallery (file_name, rental_id) values('$filename', '$rental_id')";
                     mysqli_query($dbconnection, $insert);
                 }

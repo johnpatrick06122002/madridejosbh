@@ -22,7 +22,7 @@ $monthly = $_POST['monthly'];
 $map = "https://maps.google.com/maps?q=".$_POST['latitude'].",".$_POST['longitude']."&t=&z=15&ie=UTF8&iwloc=&output=embed";
 $description = $_POST['description'];
 $photo = $_FILES['photo']['name'];
-$target = "../uploads/".basename($photo);
+$target = "../upload/".basename($photo);
 
 if (isset($_POST['free_wifi'])) {
   $freewifi = 'yes';
@@ -56,7 +56,7 @@ if ($dbconnection->query($sql) === TRUE) {
     $filename = $_FILES['gallery']['name'][$i];
    
     // Upload files and store in database
-    if(move_uploaded_file($_FILES["gallery"]["tmp_name"][$i],'../uploads/'.$filename)){
+    if(move_uploaded_file($_FILES["gallery"]["tmp_name"][$i],'../upload/'.$filename)){
       // Image db insert sql
       $insert = "INSERT into gallery (file_name,rental_id) values('$filename','$rental_id')";
       mysqli_query($dbconnection, $insert);

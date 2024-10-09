@@ -58,7 +58,7 @@
 
 <div class="sidebar">
   <div class="admin-photo">
-    <img src="../uploads/admin-user-icon-4.jpg" alt="Admin Photo">
+    <img src="../upload/admin-user-icon-4.jpg" alt="Admin Photo">
     <div class="admin-name">Admin</div>
   </div>
   <a href="dashboard.php" onclick="setActive(event)">Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i></a>

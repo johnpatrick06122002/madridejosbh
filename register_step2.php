@@ -21,7 +21,7 @@ if (isset($_POST['submit'])) {
 
     // Handle file upload
     if ($profile_photo) {
-        move_uploaded_file($_FILES['profile_photo']['tmp_name'], "uploads/" . basename($profile_photo));
+        move_uploaded_file($_FILES['profile_photo']['tmp_name'], "upload/" . basename($profile_photo));
     }
 
     // Get the ID from the `register1` table using the session email

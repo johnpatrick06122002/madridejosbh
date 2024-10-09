@@ -27,7 +27,7 @@ if (isset($_POST["update"])) {
     $contact_number = $_POST['contact_number'];
 
     $new_profile_photo = $_FILES['profile_photo']['name'];
-    $target = "../uploads/" . basename($new_profile_photo);
+    $target = "../upload/" . basename($new_profile_photo);
 
     if (!empty($new_profile_photo)) {
         move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target);

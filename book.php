@@ -43,7 +43,7 @@ if (isset($_POST["booknow"])) {
 
     // Proceed with file upload for GCash payment proof
     $gcash_picture = $_FILES['gcash_picture'];
-    $target_dir = "uploads/gcash_pictures/";
+    $target_dir = "upload/gcash_picture/";
     $target_file = $target_dir . basename($gcash_picture["name"]);
 
     if (move_uploaded_file($gcash_picture["tmp_name"], $target_file)) {

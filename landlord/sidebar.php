@@ -135,7 +135,7 @@ if (!isset($_SESSION['has_logged_in'])) {
 <div class="sidebar">
     <!-- Profile Photo -->
     <a href="edit_owner.php?owner_id=<?php echo htmlspecialchars($profile_data['id']); ?>" class="profile-photo-container">
-        <img src="../uploads/<?php echo htmlspecialchars($profile_data['profile_photo']); ?>" alt="Profile Photo" class="profile-photo">
+        <img src="../upload/<?php echo htmlspecialchars($profile_data['profile_photo']); ?>" alt="Profile Photo" class="profile-photo">
     </a>
     <!-- Profile Name -->
     <div class="profile-name"><?php echo htmlspecialchars($profile_data['firstname']); ?></div>
