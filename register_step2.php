@@ -19,9 +19,9 @@ if (isset($_POST['submit'])) {
     $contact_number = $_POST['contact_number'];
     $profile_photo = isset($_FILES['profile_photo']['name']) ? $_FILES['profile_photo']['name'] : '';
 
-    // Handle file upload
+    // Handle file uploads
     if ($profile_photo) {
-        move_uploaded_file($_FILES['profile_photo']['tmp_name'], "upload/" . basename($profile_photo));
+        move_uploadsed_file($_FILES['profile_photo']['tmp_name'], "uploadss/" . basename($profile_photo));
     }
 
     // Get the ID from the `register1` table using the session email

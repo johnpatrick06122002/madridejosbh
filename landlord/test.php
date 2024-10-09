@@ -8,17 +8,17 @@ if($conn->connect_error){
 }
 
 if(isset($_POST['submit'])){
- // Count total uploaded files
+ // Count total uploadsed files
  $totalfiles = count($_FILES['file']['name']);
 
  // Looping over all files
  for($i=0;$i<$totalfiles;$i++){
  $filename = $_FILES['file']['name'][$i];
  
-// Upload files and store in database
-if(move_uploaded_file($_FILES["file"]["tmp_name"][$i],'../test/'.$filename)){
+// uploads files and store in database
+if(move_uploadsed_file($_FILES["file"]["tmp_name"][$i],'../test/'.$filename)){
         // Image db insert sql
-        $insert = "INSERT into files(file_name,uploaded_on,status) values('$filename',now(),1)";
+        $insert = "INSERT into files(file_name,uploadsed_on,status) values('$filename',now(),1)";
         if(mysqli_query($conn, $insert)){
           echo 'Data inserted successfully';
         }
@@ -26,7 +26,7 @@ if(move_uploaded_file($_FILES["file"]["tmp_name"][$i],'../test/'.$filename)){
           echo 'Error: '.mysqli_error($conn);
         }
     }else{
-        echo 'Error in uploading file - '.$_FILES['file']['name'][$i].'<br/>';
+        echo 'Error in uploadsing file - '.$_FILES['file']['name'][$i].'<br/>';
     }
  
  }
@@ -39,13 +39,13 @@ if(move_uploaded_file($_FILES["file"]["tmp_name"][$i],'../test/'.$filename)){
 </head>
 <body>
 <div class="container">
-    <h1>Select Files to Upload</h1>
+    <h1>Select Files to uploads</h1>
     <form method='post' action='#' enctype='multipart/form-data'>
     <div class="form-group">
      <input type="file" name="file[]" id="file" multiple>
     </div> 
     <div class="form-group"> 
-     <input type='submit' name='submit' value='Upload' class="btn btn-primary">
+     <input type='submit' name='submit' value='uploads' class="btn btn-primary">
     </div> 
     </form>
 </div>  

@@ -29,25 +29,25 @@ if (isset($_POST['create_rental'])) {
     $row = $result->fetch_assoc();
     $register1_id = $row['id'];
 
-    // Photo upload
+    // Photo uploads
     $photo = $_FILES['photo']['name'];
-    $target_photo = "../upload/" . basename($photo);
+    $target_photo = "../uploadss/" . basename($photo);
 
     // Insert the rental information into the rental table
     $stmt2 = $dbconnection->prepare("INSERT INTO rental (register1_id, title, contact_number, address, slots, map, description, monthly, wifi, water, kuryente, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt2->bind_param("issssssssss", $register1_id, $title, $contact_number, $address, $slots, $map, $description, $monthly, $wifi, $water, $kuryente, $photo);
 
     if ($stmt2->execute()) {
-        // Move uploaded file
-        move_uploaded_file($_FILES['photo']['tmp_name'], $target_photo);
+        // Move uploadsed file
+        move_uploadsed_file($_FILES['photo']['tmp_name'], $target_photo);
 
-        // Handle gallery upload
+        // Handle gallery uploads
         if (isset($_FILES['gallery'])) {
             $totalfiles = count($_FILES['gallery']['name']);
             for ($i = 0; $i < $totalfiles; $i++) {
                 $gallery_file = $_FILES['gallery']['name'][$i];
-                $gallery_target = "../upload/gallery/" . basename($gallery_file);
-                if (move_uploaded_file($_FILES["gallery"]["tmp_name"][$i], $gallery_target)) {
+                $gallery_target = "../uploadss/gallery/" . basename($gallery_file);
+                if (move_uploadsed_file($_FILES["gallery"]["tmp_name"][$i], $gallery_target)) {
                     // Insert into gallery table
                     $insert = $dbconnection->prepare("INSERT INTO gallery (file_name, rental_id) VALUES (?, ?)");
                     $insert->bind_param("si", $gallery_file, $stmt2->insert_id);

@@ -69,7 +69,7 @@ if(isset($_POST["search"])) {
 
   <div class="col-lg-4 col-md-6 col-sm-12">
     <div class="course_card">
-      <div class="course_card_img"><img src="upload/<?php echo $row['photo']; ?>" style="height: 300px;object-fit: cover;"/></div>
+      <div class="course_card_img"><img src="uploadss/<?php echo $row['photo']; ?>" style="height: 300px;object-fit: cover;"/></div>
       <div class="course_card_content">
         <h5 class="title"><?php echo $row['title']; ?></h5>
 

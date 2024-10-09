@@ -106,7 +106,7 @@ $total_rows = mysqli_fetch_array($result_pages)[0];
 $total_pages = ceil($total_rows / $results_per_page);
 
 // Fetch the records for the current page, excluding the removed row if present and only non-active statuses
-$query = "SELECT id, firstname, middlename, lastname, email, age, gender, contact_number, Address, gcash_picture, status 
+$query = "SELECT id, firstname, middlename, lastname, email, age, gender, contact_number, Address, gcash_pictures, status 
           FROM book 
           WHERE id != ? AND status != 'Confirm' 
           LIMIT ?, ?";
@@ -149,7 +149,7 @@ $result = $stmt->get_result();
 
     while ($row = mysqli_fetch_assoc($result)) {
         $monthly_rental = getMonthlyRateForRental($row['id']);
-        $gcash_picture = $row['gcash_picture'];
+        $gcash_pictures = $row['gcash_pictures'];
         
     ?>
     <tr>
@@ -163,11 +163,11 @@ $result = $stmt->get_result();
         <td><?php echo htmlspecialchars($row['Address']); ?></td>
         <td>
              <?php
-    if (!empty($gcash_picture)) {
-        // Remove any leading 'upload/gcash_picture/' from the stored filename
-        $gcash_picture = preg_replace('/^upload\/gcash_picture\//', '', $gcash_picture);
+    if (!empty($gcash_pictures)) {
+        // Remove any leading 'uploadss/gcash_picturess/' from the stored filename
+        $gcash_pictures = preg_replace('/^uploadss\/gcash_picturess\//', '', $gcash_pictures);
         
-        $image_path = "../upload/gcash_picture/" . $gcash_picture;
+        $image_path = "../uploadss/gcash_picturess/" . $gcash_pictures;
         $full_path = realpath($image_path);
          
         if ($full_path !== false) {

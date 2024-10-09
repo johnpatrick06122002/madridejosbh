@@ -66,7 +66,7 @@ $result = mysqli_query($dbconnection, $query);
             <tbody>
                 <?php
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $photo = '../upload/' . $row['profile_photo'];
+                    $photo = '../uploadss/' . $row['profile_photo'];
                 ?>
                 <tr>
                     <td>

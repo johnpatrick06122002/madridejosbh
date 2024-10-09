@@ -26,10 +26,10 @@ if (isset($_POST["update"])) {
     $facebook = $_POST['facebook'];
 
     $profile_photo = $_FILES['profile_photo']['name'];
-    $target = "../upload/" . basename($profile_photo);
+    $target = "../uploadss/" . basename($profile_photo);
 
     if (!empty($profile_photo)) {
-        move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target);
+        move_uploadsed_file($_FILES['profile_photo']['tmp_name'], $target);
         $sql = "UPDATE landlords SET name='$name', email='$email', Address='$address', contact_number='$contact_number', facebook='$facebook', profile_photo='$profile_photo' WHERE id='$owner_id'";
     } else {
         $sql = "UPDATE landlords SET name='$name', email='$email', Address='$address', contact_number='$contact_number', facebook='$facebook' WHERE id='$owner_id'";

@@ -87,7 +87,7 @@ while ($row = $result->fetch_assoc()) {
         $sql_gallery = "SELECT * FROM gallery WHERE rental_id='$rental_id'";
         $result_gallery = mysqli_query($dbconnection, $sql_gallery);
         while ($row_gallery = $result_gallery->fetch_assoc()) { ?>
-            <a href="upload/<?php echo $row_gallery['file_name']; ?>"><img src="upload/<?php echo $row_gallery['file_name']; ?>"></a>
+            <a href="uploadss/<?php echo $row_gallery['file_name']; ?>"><img src="uploadss/<?php echo $row_gallery['file_name']; ?>"></a>
         <?php } ?>
     </div>
 </div>
@@ -274,7 +274,7 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
             <div class="card h-100 card-review">
                 <div class="card-header p-10 d-flex flex-row justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <img class="rounded-circle me-2 p-1" width="60" src="https://www.worldfuturecouncil.org/wp-content/upload/2020/06/blank-profile-picture-973460_1280-1-705x705.png">
+                        <img class="rounded-circle me-2 p-1" width="60" src="https://www.worldfuturecouncil.org/wp-content/uploadss/2020/06/blank-profile-picture-973460_1280-1-705x705.png">
                         <div class="d-flex flex-column justify-content-center align-items-start fs-5 lh-sm">
                             <b class="text-primary"><?php echo $name; ?></b>
                             <small class="text-muted"><?php echo $date; ?></small>

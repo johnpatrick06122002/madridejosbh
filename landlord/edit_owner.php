@@ -27,10 +27,10 @@ if (isset($_POST["update"])) {
     $contact_number = $_POST['contact_number'];
 
     $new_profile_photo = $_FILES['profile_photo']['name'];
-    $target = "../upload/" . basename($new_profile_photo);
+    $target = "../uploadss/" . basename($new_profile_photo);
 
     if (!empty($new_profile_photo)) {
-        move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target);
+        move_uploadsed_file($_FILES['profile_photo']['tmp_name'], $target);
         $sql = "UPDATE register2 SET firstname='$firstname', middlename='$middlename', lastname='$lastname', address='$address', contact_number='$contact_number', profile_photo='$new_profile_photo' WHERE id='$owner_id'";
     } else {
         $sql = "UPDATE register2 SET firstname='$firstname', middlename='$middlename', lastname='$lastname', address='$address', contact_number='$contact_number' WHERE id='$owner_id'";

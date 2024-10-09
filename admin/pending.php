@@ -79,7 +79,7 @@ if (isset($_POST["delete"])) {
                 while ($row = $result->fetch_assoc()) {
                 ?>
                     <tr>
-                        <td><img src="../upload/<?php echo $row['profile_photo']; ?>" alt="Profile Photo" width="50" height="50"></td>
+                        <td><img src="../uploadss/<?php echo $row['profile_photo']; ?>" alt="Profile Photo" width="50" height="50"></td>
                         <td><?php echo $row['name']; ?></td>
                         <td><?php echo $row['email']; ?></td>
                         <td><?php echo $row['Address']; ?></td>

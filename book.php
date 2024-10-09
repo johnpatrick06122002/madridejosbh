@@ -5,7 +5,7 @@ include('connection.php');
 // PHPMailer dependencies
  
 
-require 'vendor_copy/autoload.php'; // PHPMailer autoload
+require 'vendor/autoload.php'; // PHPMailer autoload
 
 // Get the rental ID from the URL
 $rental_id = $_GET['bh_id'];
@@ -41,14 +41,14 @@ if (isset($_POST["booknow"])) {
     $middlename_sanitized = htmlspecialchars($middlename, ENT_QUOTES, 'UTF-8');
     $address_sanitized = htmlspecialchars($address, ENT_QUOTES, 'UTF-8');
 
-    // Proceed with file upload for GCash payment proof
-    $gcash_picture = $_FILES['gcash_picture'];
-    $target_dir = "upload/gcash_picture/";
-    $target_file = $target_dir . basename($gcash_picture["name"]);
+    // Proceed with file uploads for GCash payment proof
+    $gcash_pictures = $_FILES['gcash_pictures'];
+    $target_dir = "uploadss/gcash_picturess/";
+    $target_file = $target_dir . basename($gcash_pictures["name"]);
 
-    if (move_uploaded_file($gcash_picture["tmp_name"], $target_file)) {
+    if (move_uploadsed_file($gcash_pictures["tmp_name"], $target_file)) {
         // Insert booking into the database
-        $sql_book = "INSERT INTO book (firstname, middlename, lastname, age, gender, contact_number, email, register1_id, bhouse_id, Address, gcash_picture, paid_amount)
+        $sql_book = "INSERT INTO book (firstname, middlename, lastname, age, gender, contact_number, email, register1_id, bhouse_id, Address, gcash_pictures, paid_amount)
                      VALUES ('$firstname_sanitized', '$middlename_sanitized', '$lastname_sanitized', '$age', '$gender', '$gcash_number', '$email', '{$row['register1_id']}', '$rental_id', '$address_sanitized', '$target_file', '$paid_amount')";
         
         if ($dbconnection->query($sql_book) === TRUE) {
@@ -93,7 +93,7 @@ if (isset($_POST["booknow"])) {
             echo '<script>Swal.fire("Error", "Error in database: ' . $dbconnection->error . '", "error");</script>';
         }
     } else {
-        echo '<script>Swal.fire("Error", "Error uploading file.", "error");</script>';
+        echo '<script>Swal.fire("Error", "Error uploadsing file.", "error");</script>';
     }
 }
 ?>
@@ -225,8 +225,8 @@ h2 {
             <input type="number" class="form-control" id="paid_amount" name="paid_amount">
         </div>
         <div class="form-group">
-            <label for="gcash_picture">GCash Picture Reference:<br> For downpayment</label>
-            <input type="file" class="form-control" id="gcash_picture" name="gcash_picture" required>
+            <label for="gcash_pictures">GCash Picture Reference:<br> For downpayment</label>
+            <input type="file" class="form-control" id="gcash_pictures" name="gcash_pictures" required>
         </div>
 
         <button type="submit" class="btn btn-primary" name="booknow">Book Now</button>
