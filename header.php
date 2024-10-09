@@ -341,7 +341,7 @@ a.closemessage {
 }
 
 
-/*gallery */
+/*gallery*/
 
 .wrap {
     overflow-x: scroll;
@@ -419,7 +419,7 @@ ul.pagination li:last-child {
         <div class="container">
         <a href="index.php" class="navbar-brand">
         <i class="fas fa-blog"></i> &nbsp;
-        <img class="logo" src="bh_logo.jpg">MADRIDEJOS BH FINDER
+        <img class="logo" src="bh_loo.jpg">MADRIDEJOS BH FINDER
         </a>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
