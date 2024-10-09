@@ -23,17 +23,25 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Query to fetch all tables from the database
-$query = "SHOW TABLES";
+// Query to fetch all columns from the 'book' table
+$query = "SHOW COLUMNS FROM book";
 $result = mysqli_query($dbconnection, $query);
 
 if ($result) {
-    echo "<h1>Tables in the database '" . DB_NAME . "':</h1>";
-    echo "<ul>";
-    while ($row = mysqli_fetch_row($result)) {
-        echo "<li>" . $row[0] . "</li>";
+    echo "<h1>Columns in the 'book' table:</h1>";
+    echo "<table border='1' cellpadding='10'>";
+    echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<tr>";
+        echo "<td>" . $row['Field'] . "</td>";
+        echo "<td>" . $row['Type'] . "</td>";
+        echo "<td>" . $row['Null'] . "</td>";
+        echo "<td>" . $row['Key'] . "</td>";
+        echo "<td>" . $row['Default'] . "</td>";
+        echo "<td>" . $row['Extra'] . "</td>";
+        echo "</tr>";
     }
-    echo "</ul>";
+    echo "</table>";
 } else {
     echo "ERROR: Could not execute query. " . mysqli_error($dbconnection);
 }
