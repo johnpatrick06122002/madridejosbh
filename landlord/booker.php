@@ -55,20 +55,35 @@ function calculateBalance($id, $monthlyRate, $paidAmount) {
     return $monthlyRate - $paidAmount; // Default calculation if no payment record is found
 }
 
-// Check for payment submission
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id'])) {
-    $id = $_POST['id'];
-    $paidAmount = $_POST['paid_amount'];
+// Check for payment or delete submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['id']) && isset($_POST['paid_amount'])) {
+        $id = $_POST['id'];
+        $paidAmount = $_POST['paid_amount'];
 
-    // Update the paid amount in the book table
-    $updateQuery = "UPDATE book SET paid_amount = paid_amount + ?, last_payment_date = CURRENT_DATE WHERE id = ?";
-    $stmt = $dbconnection->prepare($updateQuery);
-    $stmt->bind_param("di", $paidAmount, $id);
-    $stmt->execute();
+        // Update the paid amount in the book table
+        $updateQuery = "UPDATE book SET paid_amount = paid_amount + ?, last_payment_date = CURRENT_DATE WHERE id = ?";
+        $stmt = $dbconnection->prepare($updateQuery);
+        $stmt->bind_param("di", $paidAmount, $id);
+        $stmt->execute();
 
-    // Redirect back to the same page to reflect changes
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit();
+        // Redirect back to the same page to reflect changes
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    } elseif (isset($_POST['delete_id'])) {
+        // Handle deletion of a record
+        $delete_id = $_POST['delete_id'];
+
+        // Delete the record from the database
+        $deleteQuery = "DELETE FROM book WHERE id = ?";
+        $stmt = $dbconnection->prepare($deleteQuery);
+        $stmt->bind_param("i", $delete_id);
+        $stmt->execute();
+
+        // Redirect after deletion
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
 }
 
 // Include the header
@@ -84,7 +99,7 @@ $pageno = isset($_GET['pageno']) ? (int)$_GET['pageno'] : 1;
 $offset = ($pageno - 1) * $results_per_page;
 
 // Get the total number of records with status 'confirm'
-$total_pages_sql = "SELECT COUNT(*) FROM book WHERE status = 'confirm'";
+$total_pages_sql = "SELECT COUNT(*) FROM book WHERE status = 'Confirm'";
 $result_pages = mysqli_query($dbconnection, $total_pages_sql);
 $total_rows = mysqli_fetch_array($result_pages)[0];
 $total_pages = ceil($total_rows / $results_per_page);
@@ -124,6 +139,7 @@ $result = $stmt->get_result();
                     <th>Date Started</th>
                     <th>Balance</th>
                     <th>Paid Amount</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -148,6 +164,12 @@ $result = $stmt->get_result();
                             <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                             <input type="number" name="paid_amount" min="0" step="0.01" placeholder="Enter Amount" required>
                             <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" action="">
+                            <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
+                            <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </td>
                 </tr>
