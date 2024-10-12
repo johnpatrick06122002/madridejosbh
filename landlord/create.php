@@ -22,7 +22,7 @@ $monthly = $_POST['monthly'];
 $map = "https://maps.google.com/maps?q=".$_POST['latitude'].",".$_POST['longitude']."&t=&z=15&ie=UTF8&iwloc=&output=embed";
 $description = $_POST['description'];
 $photo = $_FILES['photo']['name'];
-$target = "../uploadss/".basename($photo);
+$target = "../uploads/".basename($photo);
 
 if (isset($_POST['free_wifi'])) {
   $freewifi = 'yes';
