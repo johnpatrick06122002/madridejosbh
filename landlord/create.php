@@ -46,7 +46,7 @@ $sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, descri
         VALUES ('$rental_id','$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente')";
 
 if ($dbconnection->query($sql) === TRUE) {
-  move_uploadsed_file($_FILES['photo']['tmp_name'], $target);
+  move_uploaded_file($_FILES['photo']['tmp_name'], $target);
 
   // gallery 
   $totalfiles = count($_FILES['gallery']['name']);
