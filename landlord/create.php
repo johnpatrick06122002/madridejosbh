@@ -55,7 +55,7 @@ if ($dbconnection->query($sql) === TRUE) {
   for($i=0;$i<$totalfiles;$i++){
     $filename = $_FILES['gallery']['name'][$i];
    
-    // uploads files and store in database
+    // Upload files and store in database
     if(move_uploaded_file($_FILES["gallery"]["tmp_name"][$i],'../uploads/'.$filename)){
       // Image db insert sql
       $insert = "INSERT into gallery (file_name,rental_id) values('$filename','$rental_id')";
