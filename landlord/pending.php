@@ -116,113 +116,154 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 <style>
-       @media screen and (max-width: 700px) {
-    .sidebar a {
-       float: revert-layer !important;  
+    @media screen and (max-width: 768px) {
+        table {
+            display: block;
+            width: 100%;
+        }
+        thead {
+            display: none; /* Hide header on small screens */
+        }
+        
+        tbody tr {
+            display: block; /* Block display for each row */
+            margin-bottom: 15px; /* Space between rows */
+            border: 1px solid #ccc; /* Border around each row */
+            padding: 10px; /* Padding for better spacing */
+        }
+        tbody td {
+            display: flex; /* Flex display for content */
+            justify-content: space-between; /* Space between label and value */
+            padding: 10px; /* Padding for cells */
+            border-bottom: 1px solid #ddd; /* Border below each cell */
+        }
+        tbody td::before {
+            content: attr(data-label); /* Use data-label for the cell label */
+            font-weight: bold; /* Make label bold */
+            color: #333; /* Label color */
+            margin-right: 50px; /* Space between label and value */
+        }
     }
-}
-    </style>
+
+    .table {
+        width: 100%;
+        border-collapse: collapse; /* Ensures borders are collapsed for better appearance */
+    }
+
+    .table th, .table td {
+        padding: 12px; /* Added padding for better spacing */
+        text-align: left; /* Align text to the left */
+        border: 1px solid #ddd; /* Border for better visibility */
+    }
+
+    .table th {
+        background-color: #f4f4f4; /* Optional: header background color */
+        font-weight: bold; /* Optional: header font weight */
+    }
+
+    /* Optional: Hover effect for rows */
+    .table tbody tr:hover {
+        background-color: #f1f1f1; /* Highlight row on hover */
+    }
+</style>
+
 <div class="row">
-    <div class="col-sm-2">
+    <div class="col-sm-2 col-md-2 col-lg-2 col-12">
         <?php include('sidebar.php'); ?>
     </div>
-
-    <div class="col-sm-9">
+    <div class="col-sm-9 col-md-9 col-lg-9 col-12">
         <h3>Book Information</h3>
         <br />
-
-        <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Firstname</th>
-            <th>Middlename</th>
-            <th>Lastname</th>
-            <th>Email</th>
-            <th>Age</th>
-            <th>Gender</th>
-            <th>Contact Number</th>
-            <th>Address</th>
-            <th>GCash Picture</th> <!-- New column for the picture -->
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-    // Enable error reporting at the top of your script
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $monthly_rental = getMonthlyRateForRental($row['id']);
-        $gcash_picture = $row['gcash_picture'];
         
-    ?>
-    <tr>
-        <td><?php echo htmlspecialchars($row['firstname']); ?></td>
-        <td><?php echo htmlspecialchars($row['middlename']); ?></td>
-        <td><?php echo htmlspecialchars($row['lastname']); ?></td>
-        <td><?php echo htmlspecialchars($row['email']); ?></td>
-        <td><?php echo htmlspecialchars($row['age']); ?></td>
-        <td><?php echo htmlspecialchars($row['gender']); ?></td>
-        <td><?php echo htmlspecialchars($row['contact_number']); ?></td>
-        <td><?php echo htmlspecialchars($row['Address']); ?></td>
-        <td>
-             <?php
-    if (!empty($gcash_picture)) {
-        // Remove any leading 'uploads/gcash_pictures/' from the stored filename
-        $gcash_picture = preg_replace('/^uploads\/gcash_pictures\//', '', $gcash_picture);
-        
-        $image_path = "../uploads/gcash_pictures/" . $gcash_picture;
-        $full_path = realpath($image_path);
-         
-        if ($full_path !== false) {
-            if (file_exists($full_path) && is_readable($full_path)) {
-                $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                $mime_type = finfo_file($finfo, $full_path);
-                finfo_close($finfo);
-                
-                if (strpos($mime_type, 'image') === 0) {
-                    echo '<a href="' . htmlspecialchars($image_path) . '" data-fancybox="gallery" data-caption="GCash Picture">';
-                    echo '<img src="' . htmlspecialchars($image_path) . '" alt="GCash Picture" style="width: 100px; height: 100px;">';
-                    echo '</a>';
-                } else {
-                    echo 'Invalid file type';
-                }
-            } else {
-                echo 'Image file not found or not readable';
-            }
-        } else {
-            echo 'Failed to resolve the full path of the image';
-        }
-    } else {
-        echo 'No picture';
-    }
-    ?>
-            </td>
-            <td>
-                <form method="POST" action="">
-                    <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                    <select name="new_status">
-                        <option value="Confirm">Confirm</option>
-                        <option value="inactive">Reject</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary">Send</button>
-                </form>
-            </td>
-        </tr>
-        <?php } ?>
-    </tbody>
-</table>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Firstname</th>
+                        <th>Middlename</th>
+                        <th>Lastname</th>
+                        <th>Email</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Contact Number</th>
+                        <th>Address</th>
+                        <th>GCash Picture</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+                        <tr>
+                            <td data-label="Firstname"><?php echo htmlspecialchars($row['firstname']); ?></td>
+                            <td data-label="Middlename"><?php echo htmlspecialchars($row['middlename']); ?></td>
+                            <td data-label="Lastname"><?php echo htmlspecialchars($row['lastname']); ?></td>
+                            <td data-label="Email"><?php echo htmlspecialchars($row['email']); ?></td>
+                            <td data-label="Age"><?php echo htmlspecialchars($row['age']); ?></td>
+                            <td data-label="Gender"><?php echo htmlspecialchars($row['gender']); ?></td>
+                            <td data-label="Contact Number"><?php echo htmlspecialchars($row['contact_number']); ?></td>
+                            <td data-label="Address"><?php echo htmlspecialchars($row['Address']); ?></td>
+                            <td data-label="GCash Picture">
+                                <?php
+                                // GCash Picture logic...
+                                if (!empty($row['gcash_picture'])) {
+                                    $gcash_picture = preg_replace('/^uploads\/gcash_pictures\//', '', $row['gcash_picture']);
+                                    $image_path = "../uploads/gcash_pictures/" . $gcash_picture;
+                                    $full_path = realpath($image_path);
+                                    
+                                    if ($full_path && file_exists($full_path) && is_readable($full_path)) {
+                                        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                                        $mime_type = finfo_file($finfo, $full_path);
+                                        finfo_close($finfo);
+                                        
+                                        if (strpos($mime_type, 'image') === 0) {
+                                            echo '<a href="' . htmlspecialchars($image_path) . '" data-fancybox="gallery" data-caption="GCash Picture">';
+                                            echo '<img src="' . htmlspecialchars($image_path) . '" alt="GCash Picture" style="width: 100px; height: 100px;">';
+                                            echo '</a>';
+                                        } else {
+                                            echo 'Invalid file type';
+                                        }
+                                    } else {
+                                        echo 'Image file not found or not readable';
+                                    }
+                                } else {
+                                    echo 'No picture';
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <form method="POST" action="">
+                                    <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                    <select name="new_status">
+                                        <option value="Confirm">Confirm</option>
+                                        <option value="Reject">Reject</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </form>
+
+                                <!-- Delete form -->
+                                <form method="POST" action="" style="margin-top: 5px;">
+                                    <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 
 
         <!-- Pagination -->
         <ul class="pagination">
             <li><a href="?pageno=1"><i class="fa fa-fast-backward"></i> First</a></li>
             <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
-                <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><i class="fa fa-chevron-left"></i> Prev</a>
+                <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><i class="fa fa-step-backward"></i> Prev</a>
             </li>
             <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
-                <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>">Next <i class="fa fa-chevron-right"></i></a>
+                <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>">Next <i class="fa fa-step-forward"></i></a>
             </li>
             <li><a href="?pageno=<?php echo $total_pages; ?>">Last <i class="fa fa-fast-forward"></i></a></li>
         </ul>
