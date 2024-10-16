@@ -189,7 +189,7 @@ $result = $stmt->get_result();
     }
 }
  .btn-danger {
-    margin-right: 20px !important;
+    margin-right: 15px !important;
 }
 .btn-info {
     margin-left: 10px !important;
