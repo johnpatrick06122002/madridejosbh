@@ -14,79 +14,76 @@
 
 if(isset($_POST["create"])) {
 
-$rental_id = $_POST['rental_id'];
-$title = $_POST['title'];
-$address = $_POST['address'];
-$slots = $_POST['slots'];
-$monthly = $_POST['monthly'];
-$map = "https://maps.google.com/maps?q=".$_POST['latitude'].",".$_POST['longitude']."&t=&z=15&ie=UTF8&iwloc=&output=embed";
-$description = $_POST['description'];
-$photo = $_FILES['photo']['name'];
-$target = "../uploads/".basename($photo);
+  // Escape all input values
+  $rental_id = mysqli_real_escape_string($dbconnection, $_POST['rental_id']);
+  $title = mysqli_real_escape_string($dbconnection, $_POST['title']);
+  $address = mysqli_real_escape_string($dbconnection, $_POST['address']);
+  $slots = mysqli_real_escape_string($dbconnection, $_POST['slots']);
+  $monthly = mysqli_real_escape_string($dbconnection, $_POST['monthly']);
+  $map = "https://maps.google.com/maps?q=".mysqli_real_escape_string($dbconnection, $_POST['latitude']).",".mysqli_real_escape_string($dbconnection, $_POST['longitude'])."&t=&z=15&ie=UTF8&iwloc=&output=embed";
+  $description = mysqli_real_escape_string($dbconnection, $_POST['description']);
+  $photo = $_FILES['photo']['name'];
+  $target = "../uploads/".basename($photo);
 
-if (isset($_POST['free_wifi'])) {
-  $freewifi = 'yes';
-} else {
-  $freewifi = 'no';
-}
-
-if (isset($_POST['free_water'])) {
-  $freewater = 'yes';
-} else {
-  $freewater = 'no';
-}
-
-if (isset($_POST['free_kuryente'])) {
-  $freekuryente = 'yes';
-} else {
-  $freekuryente = 'no';
-}
-
-$sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, register1_id, monthly, wifi, water, kuryente) 
-        VALUES ('$rental_id','$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente')";
-
-if ($dbconnection->query($sql) === TRUE) {
-  move_uploaded_file($_FILES['photo']['tmp_name'], $target);
-
-  // gallery 
-  $totalfiles = count($_FILES['gallery']['name']);
-
-  // Looping over all files
-  for($i=0;$i<$totalfiles;$i++){
-    $filename = $_FILES['gallery']['name'][$i];
-   
-    // Upload files and store in database
-    if(move_uploaded_file($_FILES["gallery"]["tmp_name"][$i],'../uploads/'.$filename)){
-      // Image db insert sql
-      $insert = "INSERT into gallery (file_name,rental_id) values('$filename','$rental_id')";
-      mysqli_query($dbconnection, $insert);
-    }
+  if (isset($_POST['free_wifi'])) {
+    $freewifi = 'yes';
+  } else {
+    $freewifi = 'no';
   }
 
-  // Success Alert and Redirect
-  echo '<script type="text/javascript">
-    Swal.fire({
-      title: "Success!",
-      text: "Successfully Added",
-      icon: "success",
-      confirmButtonText: "OK"
-    }).then(function() {
-      window.location.href = "dashboard.php"; // Redirect to dashboard after OK click
-    });
-  </script>';
+  if (isset($_POST['free_water'])) {
+    $freewater = 'yes';
+  } else {
+    $freewater = 'no';
+  }
 
-} else {
-  // Error Alert
-  echo '<script type="text/javascript">
-    Swal.fire({
-      title: "Error!",
-      text: "There was an error adding the rental.",
-      icon: "error",
-      confirmButtonText: "OK"
-    });
-  </script>';
+  if (isset($_POST['free_kuryente'])) {
+    $freekuryente = 'yes';
+  } else {
+    $freekuryente = 'no';
+  }
+
+  // Update the SQL query to use the escaped values
+  $sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, register1_id, monthly, wifi, water, kuryente) 
+          VALUES ('$rental_id', '$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente')";
+
+  if ($dbconnection->query($sql) === TRUE) {
+    move_uploaded_file($_FILES['photo']['tmp_name'], $target);
+
+    // Gallery handling
+    $totalfiles = count($_FILES['gallery']['name']);
+    for($i = 0; $i < $totalfiles; $i++){
+      $filename = $_FILES['gallery']['name'][$i];
+      if(move_uploaded_file($_FILES["gallery"]["tmp_name"][$i], '../uploads/'.$filename)){
+        $insert = "INSERT INTO gallery (file_name, rental_id) VALUES ('$filename', '$rental_id')";
+        mysqli_query($dbconnection, $insert);
+      }
+    }
+
+    // Success alert and redirect
+    echo '<script type="text/javascript">
+      Swal.fire({
+        title: "Success!",
+        text: "Successfully Added",
+        icon: "success",
+        confirmButtonText: "OK"
+      }).then(function() {
+        window.location.href = "dashboard.php"; // Redirect to dashboard after OK click
+      });
+    </script>';
+  } else {
+    // Error alert
+    echo '<script type="text/javascript">
+      Swal.fire({
+        title: "Error!",
+        text: "There was an error adding the rental.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
+    </script>';
+  }
 }
-}
+
 
 ?>
 
