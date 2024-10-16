@@ -115,12 +115,18 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 ?>
-
+<style>
+       @media screen and (max-width: 700px) {
+    .sidebar a {
+       float: revert-layer !important;  
+    }
+}
+    </style>
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
     </div>
-
+<br><br><br>
     <div class="col-sm-9">
         <h3>Book Information</h3>
         <br />

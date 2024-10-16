@@ -24,12 +24,18 @@ if (isset($_POST["delete"])) {
     $stmt->close();
 }
 ?>
-
+<style>
+    @media screen and (max-width: 700px) {
+    .sidebar a {
+       float: revert-layer !important;  
+    }
+}
+    </style>
 <div class="row">
 <div class="col-sm-2">
     <?php include('sidebar.php'); ?>
 </div>
-
+<br><br>
 <div class="col-sm-9">
     <br />
     <h3>Boarding House List</h3>

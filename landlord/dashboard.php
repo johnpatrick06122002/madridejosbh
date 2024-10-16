@@ -263,13 +263,149 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 .animated-icon {
     animation: pulse 1.3s infinite;
 }
+/* Container styles */
+.row.pb-10 {
+    padding-bottom: 10px;
+}
+
+/* Card box styles */
+.card-box {
+    background-color: #ffffff;
+    border: 1px solid #e3e6f0;
+    border-radius: 5px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.card-box.height-100-p {
+    height: 100%;
+}
+
+/* Widget styles */
+.widget-style3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.widget-data {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.weight-700 {
+    font-weight: 700;
+}
+
+.font-24 {
+    font-size: 24px;
+}
+
+.text-dark {
+    color: #5a5c69;
+}
+
+.font-14 {
+    font-size: 14px;
+}
+
+.text-secondary {
+    color: #858796;
+}
+
+.weight-500 {
+    font-weight: 500;
+}
+
+/* Widget icon styles */
+.widget-icon {
+    display: flex;
+    align-items: center;
+}
+
+.widget-icon .icon {
+    font-size: 2em;
+    color: #00eccf;
+}
+
+/* For small screens, stack the cards vertically */
+@media (max-width: 576px) {
+    .col-xl-3, .col-lg-3, .col-md-6 {
+        width: 100%;
+        max-width: 80%;
+        margin-bottom: 10px;
+        margin-left: 40px;
+    }
+    
+    .card-box {
+        padding: 15px;
+    }
+
+    .widget-data {
+        text-align: center;
+    }
+
+    .widget-icon {
+        justify-content: center;
+        margin: 0 auto;
+    }
+}
+
+/* Adjust charts for mobile */
+.chart-container1, .chart-container2, .chart-container3 {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 auto;
+}
+
+/* Custom width for .col-xl-3 on larger screens */
+@media (min-width: 1200px) {
+    .col-xl-3 {
+        flex: 0 0 25%;
+        max-width: 20%;
+    }
+}
+  @media screen and (max-width: 700px) {
+    .sidebar a {
+       float: revert-layer !important;  
+    }
+}
+.fa {
+   
+    font: normal normal normal 14px / 1 FontAwesome;
+    font-size: inherit;
+    float: right;
+    margin-left: 80px;
+    color: black;
+}
+
+.animated-icon {
+    animation: pulse 1.3s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1.5);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+h3{
+    margin-left: 15px;
+}
 </style>
 
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
     </div>
-
+<br><br>
     <div class="col-sm-10">
         <br />
         <h3>Dashboard</h3>

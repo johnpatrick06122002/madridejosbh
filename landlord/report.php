@@ -78,7 +78,13 @@ foreach ($rows as $rental_id => $data) {
     ];
 }
 ?>
-
+<style>
+       @media screen and (max-width: 700px) {
+    .sidebar a {
+       float: revert-layer !important;  
+    }
+}
+    </style>
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
