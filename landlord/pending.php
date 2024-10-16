@@ -165,12 +165,15 @@ $result = $stmt->get_result();
     .table tbody tr:hover {
         background-color: #f1f1f1; /* Highlight row on hover */
     }
+     h3{
+        margin-left: 10px;
+    }
 </style>
 
 <div class="row">
     <div class="col-sm-2 col-md-2 col-lg-2 col-12">
         <?php include('sidebar.php'); ?>
-    </div>
+    </div><br><br><br>
     <div class="col-sm-9 col-md-9 col-lg-9 col-12">
         <h3>Book Information</h3>
         <br />
