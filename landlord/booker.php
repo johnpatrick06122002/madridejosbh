@@ -116,84 +116,198 @@ $result = $stmt->get_result();
 
 ?>
 <style>
-       @media screen and (max-width: 700px) {
-    .sidebar a {
-       float: revert-layer !important;  
+    /* General table styles */
+    .table {
+        width: 100%;
+        table-layout: auto;
+    }
+
+    /* Make sure table scrolls horizontally on smaller screens */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+    }
+
+    /* Card layout for mobile */
+    .card {
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    /* For screens larger than 700px (tablets, desktops) */
+    @media screen and (min-width: 700px) {
+        th, td {
+            font-size: 14px;
+            padding: 8px;
+        }
+    }
+
+    /* For small screens (700px or less) */
+    @media screen and (max-width: 700px) {
+        .table {
+            display: none; /* Hide the table */
+        }
+
+        /* Ensure content wraps inside cards */
+        .card th, .card td {
+            white-space: normal; /* Allow text wrapping */
+            word-wrap: break-word;
+        }
+
+        /* Style for headers in card layout */
+        .card-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 16px; /* Increased size for better visibility */
+        }
+
+        .card p {
+            font-size: 14px; /* Increased size for better visibility */
+            margin: 5px 0; /* Added margin for spacing */
+        }
+    }
+
+    /* For very small screens (400px or less) */
+    @media screen and (max-width: 400px) {
+        .card {
+            font-size: 10px; /* Even smaller font */
+        }
+    }
+
+    @media screen and (max-width: 700px) {
+        .sidebar a {
+            float: revert-layer !important;  
+        }
+    }
+    @media (min-width: 576px) {
+    .col-sm-9 {
+        -ms-flex: 0 0 75%;
+        flex: 0 0 75%;
+        max-width: 100% !important;
     }
 }
-    </style>
+ .btn-danger {
+    margin-right: 20px !important;
+}
+.btn-info {
+    margin-left: 10px !important;
+}
+h3{
+    margin-left: 15px;
+}
+</style>
+
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
     </div>
-<br><br><br>
+    <br><br><br>
     <div class="col-sm-9">
         <h3>Book Information</h3>
         <br />
 
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Firstname</th>
-                    <th>Middlename</th>
-                    <th>Lastname</th>
-                    <th>Email</th>
-                    <th>Age</th>
-                    <th>Gender</th>
-                    <th>Contact Number</th>
-                    <th>Address</th>
-                    <th>Date Started</th>
-                    <th>Balance</th>
-                    <th>Paid Amount</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $monthly_rental = getMonthlyRateForRental($row['bhouse_id']); 
-                    $balance = calculateBalance($row['id'], $monthly_rental, $row['paid_amount']); 
-                ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($row['firstname']); ?></td>
-                    <td><?php echo htmlspecialchars($row['middlename']); ?></td>
-                    <td><?php echo htmlspecialchars($row['lastname']); ?></td>
-                    <td><?php echo htmlspecialchars($row['email']); ?></td>
-                    <td><?php echo htmlspecialchars($row['age']); ?></td>
-                    <td><?php echo htmlspecialchars($row['gender']); ?></td>
-                    <td><?php echo htmlspecialchars($row['contact_number']); ?></td>
-                    <td><?php echo htmlspecialchars($row['Address']); ?></td>
-                    <td><?php echo date('F d, Y', strtotime($row['date_posted'])); ?></td>
-                    <td><?php echo htmlspecialchars(number_format($balance, 2)); ?></td>
-                    <td>
-                        <form method="post" action="">
-                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                            <input type="number" name="paid_amount" min="0" step="0.01" placeholder="Enter Amount" required>
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form method="post" action="">
-                            <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                <?php } ?>
-            </tbody>
-        </table>
+        <!-- Responsive Table -->
+        <div class="table-responsive d-none d-md-block"> <!-- Hide on small screens -->
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Firstname</th>
+                        <th>Middlename</th>
+                        <th>Lastname</th>
+                        <th>Email</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Contact Number</th>
+                        <th>Address</th>
+                        <th>Date Started</th>
+                        <th>Balance</th>
+                        <th>Paid Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        $monthly_rental = getMonthlyRateForRental($row['bhouse_id']); 
+                        $balance = calculateBalance($row['id'], $monthly_rental, $row['paid_amount']); 
+                    ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row['firstname']); ?></td>
+                        <td><?php echo htmlspecialchars($row['middlename']); ?></td>
+                        <td><?php echo htmlspecialchars($row['lastname']); ?></td>
+                        <td><?php echo htmlspecialchars($row['email']); ?></td>
+                        <td><?php echo htmlspecialchars($row['age']); ?></td>
+                        <td><?php echo htmlspecialchars($row['gender']); ?></td>
+                        <td><?php echo htmlspecialchars($row['contact_number']); ?></td>
+                        <td><?php echo htmlspecialchars($row['Address']); ?></td>
+                        <td><?php echo date('F d, Y', strtotime($row['date_posted'])); ?></td>
+                        <td><?php echo htmlspecialchars(number_format($balance, 2)); ?></td>
+                        <td>
+                            <form method="post" action="">
+                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                <input type="number" name="paid_amount" min="0" step="0.01" placeholder="Enter Amount" required>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="">
+                                <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
 
-        <!-- Pagination -->
-        <ul class="pagination">
-            <li><a href="?pageno=1"><i class="fa fa-fast-backward"></i> First</a></li>
-            <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
-                <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><i class="fa fa-chevron-left"></i> Prev</a>
-            </li>
-            <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
-                <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>">Next <i class="fa fa-chevron-right"></i></a>
-            </li>
-            <li><a href="?pageno=<?php echo $total_pages; ?>">Last <i class="fa fa-fast-forward"></i></a></li>
-        </ul>
+        <!-- Card layout for mobile view -->
+<div class="d-md-none">
+    <?php
+    mysqli_data_seek($result, 0); // Reset result pointer for mobile view
+    while ($row = mysqli_fetch_assoc($result)) {
+        $monthly_rental = getMonthlyRateForRental($row['bhouse_id']);
+        $balance = calculateBalance($row['id'], $monthly_rental, $row['paid_amount']);
+    ?>
+    <div class="card">
+        <div class="card-header">
+            <h5><?php echo htmlspecialchars($row['firstname']) . ' ' . htmlspecialchars($row['lastname']); ?></h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Email:</strong> <?php echo htmlspecialchars($row['email']); ?></p>
+            <p><strong>Age:</strong> <?php echo htmlspecialchars($row['age']); ?></p>
+            <p><strong>Gender:</strong> <?php echo htmlspecialchars($row['gender']); ?></p>
+            <p><strong>Contact Number:</strong> <?php echo htmlspecialchars($row['contact_number']); ?></p>
+            <p><strong>Address:</strong> <?php echo htmlspecialchars($row['Address']); ?></p>
+            <p><strong>Date Started:</strong> <?php echo date('F d, Y', strtotime($row['date_posted'])); ?></p>
+            <p><strong>Balance:</strong> <?php echo htmlspecialchars(number_format($balance, 2)); ?></p>
+
+            <!-- Form to submit paid amount and delete record, side by side -->
+            <div class="d-flex justify-content-between mt-2">
+                <form method="post" action="">
+                    <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                    <input type="number" name="paid_amount" min="0" step="0.01" placeholder="Enter Amount" required>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+                <form method="post" action="">
+                    <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+</div>
+
+        <div class="pagination">
+            <a href="?pageno=1" class="btn btn-info">First</a>
+            <a href="?pageno=<?php echo max(1, $pageno - 1); ?>" class="btn btn-info">Previous</a>
+            <span>Page <?php echo $pageno; ?> of <?php echo $total_pages; ?></span>
+            <a href="?pageno=<?php echo min($total_pages, $pageno + 1); ?>" class="btn btn-info">Next</a>
+            <a href="?pageno=<?php echo $total_pages; ?>" class="btn btn-info">Last</a>
+        </div>
     </div>
 </div>
 
