@@ -36,9 +36,9 @@ function sendEmail($recipients, $subject, $body) {
 
         $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
 
-        // Add all recipients from the provided array
+        // Add each recipient email address from the provided array
         foreach ($recipients as $email) {
-            $mail->addAddress($email);
+            $mail->addAddress($email); // Add the actual recipient email here
         }
 
         $mail->isHTML(true);
@@ -51,10 +51,9 @@ function sendEmail($recipients, $subject, $body) {
         echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
 }
-
 // Check for status update submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['new_status']) && isset($_POST['id'])) {
-    $id = $_POST['id'];
+    $id = $_POST['id'];  // Get the specific ID of the booking being updated
     $newStatus = $_POST['new_status'];
 
     // Update the status in the book table
@@ -63,30 +62,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['new_status']) && isset
     $stmt->bind_param("si", $newStatus, $id);
     $stmt->execute();
 
-    // Fetch email addresses for notification
-    $emailQuery = "SELECT email FROM book WHERE status != 'Confirm'";
+    // Fetch email address for the current booking
+    $emailQuery = "SELECT email FROM book WHERE id = ?";  // Fetch the email for the current booking
     $stmtEmail = $dbconnection->prepare($emailQuery);
+    $stmtEmail->bind_param("i", $id);  // Bind the specific booking ID
     $stmtEmail->execute();
     $resultEmail = $stmtEmail->get_result();
 
-    // Collect all emails into an array
-    $recipientEmails = [];
-    while ($emailRow = $resultEmail->fetch_assoc()) {
-        $recipientEmails[] = $emailRow['email'];
+    if ($emailRow = $resultEmail->fetch_assoc()) {
+        $recipientEmail = $emailRow['email'];  // Fetch the email of the current recipient
+
+        // Check if the email is valid before sending
+        if (!empty($recipientEmail)) {
+            $subject = "Status Update Notification";
+            $body = "Your booking status has been updated to: $newStatus.";
+
+            // Send email to the recipient
+            sendEmail([$recipientEmail], $subject, $body);  // Send email to the specific recipient
+        }
     }
 
-    if (!empty($recipientEmails)) {
-        $subject = "Status Update Notification";
-        $body = "Your booking is now $newStatus ";
-
-        // Send email to all recipients
-        sendEmail($recipientEmails, $subject, $body);
-    }
     // Redirect back to the same page to reflect changes
-    header("Location: " . $_SERVER['PHP_SELF'] . "?removed_id=" . $id); // Pass the updated id
+    header("Location: " . $_SERVER['PHP_SELF'] . "?removed_id=" . $id);  // Pass the updated id
     exit();
 }
-
 // Include the header
 include('header.php');
 
