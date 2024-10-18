@@ -586,42 +586,23 @@ document.addEventListener("DOMContentLoaded", function() {
     var monthlyIncomeChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            datasets: [
-                <?php 
-                $first = true;
-                foreach ($monthly_data as $house => $months) { 
-                    if (!$first) {
-                        echo ',';
-                    }
-                    $first = false;
-                ?>
-                    {
-                        label: '<?php echo addslashes($house); ?>',  // Escaping to avoid issues with quotes
-                        data: [
-                            <?php 
-                            for ($i = 1; $i <= 12; $i++) {
-                                $month_name = date('F', mktime(0, 0, 0, $i, 1));
-                                echo isset($months[$month_name]) ? $months[$month_name] : 0;
-                                echo ($i < 12) ? ',' : '';  // Add comma after each value except the last
-                            }
-                            ?>
-                        ],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }
-                <?php } ?>
-            ]
+            labels: <?php echo json_encode($boarding_houses); ?>,
+            datasets: [{
+                label: 'Monthly Income',
+                data: <?php echo json_encode($monthly_incomes); ?>,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: true, // Start y-axis at 0
                     ticks: {
-                        stepSize: 1000,
+                        stepSize: 1000, // Increment step size by 1000
                         callback: function(value) {
-                            return '' + value; // Customize axis labels if necessary
+                            return '' + value; // Prefix with $ sign
                         }
                     }
                 }
@@ -638,9 +619,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-});
 
-    
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
     var brokerPieChart = new Chart(ctxBroker, {
