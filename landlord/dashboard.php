@@ -584,9 +584,9 @@ h3{
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    var ctx = document.getElementById('monthlyChart').getContext('2d'); // Ensure this ID matches
-    var monthlyChart = new Chart(ctx, {
-         type: 'bar',
+    var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
+    var monthlyIncomeChart = new Chart(ctx, {
+        type: 'bar',
         data: {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             datasets: [
@@ -608,7 +608,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     },
                 <?php } ?>
             ]
-        }, 
+        },
         options: {
             scales: {
                 y: {
@@ -633,7 +633,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-
 
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
