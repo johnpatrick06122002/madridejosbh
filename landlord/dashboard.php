@@ -590,23 +590,18 @@ document.addEventListener("DOMContentLoaded", function() {
         data: {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             datasets: [
-                <?php foreach ($monthly_data as $house => $months) { ?>
-                    {
-                        label: '<?php echo $house; ?>',
-                        data: [
-                            <?php 
-                            for ($i = 1; $i <= 12; $i++) {
-                                $month_name = date('F', mktime(0, 0, 0, $i, 1));
-                                echo isset($months[$month_name]) ? $months[$month_name] : 0;
-                                echo ($i < 12) ? ',' : '';  // Add a comma after each value except the last
-                            }
-                            ?>
-                        ],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    },
-                <?php } ?>
+                <?php echo json_encode(array_map(function($house, $months) {
+                    return [
+                        'label' => $house,
+                        'data' => array_map(function($i) use ($months) {
+                            $month_name = date('F', mktime(0, 0, 0, $i, 1));
+                            return isset($months[$month_name]) ? $months[$month_name] : 0;
+                        }, range(1, 12)),
+                        'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                        'borderColor' => 'rgba(54, 162, 235, 1)',
+                        'borderWidth' => 1
+                    ];
+                }, array_keys($monthly_data), $monthly_data)); ?>
             ]
         },
         options: {
@@ -633,6 +628,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+
+
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
     var brokerPieChart = new Chart(ctxBroker, {
