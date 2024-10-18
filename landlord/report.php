@@ -79,15 +79,62 @@ foreach ($rows as $rental_id => $data) {
 }
 ?>
 <style>
-       @media screen and (max-width: 700px) {
-    .sidebar a {
-       float: revert-layer !important;  
+    /* General mobile layout adjustments */
+    @media screen and (max-width: 700px) {
+        .sidebar a {
+            float: revert-layer !important;  
+        }
     }
-}
-h3{
-    margin-left: 10px;
-}
-    </style>
+    
+    h3 {
+        margin-left: 10px;
+    }
+    
+    /* Print-specific styles */
+    @media print {
+        /* Hide sidebar and unnecessary buttons for print */
+        .sidebar, .btn-print, form {
+            display: none;
+        }
+        
+        /* Adjust layout for printing */
+        .col-sm-10 {
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        table, th, td {
+            border: 1px solid black;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        /* Make font sizes larger for better readability */
+        body {
+            font-size: 14px;
+        }
+        
+        /* Ensure titles and content fit properly */
+        h3 {
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        strong {
+            font-size: 16px;
+            margin-left: 0;
+        }
+    }
+</style>
+
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
