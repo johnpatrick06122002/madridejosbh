@@ -584,43 +584,29 @@ h3{
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
-    var monthlyIncomeChart = new Chart(ctx, {
-        type: 'bar',
+    var ctx = document.getElementById('monthlyChart').getContext('2d'); // Ensure this ID matches
+    var monthlyChart = new Chart(ctx, {
+        type: 'line', // or 'bar', depending on what you want
         data: {
-            labels: <?php echo json_encode($boarding_houses); ?>,
+            labels: <?php echo json_encode($months); ?>, // Ensure this variable is set up correctly
             datasets: [{
-                label: 'Monthly Income',
-                data: <?php echo json_encode($monthly_incomes); ?>,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                label: 'Monthly Data',
+                data: <?php echo json_encode($monthlyData); ?>, // Ensure this variable is also set up correctly
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true, // Start y-axis at 0
-                    ticks: {
-                        stepSize: 1000, // Increment step size by 1000
-                        callback: function(value) {
-                            return '' + value; // Prefix with $ sign
-                        }
-                    }
-                }
-            },
-            maintainAspectRatio: false,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
-                        }
-                    }
+                    beginAtZero: true,
                 }
             }
         }
     });
+
+
 
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
