@@ -584,6 +584,9 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
+    
+    console.log("Monthly data:", <?php echo json_encode($monthly_data); ?>);
+    
     var monthlyIncomeChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -632,6 +635,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+});
+
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
     var brokerPieChart = new Chart(ctxBroker, {
