@@ -582,13 +582,16 @@ h3{
 
 <?php include('footer.php'); ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    console.log('monthly_data from PHP:', <?php echo json_encode($monthly_data); ?>);
     var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
     var monthlyIncomeChart = new Chart(ctx, {
         type: 'bar',
         data: {
-           labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             datasets: [
                 <?php foreach ($monthly_data as $house => $months) { ?>
                     {
@@ -602,12 +605,12 @@ document.addEventListener("DOMContentLoaded", function() {
                             }
                             ?>
                         ],
-                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1
                     },
                 <?php } ?>
-        ]
+            ]
         },
         options: {
             scales: {
@@ -633,6 +636,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+});
 
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
