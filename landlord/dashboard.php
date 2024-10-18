@@ -569,7 +569,7 @@ h3{
     <div class="col-md-6">
         <!-- Pie Chart for Brokers Percentage -->
         <div class="chart-container2">
-            <canvas id="brokerPieChart"></canvas>
+            <canvas id="brokerPieChart" width="400" height="200"></canvas>
         </div>
     </div>
  <canvas id="monthlyBookingsChart" width="400" height="200"></canvas>
@@ -586,12 +586,14 @@ h3{
 document.addEventListener("DOMContentLoaded", function() {
     var ctx = document.getElementById('monthlyChart').getContext('2d'); // Ensure this ID matches
     var monthlyChart = new Chart(ctx, {
-        type: 'line', // or 'bar', depending on what you want
+         type: 'bar',
         data: {
-           labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            datasets: [{
-                label: 'Monthly Data',
-                 data: [
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            datasets: [
+                <?php foreach ($monthly_data as $house => $months) { ?>
+                    {
+                        label: '<?php echo $house; ?>',
+                        data: [
                             <?php 
                             for ($i = 1; $i <= 12; $i++) {
                                 $month_name = date('F', mktime(0, 0, 0, $i, 1));
@@ -600,20 +602,37 @@ document.addEventListener("DOMContentLoaded", function() {
                             }
                             ?>
                         ],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                <?php } ?>
+            ]
+        }, 
         options: {
             scales: {
                 y: {
                     beginAtZero: true,
+                    ticks: {
+                        stepSize: 1000,
+                        callback: function(value) {
+                            return '' + value; // Customize axis labels
+                        }
+                    }
+                }
+            },
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
+                        }
+                    }
                 }
             }
         }
     });
-
 
 
     // Pie Chart for Brokers Percentage
