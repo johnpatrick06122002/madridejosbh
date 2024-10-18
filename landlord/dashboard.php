@@ -588,30 +588,23 @@ document.addEventListener("DOMContentLoaded", function() {
     var monthlyIncomeChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            datasets: [
-                <?php echo json_encode(array_map(function($house, $months) {
-                    return [
-                        'label' => $house,
-                        'data' => array_map(function($i) use ($months) {
-                            $month_name = date('F', mktime(0, 0, 0, $i, 1));
-                            return isset($months[$month_name]) ? $months[$month_name] : 0;
-                        }, range(1, 12)),
-                        'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
-                        'borderColor' => 'rgba(54, 162, 235, 1)',
-                        'borderWidth' => 1
-                    ];
-                }, array_keys($monthly_data), $monthly_data)); ?>
-            ]
+            labels: <?php echo json_encode($boarding_houses); ?>,
+            datasets: [{
+                label: 'Monthly Income',
+                data: <?php echo json_encode($monthly_incomes); ?>,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: true, // Start y-axis at 0
                     ticks: {
-                        stepSize: 1000,
+                        stepSize: 1000, // Increment step size by 1000
                         callback: function(value) {
-                            return '' + value; // Customize axis labels
+                            return '' + value; // Prefix with $ sign
                         }
                     }
                 }
@@ -628,7 +621,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-
 
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
