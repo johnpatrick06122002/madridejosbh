@@ -588,7 +588,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var monthlyChart = new Chart(ctx, {
         type: 'line', // or 'bar', depending on what you want
         data: {
-            labels: <?php echo json_encode($months); ?>, // Ensure this variable is set up correctly
+           labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             datasets: [{
                 label: 'Monthly Data',
                  data: [
