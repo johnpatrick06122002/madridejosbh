@@ -1,40 +1,31 @@
 <?php include('header.php'); ?>
 <?php 
+
+// Initialize arrays
+$boarding_houses = [];
+$monthly_incomes = [];
+$total_income = 0;
+
+// Query to fetch all boarding houses and their monthly incomes for the current landlord
 $query = "
-    SELECT r.title AS boarding_house, 
-           MONTH(b.last_payment_date) AS month, 
-           IFNULL(SUM(b.paid_amount), 0) AS monthly_income
+    SELECT r.title as boarding_house, IFNULL(SUM(r.monthly), 0) as monthly_income
     FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id 
-        AND b.status = 'Confirm'
-        AND YEAR(b.last_payment_date) = YEAR(CURRENT_DATE)
-    WHERE r.register1_id = '$login_session'
-    GROUP BY r.title, MONTH(b.last_payment_date)
-    ORDER BY r.title, MONTH(b.last_payment_date)
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Confirm'
+    WHERE r.id = '$login_session'
+    GROUP BY r.title
 ";
 
 $result = mysqli_query($dbconnection, $query);
-
-$boarding_houses = [];
-$monthly_incomes = [];
-$monthly_data = []; // Array to store month-wise income
-$total_income = 0;
 
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
         $boarding_houses[] = $row['boarding_house'];
         $monthly_incomes[] = $row['monthly_income'];
-
-        // Store income by month for each boarding house
-        $month_name = date('F', mktime(0, 0, 0, $row['month'], 1)); // Convert month number to name
-        $monthly_data[$row['boarding_house']][$month_name] = $row['monthly_income'];
-        
         $total_income += $row['monthly_income'];  // Accumulate total income
     }
 } else {
     echo "Error fetching data: " . mysqli_error($dbconnection);
 }
-
 
 // Query to fetch brokers count for each boarding house
 $brokers_query = "
@@ -90,37 +81,23 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_income_query)) {
 } else {
     echo "Error preparing the query: " . mysqli_error($dbconnection);
 }
-// Query to fetch total monthly income for the current month across all boarding houses for the current landlord
-$query = "
-    SELECT r.title AS boarding_house, 
-           IFNULL(SUM(b.paid_amount), 0) AS monthly_income
+
+// Query to fetch total monthly income across all boarding houses for the current landlord
+$total_income_query = "
+    SELECT IFNULL(SUM(r.monthly), 0) as total_income
     FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id 
-        AND b.status = 'Confirm'
-        AND MONTH(b.last_payment_date) = MONTH(CURRENT_DATE)
-        AND YEAR(b.last_payment_date) = YEAR(CURRENT_DATE)
-    WHERE r.register1_id = '$login_session'
-    GROUP BY r.title
-    ORDER BY r.title
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Confirm'
+    WHERE r.id  = '$login_session'
 ";
 
-$result = mysqli_query($dbconnection, $query);
+$total_income_result = mysqli_query($dbconnection, $total_income_query);
 
-$boarding_houses = [];
-$monthly_incomes = [];
-$total_income = 0;
-
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $boarding_houses[] = $row['boarding_house'];
-        $monthly_incomes[] = $row['monthly_income'];
-        
-        $total_income += $row['monthly_income'];  // Accumulate total income for the current month
-    }
+if ($total_income_result) {
+    $row = mysqli_fetch_assoc($total_income_result);
+    $total_income = $row['total_income']; // Use the total income sum
 } else {
-    echo "Error fetching data: " . mysqli_error($dbconnection);
+    echo "Error fetching total income: " . mysqli_error($dbconnection);
 }
-
 
 // Initialize array for monthly bookings
 $monthly_bookings = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
@@ -152,83 +129,82 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 ?>
 
 <style>  
- /* Container styles */
- .row.pb-10 {
+/* Container styles */
+.row.pb-10 {
     padding-bottom: 10px;
- }
+}
 
- /* Card box styles */
- .card-box {
+/* Card box styles */
+.card-box {
     background-color: #ffffff;
     border: 1px solid #e3e6f0;
     border-radius: 5px;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
     padding: 20px;
     margin-bottom: 20px;
- }
+}
 
- .card-box.height-100-p {
+.card-box.height-100-p {
     height: 100%;
- }
+}
 
- /* Widget styles */
- .widget-style3 {
+/* Widget styles */
+.widget-style3 {
     display: flex;
     justify-content: space-between;
     align-items: center;
- }
+}
 
- .widget-data {
+.widget-data {
     display: flex;
     flex-direction: column;
     justify-content: center;
- }
+}
 
- .weight-700 {
+.weight-700 {
     font-weight: 700;
- }
+}
 
- .font-24 {
-    font-size: 20px !important;
- }
+.font-24 {
+    font-size: 24px;
+}
 
- .text-dark {
+.text-dark {
     color: #5a5c69;
-    text-align: left;
- }
+}
 
- .font-14 {
+.font-14 {
     font-size: 14px;
- }
+}
 
- .text-secondary {
+.text-secondary {
     color: #858796;
- }
+}
 
- .weight-500 {
+.weight-500 {
     font-weight: 500;
- }
+}
 
- /* Widget icon styles */
- .widget-icon {
+/* Widget icon styles */
+.widget-icon {
     display: flex;
     align-items: center;
- }
+}
 
- .widget-icon .icon {
+.widget-icon .icon {
     font-size: 2em;
     color: #00eccf;
- }
+}
 
-  /* Custom width for .col-xl-3 on screens that are at least 1200px wide */
- @media (min-width: 1200px) {
+/* Custom width for .col-xl-3 on screens that are at least 1200px wide */
+@media (min-width: 1200px) {
     .col-xl-3 {
         -ms-flex: 0 0 25%;
         flex: 0 0 25%;
         max-width: 20%;
     }
- } 
- .fa {
+}
+.fa {
     display: inline-block;
     font: normal normal normal 14px / 1 FontAwesome;
     font-size: inherit;
@@ -240,25 +216,25 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     margin-left: 70px; /* or */
 
     /* any other method to position right */
- }
- .chart-container1 {
+}
+.chart-container1 {
     position: relative;
     width: 80%;  /* Adjust the width as needed */
     height: 450px; /* Adjust the height as needed */
- }
- .chart-container2 {
+}
+.chart-container2 {
     position: relative;
     width: 70%;  /* Adjust the width as needed */
     height: 450px; /* Adjust the height as needed */
     margin-left: 1px;
- }
- .chart-container3 {
+}
+.chart-container3 {
     
     width: 82%;  /* Adjust the width as needed */
     height: 420px;
      
- }
- .fa {
+}
+.fa {
     display: inline-block;
     font: normal normal normal 14px / 1 FontAwesome;
     font-size: inherit;
@@ -271,8 +247,8 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     color: black;
 
     /* any other method to position right */
- }
- @keyframes pulse {
+}
+@keyframes pulse {
     0% {
         transform: scale(1.5);
     }
@@ -282,80 +258,80 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     100% {
         transform: scale(1);
     }
- }
+}
 
- .animated-icon {
+.animated-icon {
     animation: pulse 1.3s infinite;
- }
- /* Container styles */
- .row.pb-10 {
+}
+/* Container styles */
+.row.pb-10 {
     padding-bottom: 10px;
- }
+}
 
- /* Card box styles */
- .card-box {
+/* Card box styles */
+.card-box {
     background-color: #ffffff;
     border: 1px solid #e3e6f0;
     border-radius: 5px;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
     padding: 20px;
     margin-bottom: 20px;
- }
+}
 
- .card-box.height-100-p {
+.card-box.height-100-p {
     height: 100%;
-  }
+}
 
- /* Widget styles */
- .widget-style3 {
+/* Widget styles */
+.widget-style3 {
     display: flex;
     justify-content: space-between;
     align-items: center;
- }
+}
 
- .widget-data {
+.widget-data {
     display: flex;
     flex-direction: column;
     justify-content: center;
- } 
+}
 
- .weight-700 {
+.weight-700 {
     font-weight: 700;
- }
+}
 
- .font-24 {
+.font-24 {
     font-size: 24px;
- }
+}
 
- .text-dark {
+.text-dark {
     color: #5a5c69;
- }
+}
 
- .font-14 {
+.font-14 {
     font-size: 14px;
- }
+}
 
- .text-secondary {
+.text-secondary {
     color: #858796;
- }
+}
 
- .weight-500 {
+.weight-500 {
     font-weight: 500;
- }
+}
 
- /* Widget icon styles */
- .widget-icon {
+/* Widget icon styles */
+.widget-icon {
     display: flex;
     align-items: center;
- }
+}
 
- .widget-icon .icon {
+.widget-icon .icon {
     font-size: 2em;
     color: #00eccf;
- }
+}
 
- /* For small screens, stack the cards vertically */
- @media (max-width: 576px) {
+/* For small screens, stack the cards vertically */
+@media (max-width: 576px) {
     .col-xl-3, .col-lg-3, .col-md-6 {
         width: 100%;
         max-width: 80%;
@@ -375,41 +351,41 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
         justify-content: center;
         margin: 0 auto;
     }
- }
+}
 
- /* Adjust charts for mobile */
- .chart-container1, .chart-container2, .chart-container3 {
+/* Adjust charts for mobile */
+.chart-container1, .chart-container2, .chart-container3 {
     width: 100% !important;
     height: auto !important;
     margin: 0 auto;
- }
+}
 
- /* Custom width for .col-xl-3 on larger screens */
- @media (min-width: 1200px) {
+/* Custom width for .col-xl-3 on larger screens */
+@media (min-width: 1200px) {
     .col-xl-3 {
         flex: 0 0 25%;
         max-width: 20%;
     }
- }
+}
   @media screen and (max-width: 700px) {
     .sidebar a {
        float: revert-layer !important;  
     }
- }
- .fa {
+}
+.fa {
    
     font: normal normal normal 14px / 1 FontAwesome;
     font-size: inherit;
     float: right;
     margin-left: 80px;
     color: black;
- } 
+}
 
- .animated-icon {
+.animated-icon {
     animation: pulse 1.3s infinite;
- }
+}
 
- @keyframes pulse {
+@keyframes pulse {
     0% {
         transform: scale(1.5);
     }
@@ -419,10 +395,10 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     100% {
         transform: scale(1);
     }
- }
- h3{
+}
+h3{
     margin-left: 15px;
- }
+}
 </style>
 
 <div class="row">
@@ -581,35 +557,23 @@ document.addEventListener("DOMContentLoaded", function() {
     var monthlyIncomeChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            datasets: [
-                <?php foreach ($monthly_data as $house => $months) { ?>
-                    {
-                        label: '<?php echo $house; ?>',
-                        data: [
-                            <?php 
-                            for ($i = 1; $i <= 12; $i++) {
-                                $month_name = date('F', mktime(0, 0, 0, $i, 1));
-                                echo isset($months[$month_name]) ? $months[$month_name] : 0;
-                                echo ($i < 12) ? ',' : '';  // Add a comma after each value except the last
-                            }
-                            ?>
-                        ],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    },
-                <?php } ?>
-            ]
+            labels: <?php echo json_encode($boarding_houses); ?>,
+            datasets: [{
+                label: 'Monthly Income',
+                data: <?php echo json_encode($monthly_incomes); ?>,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: true, // Start y-axis at 0
                     ticks: {
-                        stepSize: 1000,
+                        stepSize: 1000, // Increment step size by 1000
                         callback: function(value) {
-                            return '' + value; // Customize axis labels
+                            return '' + value; // Prefix with $ sign
                         }
                     }
                 }
