@@ -562,7 +562,8 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     <div class="col-md-6">
         <!-- Bar Chart for Monthly Incomes of Boarding Houses -->
         <div class="chart-container1">
-            <canvas id="monthlyIncomeChart"></canvas>
+            <canvas id="monthlyIncomeChart" width="400" height="200"></canvas>
+
         </div>
     </div>
     <div class="col-md-6">
