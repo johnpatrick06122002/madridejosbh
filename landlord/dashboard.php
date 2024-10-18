@@ -590,6 +590,8 @@ document.addEventListener("DOMContentLoaded", function() {
         data: {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             datasets: [{
+                <?php foreach ($monthly_data as $house => $months) { ?>
+                        {
                 label: 'Monthly Income',
                 data: [
                             <?php 
@@ -603,7 +605,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
-            }]
+            }
+            <?php } ?>
+        }]
         },
         options: {
             scales: {
