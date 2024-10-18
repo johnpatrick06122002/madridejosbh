@@ -143,8 +143,8 @@ foreach ($rows as $rental_id => $data) {
         <br />
         <h3>
             Monthly Report
-            <button class="btn btn-primary btn-print" style="float: right;" onclick="window.print()">Print</button>
-        </h3>
+            <button class="btn btn-primary btn-print" style="float: right;" onclick="generatePDF()">Download PDF</button>
+  </h3>
         <br />
 
         <!-- Date Range Selection Form -->
@@ -202,9 +202,17 @@ foreach ($rows as $rental_id => $data) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
+        // Add title to the PDF
         doc.text("Monthly Report", 10, 10);
-        // Add additional content here, like your report data
+
+        // Add additional report data
         doc.text("Total Income: ₱<?php echo number_format($total_income, 2); ?>", 10, 20);
+
+        // You can loop through the data and add more details if needed
+        <?php foreach ($display_rows as $index => $row): ?>
+        doc.text("Title: <?php echo $row['title']; ?>", 10, <?php echo ($index + 1) * 30; ?>);
+        doc.text("Total Paid Amount: ₱<?php echo number_format($row['total_paid_amount'], 2); ?>", 10, <?php echo ($index + 1) * 35; ?>);
+        <?php endforeach; ?>
 
         // Save the PDF
         doc.save("monthly-report.pdf");
