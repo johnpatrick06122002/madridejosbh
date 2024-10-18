@@ -78,63 +78,90 @@ foreach ($rows as $rental_id => $data) {
     ];
 }
 ?>
-<style>
-    /* General mobile layout adjustments */
-    @media screen and (max-width: 700px) {
-        .sidebar a {
-            float: revert-layer !important;  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Add viewport for responsive design -->
+    <title>Monthly Report</title>
+    <style>
+        /* General mobile layout adjustments */
+        @media screen and (max-width: 700px) {
+            .sidebar a {
+                float: revert-layer !important;  
+            }
         }
-    }
-    
-    h3 {
-        margin-left: 10px;
-    }
-    
-    /* Print-specific styles */
-    @media print {
-        /* Hide sidebar and unnecessary buttons for print */
-        .sidebar, .btn-print, form {
-            display: none;
-        }
-        
-        /* Adjust layout for printing */
-        .col-sm-10 {
-            width: 100%;
-            margin: 0 auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        table, th, td {
-            border: 1px solid black;
-        }
-        
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        
-        /* Make font sizes larger for better readability */
-        body {
-            font-size: 14px;
-        }
-        
-        /* Ensure titles and content fit properly */
-        h3 {
-            text-align: center;
-            font-size: 18px;
-        }
-        
-        strong {
-            font-size: 16px;
-            margin-left: 0;
-        }
-    }
-</style>
 
+        h3 {
+            margin-left: 10px;
+        }
+
+        /* Print-specific styles */
+        @media print {
+            /* Hide sidebar and unnecessary buttons for print */
+            .sidebar, .btn-print, form {
+                display: none;
+            }
+
+            /* Adjust layout for printing */
+            .col-sm-10 {
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            table, th, td {
+                border: 1px solid black;
+            }
+
+            th, td {
+                padding: 10px;
+                text-align: left;
+            }
+
+            /* Make font sizes larger for better readability */
+            body {
+                font-size: 14px;
+            }
+
+            /* Ensure titles and content fit properly */
+            h3 {
+                text-align: center;
+                font-size: 18px;
+            }
+
+            strong {
+                font-size: 16px;
+                margin-left: 0;
+            }
+        }
+
+        /* Show Download PDF button and hide Print button on mobile view (screen width <= 700px) */
+        @media screen and (max-width: 700px) {
+            .btn-print {
+                display: none; /* Hide the Print button on mobile */
+            }
+            .btn-download {
+                display: inline-block; /* Show the Download PDF button on mobile */
+            }
+        }
+
+        /* Hide Download PDF button and show Print button on desktop view (screen width > 700px) */
+        @media screen and (min-width: 701px) {
+            .btn-print {
+                display: inline-block; /* Show the Print button on desktop */
+            }
+            .btn-download {
+                display: none; /* Hide the Download PDF button on desktop */
+            }
+        }
+    </style>
+</head>
+<body>
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
@@ -143,8 +170,9 @@ foreach ($rows as $rental_id => $data) {
         <br />
         <h3>
             Monthly Report
-            <button class="btn btn-primary btn-print" style="float: right;" onclick="generatePDF()">Download PDF</button>
-  </h3>
+            <button class="btn btn-primary btn-print" style="float: right;" onclick="window.print()">Print</button>
+            <button class="btn btn-primary btn-download" style="float: right; " onclick="generatePDF()">Download PDF</button>
+        </h3>
         <br />
 
         <!-- Date Range Selection Form -->
@@ -219,3 +247,5 @@ foreach ($rows as $rental_id => $data) {
     }
 </script>
 <?php include('footer.php'); ?>
+</body>
+</html>
