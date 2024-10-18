@@ -196,5 +196,18 @@ foreach ($rows as $rental_id => $data) {
         </div>
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
 
+        doc.text("Monthly Report", 10, 10);
+        // Add additional content here, like your report data
+        doc.text("Total Income: ₱<?php echo number_format($total_income, 2); ?>", 10, 20);
+
+        // Save the PDF
+        doc.save("monthly-report.pdf");
+    }
+</script>
 <?php include('footer.php'); ?>
