@@ -1,31 +1,40 @@
 <?php include('header.php'); ?>
 <?php 
-
-// Initialize arrays
-$boarding_houses = [];
-$monthly_incomes = [];
-$total_income = 0;
-
-// Query to fetch all boarding houses and their monthly incomes for the current landlord
 $query = "
-    SELECT r.title as boarding_house, IFNULL(SUM(r.monthly), 0) as monthly_income
+    SELECT r.title AS boarding_house, 
+           MONTH(b.last_payment_date) AS month, 
+           IFNULL(SUM(b.paid_amount), 0) AS monthly_income
     FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Confirm'
-    WHERE r.id = '$login_session'
-    GROUP BY r.title
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id 
+        AND b.status = 'Confirm'
+        AND YEAR(b.last_payment_date) = YEAR(CURRENT_DATE)
+    WHERE r.register1_id = '$login_session'
+    GROUP BY r.title, MONTH(b.last_payment_date)
+    ORDER BY r.title, MONTH(b.last_payment_date)
 ";
 
 $result = mysqli_query($dbconnection, $query);
+
+$boarding_houses = [];
+$monthly_incomes = [];
+$monthly_data = []; // Array to store month-wise income
+$total_income = 0;
 
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
         $boarding_houses[] = $row['boarding_house'];
         $monthly_incomes[] = $row['monthly_income'];
+
+        // Store income by month for each boarding house
+        $month_name = date('F', mktime(0, 0, 0, $row['month'], 1)); // Convert month number to name
+        $monthly_data[$row['boarding_house']][$month_name] = $row['monthly_income'];
+        
         $total_income += $row['monthly_income'];  // Accumulate total income
     }
 } else {
     echo "Error fetching data: " . mysqli_error($dbconnection);
 }
+
 
 // Query to fetch brokers count for each boarding house
 $brokers_query = "
@@ -81,23 +90,37 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_income_query)) {
 } else {
     echo "Error preparing the query: " . mysqli_error($dbconnection);
 }
-
-// Query to fetch total monthly income across all boarding houses for the current landlord
-$total_income_query = "
-    SELECT IFNULL(SUM(r.monthly), 0) as total_income
+// Query to fetch total monthly income for the current month across all boarding houses for the current landlord
+$query = "
+    SELECT r.title AS boarding_house, 
+           IFNULL(SUM(b.paid_amount), 0) AS monthly_income
     FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Confirm'
-    WHERE r.id  = '$login_session'
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id 
+        AND b.status = 'Confirm'
+        AND MONTH(b.last_payment_date) = MONTH(CURRENT_DATE)
+        AND YEAR(b.last_payment_date) = YEAR(CURRENT_DATE)
+    WHERE r.register1_id = '$login_session'
+    GROUP BY r.title
+    ORDER BY r.title
 ";
 
-$total_income_result = mysqli_query($dbconnection, $total_income_query);
+$result = mysqli_query($dbconnection, $query);
 
-if ($total_income_result) {
-    $row = mysqli_fetch_assoc($total_income_result);
-    $total_income = $row['total_income']; // Use the total income sum
+$boarding_houses = [];
+$monthly_incomes = [];
+$total_income = 0;
+
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $boarding_houses[] = $row['boarding_house'];
+        $monthly_incomes[] = $row['monthly_income'];
+        
+        $total_income += $row['monthly_income'];  // Accumulate total income for the current month
+    }
 } else {
-    echo "Error fetching total income: " . mysqli_error($dbconnection);
+    echo "Error fetching data: " . mysqli_error($dbconnection);
 }
+
 
 // Initialize array for monthly bookings
 $monthly_bookings = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
@@ -557,23 +580,35 @@ document.addEventListener("DOMContentLoaded", function() {
     var monthlyIncomeChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: <?php echo json_encode($boarding_houses); ?>,
-            datasets: [{
-                label: 'Monthly Income',
-                data: <?php echo json_encode($monthly_incomes); ?>,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            datasets: [
+                <?php foreach ($monthly_data as $house => $months) { ?>
+                    {
+                        label: '<?php echo $house; ?>',
+                        data: [
+                            <?php 
+                            for ($i = 1; $i <= 12; $i++) {
+                                $month_name = date('F', mktime(0, 0, 0, $i, 1));
+                                echo isset($months[$month_name]) ? $months[$month_name] : 0;
+                                echo ($i < 12) ? ',' : '';  // Add a comma after each value except the last
+                            }
+                            ?>
+                        ],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                <?php } ?>
+            ]
         },
         options: {
             scales: {
                 y: {
-                    beginAtZero: true, // Start y-axis at 0
+                    beginAtZero: true,
                     ticks: {
-                        stepSize: 1000, // Increment step size by 1000
+                        stepSize: 1000,
                         callback: function(value) {
-                            return '' + value; // Prefix with $ sign
+                            return '' + value; // Customize axis labels
                         }
                     }
                 }
