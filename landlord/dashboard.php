@@ -1,26 +1,35 @@
 <?php include('header.php'); ?>
 <?php 
 
-// Initialize arrays
-$boarding_houses = [];
-$monthly_incomes = [];
-$total_income = 0;
-
-// Query to fetch all boarding houses and their monthly incomes for the current landlord
 $query = "
-    SELECT r.title as boarding_house, IFNULL(SUM(r.monthly), 0) as monthly_income
+    SELECT r.title AS boarding_house, 
+           MONTH(b.last_payment_date) AS month, 
+           IFNULL(SUM(b.paid_amount), 0) AS monthly_income
     FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Confirm'
-    WHERE r.id = '$login_session'
-    GROUP BY r.title
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id 
+        AND b.status = 'Confirm'
+        AND YEAR(b.last_payment_date) = YEAR(CURRENT_DATE)
+    WHERE r.register1_id = '$login_session'
+    GROUP BY r.title, MONTH(b.last_payment_date)
+    ORDER BY r.title, MONTH(b.last_payment_date)
 ";
 
 $result = mysqli_query($dbconnection, $query);
+
+$boarding_houses = [];
+$monthly_incomes = [];
+$monthly_data = []; // Array to store month-wise income
+$total_income = 0;
 
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
         $boarding_houses[] = $row['boarding_house'];
         $monthly_incomes[] = $row['monthly_income'];
+
+        // Store income by month for each boarding house
+        $month_name = date('F', mktime(0, 0, 0, $row['month'], 1)); // Convert month number to name
+        $monthly_data[$row['boarding_house']][$month_name] = $row['monthly_income'];
+        
         $total_income += $row['monthly_income'];  // Accumulate total income
     }
 } else {
