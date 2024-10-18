@@ -568,22 +568,29 @@ document.addEventListener("DOMContentLoaded", function() {
         data: {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             datasets: [
-                <?php foreach ($monthly_data as $house => $months) { ?>
+                <?php 
+                $first = true;
+                foreach ($monthly_data as $house => $months) { 
+                    if (!$first) {
+                        echo ',';
+                    }
+                    $first = false;
+                ?>
                     {
-                        label: '<?php echo $house; ?>',
+                        label: '<?php echo addslashes($house); ?>',  // Escaping to avoid issues with quotes
                         data: [
                             <?php 
                             for ($i = 1; $i <= 12; $i++) {
                                 $month_name = date('F', mktime(0, 0, 0, $i, 1));
                                 echo isset($months[$month_name]) ? $months[$month_name] : 0;
-                                echo ($i < 12) ? ',' : '';  // Add a comma after each value except the last
+                                echo ($i < 12) ? ',' : '';  // Add comma after each value except the last
                             }
                             ?>
                         ],
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1
-                    },
+                    }
                 <?php } ?>
             ]
         },
@@ -594,7 +601,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     ticks: {
                         stepSize: 1000,
                         callback: function(value) {
-                            return '' + value; // Customize axis labels
+                            return '' + value; // Customize axis labels if necessary
                         }
                     }
                 }
@@ -611,6 +618,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+});
+
     
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
