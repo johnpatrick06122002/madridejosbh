@@ -88,7 +88,7 @@ foreach ($rows as $rental_id => $data) {
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
-    </div>
+    </div><br>
     <div class="col-sm-10">
         <br />
         <h3>
