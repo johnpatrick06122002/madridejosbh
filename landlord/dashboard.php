@@ -92,21 +92,41 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_income_query)) {
 }
 
 // Query to fetch total monthly income across all boarding houses for the current landlord
-$total_income_query = "
-    SELECT IFNULL(SUM(r.monthly), 0) as total_income
+$query = "
+    SELECT r.title AS boarding_house, 
+           MONTH(b.last_payment_date) AS month, 
+           IFNULL(SUM(b.paid_amount), 0) AS monthly_income
     FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Confirm'
-    WHERE r.id  = '$login_session'
+    LEFT JOIN book b ON r.rental_id = b.bhouse_id 
+        AND b.status = 'Confirm'
+        AND YEAR(b.last_payment_date) = YEAR(CURRENT_DATE)
+    WHERE r.register1_id = '$login_session'
+    GROUP BY r.title, MONTH(b.last_payment_date)
+    ORDER BY r.title, MONTH(b.last_payment_date)
 ";
 
-$total_income_result = mysqli_query($dbconnection, $total_income_query);
+$result = mysqli_query($dbconnection, $query);
 
-if ($total_income_result) {
-    $row = mysqli_fetch_assoc($total_income_result);
-    $total_income = $row['total_income']; // Use the total income sum
+$boarding_houses = [];
+$monthly_incomes = [];
+$monthly_data = []; // Array to store month-wise income
+$total_income = 0;
+
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $boarding_houses[] = $row['boarding_house'];
+        $monthly_incomes[] = $row['monthly_income'];
+
+        // Store income by month for each boarding house
+        $month_name = date('F', mktime(0, 0, 0, $row['month'], 1)); // Convert month number to name
+        $monthly_data[$row['boarding_house']][$month_name] = $row['monthly_income'];
+        
+        $total_income += $row['monthly_income'];  // Accumulate total income
+    }
 } else {
-    echo "Error fetching total income: " . mysqli_error($dbconnection);
+    echo "Error fetching data: " . mysqli_error($dbconnection);
 }
+
 
 // Initialize array for monthly bookings
 $monthly_bookings = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
