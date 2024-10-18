@@ -84,11 +84,14 @@ foreach ($rows as $rental_id => $data) {
        float: revert-layer !important;  
     }
 }
+h3{
+    margin-left: 10px;
+}
     </style>
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
-    </div><br>
+    </div><br><br>
     <div class="col-sm-10">
         <br />
         <h3>
