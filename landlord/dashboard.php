@@ -586,7 +586,6 @@ h3{
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    console.log('monthly_data from PHP:', <?php echo json_encode($monthly_data); ?>);
     var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
     var monthlyIncomeChart = new Chart(ctx, {
         type: 'bar',
@@ -636,8 +635,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-
-
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
     var brokerPieChart = new Chart(ctxBroker, {
