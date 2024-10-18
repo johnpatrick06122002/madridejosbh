@@ -152,82 +152,83 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 ?>
 
 <style>  
-/* Container styles */
-.row.pb-10 {
+ /* Container styles */
+ .row.pb-10 {
     padding-bottom: 10px;
-}
+ }
 
-/* Card box styles */
-.card-box {
+ /* Card box styles */
+ .card-box {
     background-color: #ffffff;
     border: 1px solid #e3e6f0;
     border-radius: 5px;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
     padding: 20px;
     margin-bottom: 20px;
-}
+ }
 
-.card-box.height-100-p {
+ .card-box.height-100-p {
     height: 100%;
-}
+ }
 
-/* Widget styles */
-.widget-style3 {
+ /* Widget styles */
+ .widget-style3 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
+ }
 
-.widget-data {
+ .widget-data {
     display: flex;
     flex-direction: column;
     justify-content: center;
-}
+ }
 
-.weight-700 {
+ .weight-700 {
     font-weight: 700;
-}
+ }
 
-.font-24 {
-    font-size: 24px;
-}
+ .font-24 {
+    font-size: 20px !important;
+ }
 
-.text-dark {
+ .text-dark {
     color: #5a5c69;
-}
+    text-align: left;
+ }
 
-.font-14 {
+ .font-14 {
     font-size: 14px;
-}
+ }
 
-.text-secondary {
+ .text-secondary {
     color: #858796;
-}
+ }
 
-.weight-500 {
+ .weight-500 {
     font-weight: 500;
-}
+ }
 
-/* Widget icon styles */
-.widget-icon {
+ /* Widget icon styles */
+ .widget-icon {
     display: flex;
     align-items: center;
-}
+ }
 
-.widget-icon .icon {
+ .widget-icon .icon {
     font-size: 2em;
     color: #00eccf;
-}
+ }
 
-/* Custom width for .col-xl-3 on screens that are at least 1200px wide */
-@media (min-width: 1200px) {
+  /* Custom width for .col-xl-3 on screens that are at least 1200px wide */
+ @media (min-width: 1200px) {
     .col-xl-3 {
         -ms-flex: 0 0 25%;
         flex: 0 0 25%;
         max-width: 20%;
     }
-}
-.fa {
+ } 
+ .fa {
     display: inline-block;
     font: normal normal normal 14px / 1 FontAwesome;
     font-size: inherit;
@@ -239,25 +240,25 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     margin-left: 70px; /* or */
 
     /* any other method to position right */
-}
-.chart-container1 {
+ }
+ .chart-container1 {
     position: relative;
     width: 80%;  /* Adjust the width as needed */
     height: 450px; /* Adjust the height as needed */
-}
-.chart-container2 {
+ }
+ .chart-container2 {
     position: relative;
     width: 70%;  /* Adjust the width as needed */
     height: 450px; /* Adjust the height as needed */
     margin-left: 1px;
-}
-.chart-container3 {
+ }
+ .chart-container3 {
     
     width: 82%;  /* Adjust the width as needed */
     height: 420px;
      
-}
-.fa {
+ }
+ .fa {
     display: inline-block;
     font: normal normal normal 14px / 1 FontAwesome;
     font-size: inherit;
@@ -270,8 +271,8 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     color: black;
 
     /* any other method to position right */
-}
-@keyframes pulse {
+ }
+ @keyframes pulse {
     0% {
         transform: scale(1.5);
     }
@@ -281,80 +282,80 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     100% {
         transform: scale(1);
     }
-}
+ }
 
-.animated-icon {
+ .animated-icon {
     animation: pulse 1.3s infinite;
-}
-/* Container styles */
-.row.pb-10 {
+ }
+ /* Container styles */
+ .row.pb-10 {
     padding-bottom: 10px;
-}
+ }
 
-/* Card box styles */
-.card-box {
+ /* Card box styles */
+ .card-box {
     background-color: #ffffff;
     border: 1px solid #e3e6f0;
     border-radius: 5px;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
     padding: 20px;
     margin-bottom: 20px;
-}
+ }
 
-.card-box.height-100-p {
+ .card-box.height-100-p {
     height: 100%;
-}
+  }
 
-/* Widget styles */
-.widget-style3 {
+ /* Widget styles */
+ .widget-style3 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
+ }
 
-.widget-data {
+ .widget-data {
     display: flex;
     flex-direction: column;
     justify-content: center;
-}
+ } 
 
-.weight-700 {
+ .weight-700 {
     font-weight: 700;
-}
+ }
 
-.font-24 {
+ .font-24 {
     font-size: 24px;
-}
+ }
 
-.text-dark {
+ .text-dark {
     color: #5a5c69;
-}
+ }
 
-.font-14 {
+ .font-14 {
     font-size: 14px;
-}
+ }
 
-.text-secondary {
+ .text-secondary {
     color: #858796;
-}
+ }
 
-.weight-500 {
+ .weight-500 {
     font-weight: 500;
-}
+ }
 
-/* Widget icon styles */
-.widget-icon {
+ /* Widget icon styles */
+ .widget-icon {
     display: flex;
     align-items: center;
-}
+ }
 
-.widget-icon .icon {
+ .widget-icon .icon {
     font-size: 2em;
     color: #00eccf;
-}
+ }
 
-/* For small screens, stack the cards vertically */
-@media (max-width: 576px) {
+ /* For small screens, stack the cards vertically */
+ @media (max-width: 576px) {
     .col-xl-3, .col-lg-3, .col-md-6 {
         width: 100%;
         max-width: 80%;
@@ -374,41 +375,41 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
         justify-content: center;
         margin: 0 auto;
     }
-}
+ }
 
-/* Adjust charts for mobile */
-.chart-container1, .chart-container2, .chart-container3 {
+ /* Adjust charts for mobile */
+ .chart-container1, .chart-container2, .chart-container3 {
     width: 100% !important;
     height: auto !important;
     margin: 0 auto;
-}
+ }
 
-/* Custom width for .col-xl-3 on larger screens */
-@media (min-width: 1200px) {
+ /* Custom width for .col-xl-3 on larger screens */
+ @media (min-width: 1200px) {
     .col-xl-3 {
         flex: 0 0 25%;
         max-width: 20%;
     }
-}
+ }
   @media screen and (max-width: 700px) {
     .sidebar a {
        float: revert-layer !important;  
     }
-}
-.fa {
+ }
+ .fa {
    
     font: normal normal normal 14px / 1 FontAwesome;
     font-size: inherit;
     float: right;
     margin-left: 80px;
     color: black;
-}
+ } 
 
-.animated-icon {
+ .animated-icon {
     animation: pulse 1.3s infinite;
-}
+ }
 
-@keyframes pulse {
+ @keyframes pulse {
     0% {
         transform: scale(1.5);
     }
@@ -418,10 +419,10 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     100% {
         transform: scale(1);
     }
-}
-h3{
+ }
+ h3{
     margin-left: 15px;
-}
+ }
 </style>
 
 <div class="row">
