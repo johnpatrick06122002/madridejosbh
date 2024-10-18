@@ -632,8 +632,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
-});
-
     // Pie Chart for Brokers Percentage
     var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
     var brokerPieChart = new Chart(ctxBroker, {
