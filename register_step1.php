@@ -188,6 +188,11 @@ if (isset($_POST['submit'])) {
             </div>
 
             <button type="submit" name="submit">Send OTP</button>
+            <center> 
+                <p class="message" style="color: black;">Already have an account? <a href="login.php">Sign in</a></p>
+            <p class="message"><a href="index.php">WebPage</a></p>
+        
+                </center>
         </form>
     </div>
 
