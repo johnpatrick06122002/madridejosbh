@@ -11,9 +11,7 @@
 </body>
 
 <?php 
-
 if(isset($_POST["create"])) {
-
   // Escape all input values
   $rental_id = mysqli_real_escape_string($dbconnection, $_POST['rental_id']);
   $title = mysqli_real_escape_string($dbconnection, $_POST['title']);
@@ -22,6 +20,12 @@ if(isset($_POST["create"])) {
   $monthly = mysqli_real_escape_string($dbconnection, $_POST['monthly']);
   $map = "https://maps.google.com/maps?q=".mysqli_real_escape_string($dbconnection, $_POST['latitude']).",".mysqli_real_escape_string($dbconnection, $_POST['longitude'])."&t=&z=15&ie=UTF8&iwloc=&output=embed";
   $description = mysqli_real_escape_string($dbconnection, $_POST['description']);
+  $payment_policy = mysqli_real_escape_string($dbconnection, $_POST['payment_policy']);
+ 
+  $downpayment_amount = isset($_POST['downpayment_amount']) ? mysqli_real_escape_string($dbconnection, $_POST['downpayment_amount']) : null;
+  $installment_months = isset($_POST['installment_months']) ? mysqli_real_escape_string($dbconnection, $_POST['installment_months']) : null;
+  $installment_amount = isset($_POST['installment_amount']) ? mysqli_real_escape_string($dbconnection, $_POST['installment_amount']) : null;
+  
   $photo = $_FILES['photo']['name'];
   $target = "../uploads/".basename($photo);
 
@@ -43,9 +47,9 @@ if(isset($_POST["create"])) {
     $freekuryente = 'no';
   }
 
-  // Update the SQL query to use the escaped values
-  $sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, register1_id, monthly, wifi, water, kuryente) 
-          VALUES ('$rental_id', '$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente')";
+  // Insert data into rental table
+  $sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, register1_id, monthly, wifi, water, kuryente, downpayment_amount, installment_months, installment_amount) 
+          VALUES ('$rental_id', '$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente', '$downpayment_amount', '$installment_months', '$installment_amount')";
 
   if ($dbconnection->query($sql) === TRUE) {
     move_uploaded_file($_FILES['photo']['tmp_name'], $target);
@@ -83,68 +87,23 @@ if(isset($_POST["create"])) {
     </script>';
   }
 }
-
-
 ?>
-
-
-<style>
-  .sidebar {
-    width: 230px;
-    background-color: #333; /* Adjust background color as needed */
-  }
-
-  .sidebar a {
-    font-family: serif;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 13px;
-    text-decoration: none;
-    font-size: 18px;
-    color: white; /* Adjust text color as needed */
-  }
-
-  .sidebar a i {
-    margin-left: 10px; /* Adjust the margin as needed */
-  }
-
-  .sidebar a:hover {
-    background-color: red; /* Add hover effect if needed */
-    color: #000; /* Adjust hover text color if needed */
-  }
-
-  .sidebar a:active, .sidebar a:focus {
-    background-color: red; /* Change background color when clicked or focused */
-    color: #fff; /* Change text color when clicked or focused */
-    outline: none; /* Remove default outline for better appearance */
-  }
-
-  .sidebar a.active {
-    background-color: red; /* Set different background color for the active link */
-    color: #fff; /* Set different text color for the active link */
-  }
-</style>
 
 <div class="row">
   <div class="col-sm-2">
-    
+    <!-- Sidebar can be included here -->
   </div>
 
   <div class="col-sm-9">
-
  <?php 
     // Check if the user has an active subscription
     $sql_check = "SELECT status FROM subscriptions WHERE register1_id='$login_session' AND status='active'";
     $result_check = mysqli_query($dbconnection, $sql_check);
 
-    // If the result exists and the status is 'active', proceed with posting
     if (mysqli_num_rows($result_check) > 0) {
 ?>
-
     <br />
     <h3>POST NEW BOARDING HOUSE</h3>  
-    <br />
     <br />
     <form action="" method="POST" enctype="multipart/form-data">
       <?php $number = random_int(100, 100000); ?>
@@ -159,83 +118,114 @@ if(isset($_POST["create"])) {
         <input name="title" type="text" class="form-control" required>
       </div>
 
-      <div class="form-group">
+       <div class="form-group">
         <label>Description</label>
         <div class="page-wrapper box-content">
           <textarea class="content" name="description" required></textarea>
         </div>
       </div>
-
       <div class="row">
         <div class="col">
           <div class="form-group">
             <label>Address</label>
             <input name="address" type="text" class="form-control" required>
           </div>
+
           <div class="form-group">
-            <label>Number of Bedspacer</label>
+            <label>Number of Bedspacers</label>
             <input name="slots" type="number" class="form-control" required>
           </div>
+
           <div class="form-group">
-            <label>Price Monthly (₱<span id="pricechanger">500</span>) </label>
+            <label>Price Monthly (₱<span id="pricechanger">500</span>)</label>
             <input type="hidden" id="price" name="monthly" value="500">
             <input type="range" class="form-control" min="300" max="5000" value="500" step="50">
           </div>
-          <br />
+
           <div class="form-group">
-            <div class="form-row">
-              <div class="col">
-                <input type="checkbox" name="free_wifi">
-                <label>Free Wifi</label><br>
-              </div>
-              <div class="col">
-                <input type="checkbox" name="free_water">
-                <label>Free Water</label><br>
-              </div>
-              <div class="col">
-                <input type="checkbox" name="free_kuryente">
-                <label>Free Kuryente</label><br>
-              </div>
-            </div>
+            <input type="checkbox" name="free_wifi">
+            <label>Free Wifi</label><br>
+            <input type="checkbox" name="free_water">
+            <label>Free Water</label><br>
+            <input type="checkbox" name="free_kuryente">
+            <label>Free Kuryente</label><br>
           </div>
-          <br />
+
           <div class="form-group">
             <label>Photo</label>
             <input type="file" name="photo">
           </div>
+
           <div class="form-group">
             <label>Gallery</label>
             <input type="file" name="gallery[]" multiple>
           </div>
+
+          <div class="form-group">
+            <label>Payment Policy</label>
+            <select class="form-control" name="payment_policy" id="payment_policy" required>
+              <option value="other">Choose your policy</option>
+              <option value="downpayment">Downpayment</option>
+              <option value="installment">Installment</option>
+              
+            </select>
+          </div>
+
+          <div class="form-group" id="downpayment-section" style="display: none;">
+            <label>Downpayment Amount (₱)</label>
+            <input type="number" class="form-control" name="downpayment_amount">
+          </div>
+
+          <div class="form-group" id="installment-section" style="display: none;">
+            <label>Installment Plan (Months)</label>
+            <select class="form-control" name="installment_months">
+              <option value="3">3 months</option>
+              <option value="6">6 months</option>
+              <option value="12">12 months</option>
+            </select>
+            <label>Monthly Installment Amount (₱)</label>
+            <input type="number" class="form-control" name="installment_amount">
+          </div>
+
+          
         </div>
+
         <div class="col">
           <center>
             <?php include('map.php'); ?>
           </center>
         </div>
       </div>
-      <button type="submit" name="create" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE</button>
+
+      <button type="submit" name="create" class="btn btn-primary">
+        <i class="fa fa-plus-circle" aria-hidden="true"></i> CREATE
+      </button>
     </form>
 
     <?php
       } else {
-        echo "<h1 class='pending'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i> You account is pending for approval.</h1>";
+        // If no active subscription, show alert
+        echo '<div class="alert alert-danger">Please subscribe to add a new boarding house.</div>';
       }
-  
     ?>
+
+    <br /><br />
   </div>
 </div>
 
-<br />
-<br />
-<br />
+<!-- JavaScript to toggle downpayment and installment fields -->
+<script>
+document.getElementById('payment_policy').addEventListener('change', function () {
+  var policy = this.value;
+  document.getElementById('downpayment-section').style.display = policy === 'downpayment' ? 'block' : 'none';
+  document.getElementById('installment-section').style.display = policy === 'installment' ? 'block' : 'none';
+});
 
-<script type="text/javascript">
-  $('input[type=range]').on('input', function () {
-    var price = $(this).val();
-    $('#price').val(parseInt(price).toLocaleString());
-    $('#pricechanger').html(parseInt(price).toLocaleString());
-  });
+// Update price label based on range slider
+document.querySelector('input[type="range"]').addEventListener('input', function() {
+  document.getElementById('pricechanger').textContent = this.value;
+  document.getElementById('price').value = this.value;
+});
 </script>
 
 <?php include('footer.php'); ?>

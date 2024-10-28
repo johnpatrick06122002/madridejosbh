@@ -10,36 +10,6 @@ while ($row_register1 = $result_register1->fetch_assoc()) {
     $register1_id = $row_register1['id'];
 }
 
-if (isset($_POST["booknow"])) {
-    // Escape user inputs for security
-    $name = mysqli_real_escape_string($dbconnection, $_POST['name']);
-    $age = mysqli_real_escape_string($dbconnection, $_POST['age']);
-    $gender = mysqli_real_escape_string($dbconnection, $_POST['gender']);
-    $contact_number = "+63" . mysqli_real_escape_string($dbconnection, $_POST['contact_number']);
-    $address = mysqli_real_escape_string($dbconnection, $_POST['Address']);
-
-    // Insert booking details into the book table
-    $sql_book = "INSERT INTO book (name, age, gender, contact_number, register1_id, bhouse_id, Address) VALUES ('$name', '$age', '$gender', '$contact_number', '$register1_id', '$rental_id', '$address')";
-
-    if ($dbconnection->query($sql_book) === TRUE) {
-        echo '<script type="text/javascript">
-            Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: "Successfully Booked, wait for register1 to call you."
-            });
-        </script>';
-    } else {
-        echo '<script type="text/javascript">
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Error in database: ' . $dbconnection->error . '"
-            });
-        </script>';
-    }
-}
-
 if (isset($_POST['submitfeedback'])) {
     $boardernumber = "+63" . mysqli_real_escape_string($dbconnection, $_POST['boardersnumber']);
     $sqlfdbck = "SELECT * FROM book WHERE bhouse_id = '$rental_id' AND contact_number = '$boardernumber'";
@@ -82,12 +52,12 @@ while ($row = $result->fetch_assoc()) {
 <br />
 <h2><?php echo $row['title']; ?></h2>
 <div class="wrap">
-    <div class="gallery">
+        <div class="gallery">
         <?php 
         $sql_gallery = "SELECT * FROM gallery WHERE rental_id='$rental_id'";
         $result_gallery = mysqli_query($dbconnection, $sql_gallery);
         while ($row_gallery = $result_gallery->fetch_assoc()) { ?>
-            <a href="uploadss/<?php echo $row_gallery['file_name']; ?>"><img src="uploadss/<?php echo $row_gallery['file_name']; ?>"></a>
+            <a href="uploads/<?php echo $row_gallery['file_name']; ?>"><img src="uploads/<?php echo $row_gallery['file_name']; ?>"></a>
         <?php } ?>
     </div>
 </div>
@@ -96,10 +66,37 @@ while ($row = $result->fetch_assoc()) {
     <button class="next"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
 </div>
 <br />
-<h5>₱ <?php echo $row['monthly']; ?> / Monthly</h5>
-<h6><i class="fa fa-map-marker" aria-hidden="true"></i> <?php echo $row['address']; ?></h6>
+<h5>₱ <?php echo number_format($row['monthly'], 2); ?> / Monthly</h5>
+<h6><i class="fa fa-map-marker" aria-hidden="true"></i> <?php echo htmlspecialchars($row['address']); ?></h6>
+
+<!-- Display Payment Policy and Amount -->
+<h6>
+    Payment Policy: 
+    <?php 
+        // Check if downpayment_amount is set and not null
+        if ($row['downpayment_amount'] !== null && $row['downpayment_amount'] > 0) {
+            echo "Downpayment"; 
+        } 
+        // Check if installment fields are set and valid
+        elseif ($row['installment_months'] !== null && $row['installment_months'] > 0 && $row['installment_amount'] !== null) {
+            echo "Installment"; 
+        } else {
+            echo "No payment policy available";
+        }
+    ?><br>
+    
+    <?php if ($row['downpayment_amount'] > 0): ?>
+        Amount: ₱ <?php echo number_format($row['downpayment_amount'], 2); ?>
+    <?php elseif ($row['installment_months'] > 0 && $row['installment_amount'] > 0): ?>
+        Amount: ₱ <?php echo number_format($row['installment_amount'], 2); ?><br>
+        Installment Months: <?php echo htmlspecialchars($row['installment_months']); ?>
+    <?php endif; ?>
+</h6>
+
+
 <br />
 <br />
+
 
 <?php 
 $freewifi = $row['wifi'] == 'yes' ? '<i class="fa fa-check-circle text-success" aria-hidden="true"></i>' : '<i class="fa fa-times-circle text-danger" aria-hidden="true"></i>';
@@ -255,26 +252,29 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
 <br>
 <hr>
 <br>
-
 <div class="reviews">
     <h2 class="text-center">Boarders Review</h2>
     <br>
     <div class="row">
         <?php
-        $sqlreview = "SELECT * FROM book WHERE ratings IS NOT NULL AND bhouse_id = '$rental_id'";
+        // Update the SQL query to fetch reviews with ratings greater than 0
+        $sqlreview = "SELECT * FROM book WHERE ratings IS NOT NULL AND ratings > 0 AND bhouse_id = '$rental_id'";
         $resultreview = mysqli_query($dbconnection, $sqlreview);
-        while ($rowreview = $resultreview->fetch_assoc()) {
-            $name = $rowreview['name'];
-            $feedback = $rowreview['feedback'];
-            $date = $rowreview['date_posted'];
-            $ratings = $rowreview['ratings'];
-        ?>
 
+        // Check if the query returned any results
+        if (mysqli_num_rows($resultreview) > 0) {
+            while ($rowreview = $resultreview->fetch_assoc()) {
+                $name = $rowreview['firstname'] . ' ' . $rowreview['lastname']; // Combine first and last name
+                $feedback = $rowreview['feedback'];
+                $date = $rowreview['date_posted'];
+                $ratings = $rowreview['ratings'];
+        ?>
+        
         <div class="col-md-6 col-sm-12">
             <div class="card h-100 card-review">
                 <div class="card-header p-10 d-flex flex-row justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <img class="rounded-circle me-2 p-1" width="60" src="https://www.worldfuturecouncil.org/wp-content/uploadss/2020/06/blank-profile-picture-973460_1280-1-705x705.png">
+                        <img class="rounded-circle me-2 p-1" width="60" src="https://www.worldfuturecouncil.org/wp-content/uploads/2020/06/blank-profile-picture-973460_1280-1-705x705.png">
                         <div class="d-flex flex-column justify-content-center align-items-start fs-5 lh-sm">
                             <b class="text-primary"><?php echo $name; ?></b>
                             <small class="text-muted"><?php echo $date; ?></small>
@@ -282,11 +282,11 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
                     </div>
                     <span class="fs-1 my-0 fw-bolder text-success">
                         <select name="star_rating_option" class="ratings" data-fratings="<?php echo $ratings; ?>">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
+                            <option value="1" <?php if ($ratings == 1) echo 'selected'; ?>>1</option>
+                            <option value="2" <?php if ($ratings == 2) echo 'selected'; ?>>2</option>
+                            <option value="3" <?php if ($ratings == 3) echo 'selected'; ?>>3</option>
+                            <option value="4" <?php if ($ratings == 4) echo 'selected'; ?>>4</option>
+                            <option value="5" <?php if ($ratings == 5) echo 'selected'; ?>>5</option>
                         </select>
                     </span>
                 </div>
@@ -296,66 +296,21 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
                 <a href="#" class="stretched-link"></a>
             </div>
         </div>
-        <?php } ?>
+        <?php 
+            }
+        } else {
+            // If no reviews are found
+            echo '<div class="col-12"><p class="text-center text-muted">No reviews available.</p></div>';
+        }
+        ?>
     </div>
 </div>
+
 
 <?php } ?>
 
 </div>
 
-<!-- The Modal -->
-<div class="modal" id="bookNow">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <!-- Modal body -->
-            <div class="modal-body">
-                <form action="" method="post">
-                    <div class="form-row">
-                        <div class="form-group col">
-                            <label>Name</label>
-                            <input name="name" type="text" class="form-control" placeholder="Full Name" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col">
-                            <label>Address</label>
-                            <input name="Address" type="text" class="form-control" placeholder="Purok/Brgy" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col">
-                            <label>Contact Number</label>
-                            <div class="form-group">
-                                <div class="input-group-text">+63
-                                    <input onkeypress='phnumber(event)' type="text" maxlength="10" minlength="10" name="contact_number" class="form-control" placeholder="Contact Number" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Age</label>
-                            <input name="age" type="number" class="form-control" placeholder="Age" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Gender</label>
-                            <select name="gender" class="form-control" required>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit" name="booknow" class="btn btn-primary"><i class="fa fa-paper-plane" aria-hidden="true"></i> Request Reservation</button>
-                </form>
-            </div>
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times-circle" aria-hidden="true"></i> Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- The Modal Feedback -->
 <div class="modal" id="feedback">

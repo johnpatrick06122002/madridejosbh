@@ -12,7 +12,7 @@ if(isset($_POST["register"])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $profile_photo = $_FILES['profile_photo']['name'];
-    $target = "uploadss/".basename($profile_photo);
+    $target = "uploads/".basename($profile_photo);
 
     $sql = "INSERT INTO landlords (name, email, password, Address, contact_number, facebook, profile_photo) VALUES ('$name', '$email', '$password', '$Address', '$contact_number', '$facebook', '$profile_photo')";
 
@@ -27,7 +27,7 @@ if(isset($_POST["register"])) {
                     });
                 });
               </script>';
-        move_uploadsed_file($_FILES['profile_photo']['tmp_name'], $target);
+        move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target);
     }
 }
 
@@ -79,6 +79,8 @@ if(isset($_POST["login"])) {
     <title>MADRIE-BH</title>
     <!-- Favicon -->
     <link rel="shortcut icon" type="x-icon" href="bhh.jpg">
+     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+ 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <!-- Font Awesome CSS -->
@@ -262,23 +264,15 @@ a.closemessage {
     font-weight: bold;
 }
 
-@media screen and (max-width: 600px) {
-  .topnav .login-container {
-    float: none;
+@media (min-width: 992px) {
+    .navbar-expand-lg .navbar-collapse {
+        position: right;
+        display: flex !important;
+        -ms-flex-preferred-size: auto;
+        flex-basis: auto;
+        margin-left: 65%;
+    }
   }
-  .topnav a, .topnav input[type=text], .topnav .login-container button {
-    float: none;
-    display: block;
-    text-align: left;
-    width: 100%;
-    margin: 0;
-    padding: 14px;
-  }
-  .topnav input[type=text] {
-    border: 1px solid #ccc;  
-  }
-}
-
 
 .course_card {
   margin: 25px 10px;
@@ -351,6 +345,7 @@ a.closemessage {
     white-space: nowrap;
 }
 
+
 .main {
     width: 50%;
     margin: 50px auto;
@@ -407,7 +402,67 @@ ul.pagination li.disabled {
 }
 ul.pagination li:last-child {
   float: right;
+}.navbar {
+    background-color: #343a408f !important;
+    padding: 0.5rem 1rem;
 }
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+.navbar-brand img.logo {
+    margin-right: 10px;
+}
+
+.navbar-dark .navbar-toggler {
+    border-color: rgba(255,255,255,.5);
+    padding: .25rem .75rem;
+}
+
+.navbar-dark .navbar-toggler:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.navbar-collapse {
+    flex-grow: 0;
+}
+
+.navbar-nav .nav-link {
+    padding: 1rem 0.5rem;
+}
+
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background-color: #343a408f;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0;
+    }
+}
+   .navbar {
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1030; /* Keeps navbar on top */
+      
+    }
+
+    /* Ensure page content is not hidden under the fixed navbar */
+    .content {
+      margin-top: 70px; /* Adjust based on navbar height */
+    }
+
+    .navbar-collapse {
+      transition: height 0.3s ease;
+    }
 </style>
 </head>
 
@@ -415,57 +470,50 @@ ul.pagination li:last-child {
 
 
 
-<nav class="navbar navbar-dark navbar-expand-sm bg-dark fixed-top">
-        <div class="container">
-        <a href="index.php" class="navbar-brand">
-        <i class="fas fa-blog"></i> &nbsp;
-        <img class="logo" src="bh_logo.jpg">MADRIDEJOS BH FINDER
-        </a>
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-
-        <div id="navbarCollapse" class="collapse navbar-collapse">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a href="index.php" class="nav-link active">
-                    Home
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="" class="nav-link active">
-                    About
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="" class="nav-link active">
-                    Contact
-                </a>
-            </li>
-            <?php if(empty($login_session)) { ?>
-            <li class="nav-item">
-    <a class="nav-link active" href="login.php"><i class="fa fa-sign-in" aria-hidden="true"></i> Sign In</a>
-</li>
-     <li class="nav-item">
-    <a class="nav-link active" href="register_step1.php"><i class="icon-copy fa fa-user-circle-o" aria-hidden="true"></i> Sign Up</a>
-</li>
-              
-            <?php } else { ?>
-              <li class="nav-item">
-              <a class="nav-link active" href="landlord/dashboard.php"><i class="fa fa-tachometer" aria-hidden="true"></i> Dashboard</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="landlord/logout.php"><i class="fa fa-power-off" aria-hidden="true"></i> Logout</a>
-            </li>
-            <?php } ?>
-
-        </ul>
+<!-- Updated Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Madri Bh Finder</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a href="index.php" class="nav-link active">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">Contact</a>
+                </li>
+                <?php if(empty($login_session)) { ?>
+                <li class="nav-item">
+                    <a class="nav-link active" href="login.php">
+                        <i class="fa fa-sign-in" aria-hidden="true"></i> Sign In
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="register_step1.php">
+                        <i class="icon-copy fa fa-user-circle-o" aria-hidden="true"></i> Sign Up
+                    </a>
+                </li>
+                <?php } else { ?>
+                <li class="nav-item">
+                    <a class="nav-link active" href="landlord/dashboard.php">
+                        <i class="fa fa-tachometer" aria-hidden="true"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="landlord/logout.php">
+                        <i class="fa fa-power-off" aria-hidden="true"></i> Logout
+                    </a>
+                </li>
+                <?php } ?>
+            </ul>
         </div>
     </div>
 </nav>
-
 <!-- header.php -->
 
 
@@ -479,12 +527,47 @@ ul.pagination li:last-child {
 
     </div>
   </div>
+   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
  
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('.navbar-nav .nav-link').on('click', function () {
+        $('.navbar-collapse').collapse('hide');
+      });
+    });
+  </script>
+<script>
+$(document).ready(function() {
+    // Handle click event on navbar-toggler
+    $('.navbar-toggler').click(function(e) {
+        e.preventDefault();
+        $('#navbarCollapse').collapse('toggle');
+    });
+
+    // Handle click event on nav links in mobile view
+    $('.navbar-nav .nav-link').click(function() {
+        if ($('.navbar-toggler').is(':visible')) {
+            $('.navbar-collapse').collapse('hide');
+        }
+    });
+
+    // Handle window resize
+    $(window).resize(function() {
+        if ($(window).width() > 991) {
+            $('.navbar-collapse').removeClass('show');
+        }
+    });
+});
+</script>
 
 
 

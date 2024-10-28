@@ -15,35 +15,71 @@ if ($result_edit && mysqli_num_rows($result_edit) > 0) {
     $wifi = $row_edit['wifi'];
     $water = $row_edit['water'];
     $kuryente = $row_edit['kuryente'];
+    $downpayment_amount = $row_edit['downpayment_amount'];
+    $installment_months = $row_edit['installment_months'];
+    $installment_amount = $row_edit['installment_amount'];
 } else {
     echo "Error: Rental details not found.";
     exit; // or handle the error appropriately
 }
-
 if (isset($_POST["create"])) {
-    $title = $_POST['title'];
-    $address = $_POST['address'];
-    $slots = $_POST['slots'];
-    $monthly = floatval(str_replace(',', '', $_POST['monthly'])); // Ensure monthly is treated as a float
+    // Escape special characters in input data
+    $title = mysqli_real_escape_string($dbconnection, $_POST['title']);
+    $address = mysqli_real_escape_string($dbconnection, $_POST['address']);
+    $slots = mysqli_real_escape_string($dbconnection, $_POST['slots']);
+    $monthly = floatval(str_replace(',', '', $_POST['monthly']));
+    $description = mysqli_real_escape_string($dbconnection, $_POST['description']);
 
-    // Construct the map URL based on latitude and longitude from POST
+    // Check if latitude and longitude are set to construct map URL
     if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
         $latitude = $_POST['latitude'];
         $longitude = $_POST['longitude'];
-        $map = "https://maps.google.com/maps?q=".$latitude.",".$longitude."&t=&z=15&ie=UTF8&iwloc=&output=embed";
+        $map = "https://maps.google.com/maps?q=" . $latitude . "," . $longitude . "&t=&z=15&ie=UTF8&iwloc=&output=embed";
     } else {
         $map = ""; // Handle the case where latitude and longitude are not set
     }
 
-    $description = $_POST['description'];
+    // File upload
     $photo = $_FILES['photo']['name'];
-    $target = "../uploadss/".basename($photo);
+    $target = "../uploads/" . basename($photo);
 
+    // Checkbox values
     $freewifi = isset($_POST['free_wifi']) ? 'yes' : 'no';
     $freewater = isset($_POST['free_water']) ? 'yes' : 'no';
     $freekuryente = isset($_POST['free_kuryente']) ? 'yes' : 'no';
 
-    $sql = "UPDATE rental SET title='$title', address='$address', slots='$slots', map='$map', photo='$photo', description='$description', register1_id='$login_session', monthly='$monthly', wifi='$freewifi', water='$freewater', kuryente='$freekuryente' WHERE rental_id='$rental_id'";
+    // Payment type selection
+    $payment_type = $_POST['payment_type'];
+
+    if ($payment_type === 'installment') {
+        // Installment selected, clear downpayment data
+        $installment_months = intval($_POST['installment_months']);
+        $installment_amount = floatval(str_replace(',', '', $_POST['installment_amount']));
+        $downpayment_amount = null; // Clear downpayment data
+    } else if ($payment_type === 'downpayment') {
+        // Downpayment selected, clear installment data
+        $downpayment_amount = floatval(str_replace(',', '', $_POST['downpayment_amount']));
+        $installment_months = null; // Clear installment months
+        $installment_amount = null;  // Clear installment amount
+    }
+
+    // Update query
+    $sql = "UPDATE rental SET 
+        title='$title', 
+        address='$address', 
+        slots='$slots', 
+        map='$map', 
+        photo='$photo', 
+        description='$description', 
+        register1_id='$login_session', 
+        monthly='$monthly', 
+        wifi='$freewifi', 
+        water='$freewater', 
+        kuryente='$freekuryente', 
+        downpayment_amount=" . ($downpayment_amount !== null ? "'$downpayment_amount'" : "NULL") . ", 
+        installment_months=" . ($installment_months !== null ? "'$installment_months'" : "NULL") . ", 
+        installment_amount=" . ($installment_amount !== null ? "'$installment_amount'" : "NULL") . " 
+        WHERE rental_id='$rental_id'";
 
     if ($dbconnection->query($sql) === TRUE) {
         echo '<script>';
@@ -57,20 +93,19 @@ if (isset($_POST["create"])) {
         });';
         echo '</script>';
 
-        move_uploadsed_file($_FILES['photo']['tmp_name'], $target);
+        move_uploaded_file($_FILES['photo']['tmp_name'], $target);
 
-        // Gallery
+        // Gallery upload
         if (!empty($_FILES['gallery']['name'][0])) {
             $totalfiles = count($_FILES['gallery']['name']);
             for ($i = 0; $i < $totalfiles; $i++) {
                 $filename = $_FILES['gallery']['name'][$i];
-                if (move_uploadsed_file($_FILES["gallery"]["tmp_name"][$i], '../uploadss/'.$filename)) {
-                    $insert = "INSERT into gallery (file_name, rental_id) values('$filename', '$rental_id')";
+                if (move_uploaded_file($_FILES["gallery"]["tmp_name"][$i], '../uploads/' . $filename)) {
+                    $insert = "INSERT INTO gallery (file_name, rental_id) VALUES ('$filename', '$rental_id')";
                     mysqli_query($dbconnection, $insert);
                 }
             }
         }
-
     } else {
         echo '<script>';
         echo 'Swal.fire({
@@ -85,6 +120,7 @@ if (isset($_POST["create"])) {
         echo '</script>';
     }
 }
+
 ?>
 
 <div class="row">
@@ -126,6 +162,37 @@ if (isset($_POST["create"])) {
                         <input type="hidden" id="price" name="monthly" value="<?php echo $monthly; ?>">
                         <input type="range" class="form-control" min="500" max="5000" value="<?php echo $monthly; ?>" step="100" oninput="updatePrice(this.value)">
                     </div>
+                    
+                   <div class="form-group">
+    <label>Select Payment Type</label>
+    <select id="paymentType" name="payment_type" class="form-control" onchange="togglePaymentOptions(this.value)">
+        <option value="installment">Installment</option>
+        <option value="downpayment">Downpayment</option>
+    </select>
+</div>
+
+<div id="installmentSection" style="display: none;">
+    <div class="form-group">
+        <label>Installment Months</label>
+        <select name="installment_months" class="form-control">
+            <option value="2" <?php echo ($installment_months == 2) ? 'selected' : ''; ?>>2 months</option>
+            <option value="3" <?php echo ($installment_months == 3) ? 'selected' : ''; ?>>3 months</option>
+            <option value="4" <?php echo ($installment_months == 4) ? 'selected' : ''; ?>>4 months</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Installment Amount (₱<span id="installmentchanger"><?php echo number_format($installment_amount, 2); ?></span>)</label>
+        <input type="hidden" id="installment" name="installment_amount" value="<?php echo $installment_amount; ?>">
+        <input type="range" class="form-control" min="500" max="5000" value="<?php echo $installment_amount; ?>" step="100" oninput="updateInstallment(this.value)">
+    </div>
+</div>
+
+<div id="downpaymentSection" style="display: none;">
+    <div class="form-group">
+        <label>Downpayment Amount</label>
+        <input name="downpayment_amount" type="text" class="form-control" value="<?php echo number_format($downpayment_amount, 2); ?>" required>
+    </div>
+</div>
                     <br />
                     <div class="form-group">
                         <div class="form-row">
@@ -145,32 +212,56 @@ if (isset($_POST["create"])) {
                     </div>
                     <br />
                     <div class="form-group">
-                        <label>Photo</label>
-                        <input type="file" name="photo">
+                        <label>Photo</label><br />
+                        <input type="file" name="photo" accept=".png,.jpeg,.jpg" required>
                     </div>
+                    <br />
                     <div class="form-group">
-                        <label>Gallery</label>
-                        <input type="file" name="gallery[]" multiple>
+                        <label>Gallery</label><br />
+                        <input type="file" name="gallery[]" multiple accept=".png,.jpeg,.jpg">
                     </div>
                 </div>
-                <div class="col">
+               <div class="col">
                     <center>
                         <?php include('map.php'); ?>
                     </center>
                 </div>
             </div>
-            <button type="submit" name="create" class="btn btn-primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> UPDATE</button>
+            <br>
+            <div class="form-group">
+                <input type="submit" name="create" value="Update Boarding House" class="btn btn-primary btn-block">
+            </div>
+            
         </form>
     </div>
 </div>
-<br />
-<br />
-<br />
-<script type="text/javascript">
-function updatePrice(value) {
-    document.getElementById('price').value = value;
-    document.getElementById('pricechanger').textContent = parseInt(value).toLocaleString();
-}
-</script>
+<script src="../assets/js/toggle.js"></script>
+<script src="../assets/js/price.js"></script>
+<script>
+    function updatePrice(value) {
+        document.getElementById('pricechanger').innerHTML = new Intl.NumberFormat().format(value);
+        document.getElementById('price').value = value;
+    }
 
+   function togglePaymentOptions(value) {
+        if (value === 'installment') {
+            document.getElementById('installmentSection').style.display = 'block';
+            document.getElementById('downpaymentSection').style.display = 'none';
+        } else {
+            document.getElementById('installmentSection').style.display = 'none';
+            document.getElementById('downpaymentSection').style.display = 'block';
+        }
+    }
+
+    // Function to update installment amount
+    function updateInstallment(value) {
+        document.getElementById('installmentchanger').textContent = parseFloat(value).toLocaleString('en-US', {minimumFractionDigits: 2});
+        document.getElementById('installment').value = value;
+    }
+
+    // Trigger the toggle function on page load if necessary
+    document.addEventListener("DOMContentLoaded", function() {
+        togglePaymentOptions(document.getElementById('paymentType').value);
+    });
+</script>
 <?php include('footer.php'); ?>
