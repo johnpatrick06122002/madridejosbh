@@ -55,9 +55,31 @@ if (!$row) {
     exit();
 }
 
+// Initialize payment type variables
+$payment_type = '';
+$paid_amount_value = 0;
+$installment_months = 0;
+
+// Check if downpayment is set
+if (!is_null($row['downpayment_amount']) && $row['downpayment_amount'] > 0) {
+    $payment_type = 'downpayment';
+    $paid_amount_value = $row['downpayment_amount'];
+} 
+// Otherwise, check for installment
+elseif (!is_null($row['installment_amount']) && $row['installment_amount'] > 0 && !is_null($row['installment_months'])) {
+    $payment_type = 'installment';
+    $paid_amount_value = $row['installment_amount'];
+    $installment_months = $row['installment_months'];
+} else {
+    // Handle case where neither downpayment nor installment is set
+    echo '<script>Swal.fire("Error", "No valid payment option set for this rental.", "error");</script>';
+    exit();
+}
+
 // Landlord's email
 $landlord_email = $row['email'];
 
+// Booking logic
 if (isset($_POST["booknow"])) {
     // Sanitize and validate user inputs
     $firstname = sanitizeInput($_POST['firstname'], 'name');
@@ -68,14 +90,13 @@ if (isset($_POST["booknow"])) {
     $gcash_number = sanitizeInput($_POST['gcash_number'], 'number');
     $email = sanitizeInput($_POST['email'], 'email');
     $address = sanitizeInput($_POST['Address'], 'address');
-    $paid_amount = filter_var($_POST['paid_amount'], FILTER_VALIDATE_FLOAT);
+    $paid_amount_value = filter_var($_POST['paid_amount'], FILTER_VALIDATE_FLOAT);
 
     // Validate required fields
-    if (!$firstname || !$lastname || !$age || !$gender || !$gcash_number || !$email || !$address || $paid_amount === false) {
+    if (!$firstname || !$lastname || !$age || !$gender || !$gcash_number || !$email || !$address || $paid_amount_value === false) {
         echo '<script>Swal.fire("Error", "All fields are required and must be valid.", "error");</script>';
         exit();
     }
-
     // File upload validation
     $gcash_picture = $_FILES['gcash_picture'];
     $target_dir = "uploads/gcash_pictures/";
@@ -116,7 +137,7 @@ if (isset($_POST["booknow"])) {
             $rental_id, 
             $address, 
             $target_file, 
-            $paid_amount
+            $paid_amount_value
         );
 
         if ($stmt_book->execute()) {
@@ -145,7 +166,7 @@ if (isset($_POST["booknow"])) {
                     <p><strong>First Name:</strong> " . htmlspecialchars($firstname, ENT_QUOTES, 'UTF-8') . "</p>
                     <p><strong>Last Name:</strong> " . htmlspecialchars($lastname, ENT_QUOTES, 'UTF-8') . "</p>
                     <p><strong>Email:</strong> " . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "</p>
-                    <p><strong>Paid Amount:</strong> " . htmlspecialchars($paid_amount, ENT_QUOTES, 'UTF-8') . "</p>
+                    <p><strong>Paid Amount:</strong> " . htmlspecialchars($paid_amount_value, ENT_QUOTES, 'UTF-8') . "</p>
                     <p><strong>GCash Picture:</strong> <img src='" . htmlspecialchars($target_file, ENT_QUOTES, 'UTF-8') . "' alt='GCash Payment' width='150'></p>
                     <p>Kindly log in to your account to view more details.</p>
                 ";
@@ -165,7 +186,8 @@ if (isset($_POST["booknow"])) {
     }
 }
 ?>
-
+<!DOCTYPE html>
+<html lang="en">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -174,7 +196,7 @@ if (isset($_POST["booknow"])) {
     <title>Book Now</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Your existing CSS */
+        /* Main container styling */
         .container {
             max-width: 600px;
             margin: 0 auto;
@@ -188,35 +210,53 @@ if (isset($_POST["booknow"])) {
             margin-bottom: 20px;
         }
         .form-control {
-            width: 100%;
+            width: 90%;
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+        .btn-primary, .btn-back {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            display: inline-block;
+            width: 48%;
+        }
         .btn-primary {
             background-color: #007bff;
             border: none;
             color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
         }
         .btn-primary:hover {
             background-color: #0069d9;
+        }
+        .btn-back {
+            background-color: #6c757d;
+            border: none;
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: #5a6268;
         }
         h2 {
             text-align: center;
             margin-bottom: 20px;
         }
+        
+        /* Responsive styling */
         @media (max-width: 768px) {
             .container {
+                width: 90%;
+                padding: 15px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .btn-primary, .btn-back {
                 width: 100%;
+                margin-bottom: 10px;
             }
         }
     </style>
@@ -224,6 +264,10 @@ if (isset($_POST["booknow"])) {
 <body>
     <div class="container">
         <h2>Book Now</h2>
+
+        <!-- Back button -->
+     <a href="view.php?bh_id=<?php echo $rental_id; ?>" class="btn btn-secondary">Back</a>
+
         <form id="bookingForm" method="POST" action="book.php?bh_id=<?php echo htmlspecialchars($rental_id, ENT_QUOTES, 'UTF-8'); ?>" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="firstname">First Name:</label>
@@ -238,12 +282,12 @@ if (isset($_POST["booknow"])) {
                 <input type="text" class="form-control" id="lastname" name="lastname" required>
             </div>
             <div class="form-group">
-                <label for="age">Age:</label>
+                <label for="age">Age:</label><br>
                 <input type="number" class="form-control" id="age" name="age" required>
             </div>
             <div class="form-group">
                 <label for="gender">Gender:</label>
-                <select class="form-control" id="gender" name="gender" required>
+                <select class="form-control" id="gender" name="gender" required style="width:97%;">
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
@@ -261,57 +305,71 @@ if (isset($_POST["booknow"])) {
                 <label for="Address">Address:</label>
                 <input type="text" class="form-control" id="Address" name="Address" required>
             </div>
+            <h3>Payment Type: <?php echo ucfirst($payment_type); ?></h3>
             <div class="form-group">
                 <label for="gcash_picture">GCash Payment Proof (JPG/PNG only):</label>
                 <input type="file" class="form-control-file" id="gcash_picture" name="gcash_picture" accept=".jpg,.jpeg,.png" required>
             </div>
             <div class="form-group">
-                <label for="paid_amount">Paid Amount:</label>
-                <input type="number" class="form-control" id="paid_amount" name="paid_amount" step="0.01" required>
+                <label><?php echo ucfirst($payment_type); ?> Amount:</label>
+                <p class="form-control-static"><?php echo htmlspecialchars($paid_amount_value, ENT_QUOTES, 'UTF-8'); ?></p>
+                <input type="hidden" name="paid_amount" value="<?php echo htmlspecialchars($paid_amount_value, ENT_QUOTES, 'UTF-8'); ?>">
             </div>
+            <?php if ($payment_type == 'installment'): ?>
+            <div class="form-group">
+                <label>Installment Months:</label>
+                <p class="form-control-static"><?php echo htmlspecialchars($installment_months, ENT_QUOTES, 'UTF-8'); ?></p>
+                <input type="hidden" name="installment_months" value="<?php echo htmlspecialchars($installment_months, ENT_QUOTES, 'UTF-8'); ?>">
+            </div>
+            <?php endif; ?>
             <button type="submit" class="btn btn-primary" name="booknow">Book Now</button>
         </form>
     </div>
 
     <script>
-    // JavaScript for client-side validation
-    document.getElementById('bookingForm').addEventListener('submit', function(event) {
-        var isValid = true;
+    // JavaScript for back button functionality
+    function goBack() {
+        window.history.back();
+    }
+    </script>
+    <script>
+        document.getElementById('bookingForm').addEventListener('submit', function(event) {
+            var isValid = true;
 
-        // Validate name fields (letters, hyphens, apostrophes, spaces only)
-        ['firstname', 'middlename', 'lastname'].forEach(function(field) {
-            var value = document.getElementById(field).value;
-            if (!/^[A-Za-z\s'-]*$/.test(value)) {
+            // Validate name fields
+            ['firstname', 'middlename', 'lastname'].forEach(function(field) {
+                var value = document.getElementById(field).value;
+                if (!/^[A-Za-z\s'-]*$/.test(value)) {
+                    isValid = false;
+                    Swal.fire('Error', 'Please enter a valid ' + field + '.', 'error');
+                }
+            });
+
+            // Validate address field
+            var address = document.getElementById('Address').value;
+            if (!/^[A-Za-z0-9\s,.'-]*$/.test(address)) {
                 isValid = false;
-                Swal.fire('Error', 'Please enter a valid ' + field + '.', 'error');
+                Swal.fire('Error', 'Please enter a valid address.', 'error');
+            }
+
+            // Validate email
+            var email = document.getElementById('email').value;
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                isValid = false;
+                Swal.fire('Error', 'Please enter a valid email address.', 'error');
+            }
+
+            // Validate GCash number
+            var gcashNumber = document.getElementById('gcash_number').value;
+            if (!/^\d+$/.test(gcashNumber)) {
+                isValid = false;
+                Swal.fire('Error', 'Please enter a valid GCash number (numbers only).', 'error');
+            }
+
+            if (!isValid) {
+                event.preventDefault();
             }
         });
-
-        // Validate address field (letters, numbers, commas, periods, dashes, and spaces)
-        var address = document.getElementById('Address').value;
-        if (!/^[A-Za-z0-9\s,.'-]*$/.test(address)) {
-            isValid = false;
-            Swal.fire('Error', 'Please enter a valid address.', 'error');
-        }
-
-        // Validate email
-        var email = document.getElementById('email').value;
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            isValid = false;
-            Swal.fire('Error', 'Please enter a valid email address.', 'error');
-        }
-
-        // Validate GCash number (numbers only)
-        var gcashNumber = document.getElementById('gcash_number').value;
-        if (!/^\d+$/.test(gcashNumber)) {
-            isValid = false;
-            Swal.fire('Error', 'Please enter a valid GCash number (numbers only).', 'error');
-        }
-
-        if (!isValid) {
-            event.preventDefault();
-        }
-    });
     </script>
 </body>
 </html>
