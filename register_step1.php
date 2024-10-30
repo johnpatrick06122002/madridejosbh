@@ -99,13 +99,15 @@ if (isset($_POST['submit'])) {
     }
 }
         
-        .register-form {
+       .register-form {
             background-color: #fff;
             padding: 20px;
             border-radius: 25px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 300px;
+            width: 290px;
+            margin-top: -80px;
         }
+        
         
         .register-form h2 {
             text-align: center;
