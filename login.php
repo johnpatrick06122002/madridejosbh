@@ -118,7 +118,7 @@ if (isset($_POST["login"])) {
             width: 300px;
             padding: 8% 0 0;
             margin: auto;
-            height: 520px;
+            height: 535px;
         }
 
         .form {
