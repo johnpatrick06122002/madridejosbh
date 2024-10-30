@@ -52,7 +52,7 @@ if(isset($_POST["search"])) {
 </form>
 </center>
 </div>
-
+<br><br>
 <div class="container">
 <div class="row mx-auto" id="recent">
 <?php
