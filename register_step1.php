@@ -80,6 +80,7 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('b.png') no-repeat center center fixed;
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             display: flex;
@@ -92,7 +93,7 @@ if (isset($_POST['submit'])) {
         .register-form {
             background-color: #fff;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 25px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             width: 300px;
         }
@@ -156,7 +157,7 @@ if (isset($_POST['submit'])) {
 </head>
 <body>
     <div class="register-form">
-        <h2>Register - Step 1</h2>
+        <h2>Create Account</h2>
         <form action="register_step1.php" method="POST">
             <label for="email">Email</label>
             <input type="email" name="email" id="email" required>
