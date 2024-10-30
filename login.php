@@ -114,10 +114,11 @@ if (isset($_POST["login"])) {
             margin: 0;
         }
 
-        .login-page {
-            width: 360px;
+         .login-page {
+            width: 330px;
             padding: 8% 0 0;
             margin: auto;
+            height: 460px;
         }
 
         .form {
