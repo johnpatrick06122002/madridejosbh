@@ -118,7 +118,7 @@ if (isset($_POST["login"])) {
             width: 300px;
             padding: 8% 0 0;
             margin: auto;
-            height: 500px;
+            height: 520px;
         }
 
         .form {
@@ -130,7 +130,7 @@ if (isset($_POST["login"])) {
             padding: 45px;
             text-align: center;
             box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-            border-radius: 20px;
+            border-radius: 25px;
         }
 
         .form input {
