@@ -82,7 +82,7 @@ if (isset($_POST['submit'])) {
         body {
             background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('b.png') no-repeat center center fixed;
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            
             display: flex;
             justify-content: center;
             align-items: center;
