@@ -103,7 +103,30 @@ $freewifi = $row['wifi'] == 'yes' ? '<i class="fa fa-check-circle text-success" 
 $freewater = $row['water'] == 'yes' ? '<i class="fa fa-check-circle text-success" aria-hidden="true"></i>' : '<i class="fa fa-times-circle text-danger" aria-hidden="true"></i>';
 $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-success" aria-hidden="true"></i>' : '<i class="fa fa-times-circle text-danger" aria-hidden="true"></i>';
 ?>
+<style>
 
+    /* Container to maintain aspect ratio */
+.map-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    margin: auto;
+}
+
+/* Responsive map iframe */
+.responsive-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+</style>
 <div class="row text-center">
     <div class="col">
         <div class="alert alert-success" role="alert">
@@ -132,9 +155,9 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
                 <?php echo $row['description']; ?>
             </div>
         </div>
-        <div class="map">
-            <iframe width="600" height="450" src="<?php echo $row['map']; ?>"></iframe>
-        </div>
+         <div class="map-container">
+    <iframe class="responsive-map" src="<?php echo $row['map']; ?>" allowfullscreen></iframe>
+</div>
     </div>
     <div class="col-md-4">
         <h3>Landlord's INFO</h3>
