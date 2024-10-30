@@ -115,6 +115,7 @@ $stmt->bind_param("iii", $removed_id, $offset, $results_per_page); // Bind the p
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
+
 <style>
     @media screen and (max-width: 768px) {
         table {
@@ -165,9 +166,16 @@ $result = $stmt->get_result();
     .table tbody tr:hover {
         background-color: #f1f1f1; /* Highlight row on hover */
     }
-     h3{
+    h3{
         margin-left: 10px;
     }
+    .pagination {
+    display: -ms-flexbox;
+    display: flex;
+    padding-left: 17%;
+    list-style: none;
+    border-radius: .25rem;
+}
 </style>
 
 <div class="row">
@@ -244,10 +252,12 @@ $result = $stmt->get_result();
                                 </form>
 
                                 <!-- Delete form -->
-                                <form method="POST" action="" style="margin-top: 5px;">
-                                    <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
-                                </form>
+                                <!-- Delete form -->
+<form method="POST" action="" style="margin-top: 5px;">
+    <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
+    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
+</form>
+
                             </td>
                         </tr>
                     <?php } ?>
