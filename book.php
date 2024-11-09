@@ -1,7 +1,6 @@
 <?php
 // Set Content Security Policy
-header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/sweetalert2@11; style-src 'self' 'unsafe-inline';");
-
+ 
 // Include database connection
 include('connection.php');
 
@@ -188,8 +187,6 @@ if (isset($_POST["booknow"])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -244,7 +241,6 @@ if (isset($_POST["booknow"])) {
             text-align: center;
             margin-bottom: 20px;
         }
-        
         /* Responsive styling */
         @media (max-width: 768px) {
             .container {
@@ -265,8 +261,7 @@ if (isset($_POST["booknow"])) {
     <div class="container">
         <h2>Book Now</h2>
 
-        <!-- Back button -->
-     <a href="view.php?bh_id=<?php echo $rental_id; ?>" class="btn btn-secondary">Back</a>
+        <a href="view.php?bh_id=<?php echo $rental_id; ?>" class="btn btn-secondary">Back</a>
 
         <form id="bookingForm" method="POST" action="book.php?bh_id=<?php echo htmlspecialchars($rental_id, ENT_QUOTES, 'UTF-8'); ?>" enctype="multipart/form-data">
             <div class="form-group">
@@ -306,10 +301,30 @@ if (isset($_POST["booknow"])) {
                 <input type="text" class="form-control" id="Address" name="Address" required>
             </div>
             <h3>Payment Type: <?php echo ucfirst($payment_type); ?></h3>
-            <div class="form-group">
-                <label for="gcash_picture">GCash Payment Proof (JPG/PNG only):</label>
-                <input type="file" class="form-control-file" id="gcash_picture" name="gcash_picture" accept=".jpg,.jpeg,.png" required>
-            </div>
+            <!-- Image preview and reference number input -->
+<div class="form-group">
+    <label for="gcash_picture">GCash Payment Proof (JPG/PNG only):</label>
+    <input type="file" class="form-control-file" id="gcash_picture" name="gcash_picture" accept=".jpg,.jpeg,.png" required>
+</div>
+
+<div class="form-group">
+    <label>Preview:</label>
+    <div id="image-preview" style="margin-top: 10px;"></div> <!-- Container for previewed image -->
+</div>
+
+<!-- Reference Number Field Added Here -->
+<div class="form-group">
+    <label for="reference_number">Reference Number:</label>
+    <input type="text" class="form-control" id="reference_number" name="reference_number" readonly>
+</div>
+
+<!-- Amount Field Added Here -->
+<div class="form-group">
+    <label for="amount">Amount:</label>
+    <input type="text" class="form-control" id="amount" name="amount" readonly>
+</div>
+
+
             <div class="form-group">
                 <label><?php echo ucfirst($payment_type); ?> Amount:</label>
                 <p class="form-control-static"><?php echo htmlspecialchars($paid_amount_value, ENT_QUOTES, 'UTF-8'); ?></p>
@@ -325,51 +340,109 @@ if (isset($_POST["booknow"])) {
             <button type="submit" class="btn btn-primary" name="booknow">Book Now</button>
         </form>
     </div>
+   
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+<!-- Add PHP variable for payment amount to JavaScript -->
+<script>
+    const requiredAmount = <?php echo json_encode($paid_amount_value); ?>;
+</script>
+<script>
+$(document).ready(function () {
+    $('#gcash_picture').change(function (event) {
+        const file = event.target.files[0];
+        const previewContainer = $('#image-preview');
+        const refNoInput = $('#reference_number');
+        const amountInput = $('#amount'); // Amount input for displaying scanned amount
+        const fileInput = $('#gcash_picture'); // File input for clearing if needed
 
-    <script>
-    // JavaScript for back button functionality
-    function goBack() {
-        window.history.back();
-    }
-    </script>
-    <script>
-        document.getElementById('bookingForm').addEventListener('submit', function(event) {
-            var isValid = true;
+        // Clear previous preview, reference number, and amount
+        previewContainer.empty();
+        refNoInput.val('');
+        amountInput.val('');
 
-            // Validate name fields
-            ['firstname', 'middlename', 'lastname'].forEach(function(field) {
-                var value = document.getElementById(field).value;
-                if (!/^[A-Za-z\s'-]*$/.test(value)) {
-                    isValid = false;
-                    Swal.fire('Error', 'Please enter a valid ' + field + '.', 'error');
-                }
+        if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = $('<img>').attr('src', e.target.result).css({
+                    maxWidth: '100px',
+                    maxHeight: '100px'
+                });
+                previewContainer.append(img); // Display image preview
+
+                // Perform OCR to extract reference number and amount
+                Tesseract.recognize(e.target.result, 'eng', {
+                    logger: info => console.log(info) // Log OCR progress
+                }).then(({ data: { text } }) => {
+                    console.log("Extracted Text:", text);
+
+                    // Regex pattern to extract reference number
+                    const refNoPattern = /Ref\.?\s*No\.?\s*([\d\s]+)/i;
+                    const matchRefNo = text.match(refNoPattern);
+                    if (matchRefNo) {
+                        refNoInput.val(matchRefNo[1].trim()); // Populate reference number
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Reference Number Not Found',
+                            text: 'No reference number was detected in the uploaded image. Please try again with a clearer image.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+
+                    // Regex pattern to extract amount with decimal (e.g., 1234.56)
+                    const amountPattern = /(\d{1,3}(?:,\d{3})*(?:\.\d{2}))/; // Matches a number with decimals
+                    const matchAmount = text.match(amountPattern);
+                    if (matchAmount) {
+                        const scannedAmount = parseFloat(matchAmount[0].replace(/,/g, '')); // Convert to number
+                        if (scannedAmount === requiredAmount) {
+                            amountInput.val(scannedAmount); // Populate amount if it matches exactly
+                        } else {
+                            // Clear fields if scanned amount is not exactly equal to the required amount
+                            amountInput.val('');
+                            refNoInput.val(''); // Clear reference number
+                            previewContainer.empty(); // Remove the image preview
+                            fileInput.val(''); // Reset file input
+
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Invalid Amount',
+                                text: `The scanned amount (${scannedAmount}) does not match the required amount of ${requiredAmount}. Please try again with the correct amount.`,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Amount Not Found',
+                            text: 'No amount was detected in the uploaded image. Please try again with a clearer image.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }).catch(err => {
+                    console.error('OCR Error:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'OCR Error',
+                        text: 'Failed to extract text from the image. Please try again.',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            };
+            reader.readAsDataURL(file);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid File Type',
+                text: 'Only JPG, JPEG, and PNG files are allowed.',
+                confirmButtonText: 'OK'
             });
+        }
+    });
+});
+</script>
 
-            // Validate address field
-            var address = document.getElementById('Address').value;
-            if (!/^[A-Za-z0-9\s,.'-]*$/.test(address)) {
-                isValid = false;
-                Swal.fire('Error', 'Please enter a valid address.', 'error');
-            }
 
-            // Validate email
-            var email = document.getElementById('email').value;
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                isValid = false;
-                Swal.fire('Error', 'Please enter a valid email address.', 'error');
-            }
-
-            // Validate GCash number
-            var gcashNumber = document.getElementById('gcash_number').value;
-            if (!/^\d+$/.test(gcashNumber)) {
-                isValid = false;
-                Swal.fire('Error', 'Please enter a valid GCash number (numbers only).', 'error');
-            }
-
-            if (!isValid) {
-                event.preventDefault();
-            }
-        });
-    </script>
 </body>
 </html>

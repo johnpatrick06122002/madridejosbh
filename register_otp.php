@@ -74,18 +74,35 @@ if (isset($_POST['resend_otp'])) {
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Verify OTP</title>
     <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
         .alert {
             padding: 1rem;
             border-radius: 5px;
@@ -93,6 +110,7 @@ if (isset($_POST['resend_otp'])) {
             margin: 1rem 0;
             font-weight: 500;
             width: 65%;
+            text-align: center;
         }
 
         .alert-success {
@@ -103,61 +121,45 @@ if (isset($_POST['resend_otp'])) {
             background-color: #fc5555;
         }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+        /* OTP Boxes */
+        .otp-container {
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-
-        .input-field {
-            position: relative;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
-        .input-field input {
-            padding: 10px;
+        .otp-container input {
+            width: 45px;
+            height: 45px;
+            font-size: 18px;
+            text-align: center;
             border: 1px solid #ddd;
             border-radius: 4px;
-            width: 93%;
+            background-color: #fff;
+            color: #333;
         }
 
-        .input-field i {
-            position: absolute;
-            left: 10px;
-            top: 10px;
-            color: #aaa;
-        }
-
+        /* Verify Button */
         .btn {
             background-color: #007bff;
             color: #fff;
             border: none;
             border-radius: 4px;
-            padding: 12px;
+            padding: 12px 20px;
             cursor: pointer;
-            width: 100%;
             font-size: 16px;
+            margin-bottom: 10px;
+            width: 200px;
+            text-align: center;
         }
 
         .btn:hover {
             background-color: #0056b3;
         }
 
+        /* Resend Button */
         .resend-btn {
-            display: inline-block;
-            margin-top: 10px;
             font-size: 14px;
             color: #007bff;
             cursor: pointer;
@@ -171,39 +173,66 @@ if (isset($_POST['resend_otp'])) {
 </head>
 
 <body>
-    <div class="container">
-        <form action="" method="POST">
-            <h2 class="title">Verify OTP</h2>
-            <?php echo $msg; ?>
-            <div class="input-field">
-                <input type="text" name="otp" placeholder="Enter 6-digit code" required />
-            </div>
-            <input type="submit" name="verify" value="Verify" class="btn" />
-            <div class="resend-btn">
-                <button type="button" id="resendOtpButton" onclick="resendOtp()">Resend OTP</button>
-                  <span id="countdown" style="display:none;"> (60)</span>
-            </div>
-        </form>
+    <h2>Verify OTP</h2>
+    <?php echo $msg; ?>
+
+    <!-- OTP Input Boxes -->
+    <div class="otp-container">
+        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp2')" id="otp1">
+        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp3')" id="otp2">
+        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp4')" id="otp3">
+        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp5')" id="otp4">
+        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp6')" id="otp5">
+        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, '')" id="otp6">
     </div>
 
-     <script>
+    <!-- Hidden field to hold full OTP -->
+    <form action="" method="POST" onsubmit="return combineOtp();">
+        <input type="hidden" name="otp" id="otp" />
+        <input type="submit" name="verify" value="Verify" class="btn" />
+    </form>
+
+    <!-- Resend OTP Button -->
+    <div class="resend-btn">
+        <button type="button" id="resendOtpButton" onclick="resendOtp()">Resend OTP</button>
+        <span id="countdown" style="display:none;"> (60)</span>
+    </div>
+
+    <script>
+        // Move focus to the next input field
+        function moveToNext(current, nextFieldID) {
+            if (current.value.length === 1 && nextFieldID) {
+                document.getElementById(nextFieldID).focus();
+            }
+        }
+
+        // Combine OTP boxes into one value for submission
+        function combineOtp() {
+            const otp = Array.from(document.querySelectorAll('.otp-box'))
+                            .map(input => input.value)
+                            .join('');
+            document.getElementById('otp').value = otp;
+            return otp.length === 6; // Only allow form submission if OTP is complete
+        }
+
+        // Resend OTP countdown timer
         let countdown = 60; // 60 seconds countdown
         let resendButton = document.getElementById('resendOtpButton');
         let countdownDisplay = document.getElementById('countdown');
 
         function resendOtp() {
-            resendButton.disabled = true; // Disable the button
-            countdownDisplay.style.display = "inline"; // Show the countdown display
-            countdownDisplay.innerText = ` (${countdown})`; // Show initial countdown value
+            resendButton.disabled = true;
+            countdownDisplay.style.display = "inline";
+            countdownDisplay.innerText = ` (${countdown})`;
 
             let interval = setInterval(function() {
                 countdown--;
-                countdownDisplay.innerText = ` (${countdown})`; // Update countdown display
+                countdownDisplay.innerText = ` (${countdown})`;
                 if (countdown <= 0) {
                     clearInterval(interval);
-                    resendButton.disabled = false; // Re-enable the button
-                    countdownDisplay.style.display = "none"; // Hide the countdown display
-                    countdown = 60; // Reset countdown
+                    resendButton.disabled = false;
+                    countdownDisplay.style.display = "none";
+                    countdown = 60;
                 }
             }, 1000);
 
@@ -213,11 +242,10 @@ if (isset($_POST['resend_otp'])) {
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    // Handle response
-                    alert("New OTP sent to your email!"); // Show success message
+                    alert("New OTP sent to your email!");
                 }
             };
-            xhr.send("resend_otp=1"); // Send request to PHP script
+            xhr.send("resend_otp=1");
         }
     </script>
 </body>
