@@ -127,34 +127,49 @@ if ($result) {
     echo "Error fetching data: " . mysqli_error($dbconnection);
 }
 
+ 
 
 // Initialize array for monthly bookings
-$monthly_bookings = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
+$monthly_bookings = array_fill(1, 12, 0); // January (1) to December (12)
 
-// Prepare SQL query for total number of bookings per month
+// SQL query for total number of bookings per month
 $monthly_bookings_query = "
     SELECT MONTH(date_posted) AS month, COUNT(*) AS total_bookings
     FROM book
     WHERE YEAR(date_posted) = YEAR(CURDATE())
-    AND id  = ?
+    AND register1_id = ?
     GROUP BY MONTH(date_posted)
     ORDER BY MONTH(date_posted)
 ";
 
 if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
+    // Bind parameters
     mysqli_stmt_bind_param($stmt, "i", $login_session); // Assuming $login_session is an integer
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $month, $total_bookings);
 
-    while (mysqli_stmt_fetch($stmt)) {
-        $monthly_bookings[$month] = $total_bookings;
+    // Execute the query
+    if (mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_bind_result($stmt, $month, $total_bookings);
+
+        // Fetch results
+        while (mysqli_stmt_fetch($stmt)) {
+            if ($month >= 1 && $month <= 12) { // Ensure valid month
+                $monthly_bookings[$month] = $total_bookings;
+            } else {
+                error_log("Invalid month returned: $month"); // Debug invalid month
+            }
+        }
+    } else {
+        // Log execution error
+        error_log("Query execution failed: " . mysqli_error($dbconnection));
     }
 
     mysqli_stmt_close($stmt);
 } else {
-    echo "Error preparing the query: " . mysqli_error($dbconnection);
+    // Log query preparation error
+    error_log("Error preparing query: " . mysqli_error($dbconnection));
 }
 
+ 
 ?>
 
 <style>  
@@ -559,20 +574,18 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
         <br />
 
         <div class="row">
-    <div class="col-md-6">
-        <!-- Bar Chart for Monthly Incomes of Boarding Houses -->
+     <div class="container">
+        <h3>Boarding House Monthly Income</h3>
         <div class="chart-container1">
-            <canvas id="monthlyIncomeChart" ></canvas>
+            <canvas id="monthlyIncomeChart" ></canvas></div>
         </div>
-    </div>
-    <div class="col-md-6">
-        <!-- Pie Chart for Brokers Percentage -->
-        <div class="chart-container2">
-            <canvas id="brokerPieChart" ></canvas>
-        </div>
-    </div>
- <canvas id="monthlyBookingsChart" width="400" height="200"></canvas>
-
+    
+          
+                    
+<div class="container">
+    <h3>Boarding House Ratings</h3>
+    <canvas id="monthlyBookingsChart"></canvas>
+</div>
 
 </div>
 
@@ -633,51 +646,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Pie Chart for Brokers Percentage
-    var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
-    var brokerPieChart = new Chart(ctxBroker, {
-        type: 'doughnut',
-        data: {
-            labels: <?php echo json_encode($broker_labels); ?>,
-            datasets: [{
-                label: 'Brokers Percentage',
-                data: <?php echo json_encode($broker_percentages); ?>,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.5)',
-                    'rgba(54, 162, 235, 0.5)',
-                    'rgba(255, 206, 86, 0.5)',
-                    'rgba(75, 192, 192, 0.5)',
-                    'rgba(153, 102, 255, 0.5)',
-                    'rgba(255, 159, 64, 0.5)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.label + ': ' + Math.round(tooltipItem.raw) + '%';
-                        }
-                    }
-                }
-            }
-        }
-    });
+    
      // Line Chart for Monthly Income
     var ctxLine = document.getElementById('monthlyIncomeLineChart').getContext('2d');
     var monthlyIncomeLineChart = new Chart(ctxLine, {
@@ -718,7 +687,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
-const ctx = document.getElementById('monthlyBookingsChart').getContext('2d');
+    const ctx = document.getElementById('monthlyBookingsChart').getContext('2d');
     
     const monthlyBookings = <?php echo json_encode(array_values($monthly_bookings)); ?>;
     const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

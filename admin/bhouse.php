@@ -1,18 +1,14 @@
 <?php
-session_start(); // Start session at the beginning of the script
+session_start(); // Start session to maintain logged-in status
 
 // Check if the admin is logged in
 if (!isset($_SESSION['admin_loggedin']) || $_SESSION['admin_loggedin'] !== true) {
-    // Redirect to login page if not logged in
-    header("Location: index.php");
-    exit; // Stop further execution
+    header("Location: index.php"); // Redirect to login if not logged in
+    exit;
 }
 
 // Include header and other necessary files
 include('header.php');
-
-// Database connection
-$dbconnection = new mysqli('localhost', 'root', '', 'bhouse'); // Add your database connection details
 
 // Handle delete operation
 if (isset($_POST["delete_id"])) {
@@ -22,16 +18,12 @@ if (isset($_POST["delete_id"])) {
     if ($dbconnection->query($sql) === TRUE) {
         echo "<script>Swal.fire('Deleted!', 'Record has been deleted.', 'success');</script>";
     } else {
-        echo "<script>Swal.fire('Error!', 'Error deleting record: " . $dbconnection->error . "', 'error');</script>";
+        echo "<script>Swal.fire('Error!', 'Error deleting record: " . addslashes($dbconnection->error) . "', 'error');</script>";
     }
 }
 
 // Pagination logic
-if (isset($_GET['pageno'])) {
-    $pageno = $_GET['pageno'];
-} else {
-    $pageno = 1;
-}
+$pageno = isset($_GET['pageno']) ? (int)$_GET['pageno'] : 1;
 $no_of_records_per_page = 8;
 $offset = ($pageno - 1) * $no_of_records_per_page;
 
@@ -70,21 +62,27 @@ $result = mysqli_query($dbconnection, $sql);
             </thead>
             <tbody>
                 <?php while ($row = $result->fetch_assoc()) {
-                    $rent_id = $row['id']; // Assuming 'id' is the primary key
-                    $landlord_id = $row['landlord_id'];
+                    $rent_id = $row['rental_id'];
+                    $landlord_id = $row['register1_id'];
                 ?>
                     <tr>
-                        <td><?php echo $row['title']; ?></td>
+                        <td><?php echo htmlspecialchars($row['title']); ?></td>
                         <td>
                             <?php
-                            $sql_ll = "SELECT * FROM landlords WHERE id='$landlord_id'";
+                            $sql_ll = "SELECT * FROM register2 WHERE register1_id='$landlord_id'";
                             $result_ll = mysqli_query($dbconnection, $sql_ll);
                             while ($row_ll = $result_ll->fetch_assoc()) {
-                                echo $row_ll['name'];
+                                echo htmlspecialchars($row_ll['firstname']);
+                                if (!empty($row_ll['middlename'])) {
+                                    echo " " . htmlspecialchars($row_ll['middlename']);
+                                }
+                                echo " " . htmlspecialchars($row_ll['lastname']);
                             }
                             ?>
                         </td>
-                        <td class="col-md-1"><a href="../view.php?bh_id=<?php echo $rent_id; ?>" class="btn btn-success"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
+                        <td class="col-md-1">
+                            <a href="../view.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-success"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                        </td>
                         <td class="col-md-1">
                             <button type="button" class="btn btn-danger" onclick="confirmDelete('<?php echo $rent_id; ?>')"><i class="fa fa-trash" aria-hidden="true"></i></button>
                         </td>
@@ -96,10 +94,10 @@ $result = mysqli_query($dbconnection, $sql);
         <ul class="pagination">
             <li><a href="?pageno=1"><i class="fa fa-fast-backward" aria-hidden="true"></i> First</a></li>
             <li class="<?php if ($pageno <= 1) { echo 'disabled'; } ?>">
-                <a href="<?php if ($pageno <= 1) { echo '#'; } else { echo "?pageno=" . ($pageno - 1); } ?>"><i class="fa fa-chevron-left" aria-hidden="true"></i> Prev</a>
+                <a href="<?php if ($pageno > 1) { echo "?pageno=" . ($pageno - 1); } ?>"><i class="fa fa-chevron-left" aria-hidden="true"></i> Prev</a>
             </li>
             <li class="<?php if ($pageno >= $total_pages) { echo 'disabled'; } ?>">
-                <a href="<?php if ($pageno >= $total_pages) { echo '#'; } else { echo "?pageno=" . ($pageno + 1); } ?>">Next <i class="fa fa-chevron-right" aria-hidden="true"></i></a>
+                <a href="<?php if ($pageno < $total_pages) { echo "?pageno=" . ($pageno + 1); } ?>">Next <i class="fa fa-chevron-right" aria-hidden="true"></i></a>
             </li>
             <li><a href="?pageno=<?php echo $total_pages; ?>">Last <i class="fa fa-fast-forward" aria-hidden="true"></i></a></li>
         </ul>
@@ -128,8 +126,6 @@ function confirmDelete(id) {
     })
 }
 </script>
-
-
 
 <?php include('footer.php'); ?>
 </body>

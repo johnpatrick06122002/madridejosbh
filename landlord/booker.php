@@ -2,29 +2,49 @@
 // Include database connection
 include('../connection.php');
 
+// Start session only if it hasn't started already
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if user is logged in and has register1_id in session
+if (!isset($_SESSION['register1_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$current_user_id = $_SESSION['register1_id'];
+
 // Function to fetch the monthly rental rate for a specific rental
 function getMonthlyRateForRental($bhouseId) {
     global $dbconnection;
 
     $query = "SELECT monthly FROM rental WHERE rental_id = ?";
     $stmt = $dbconnection->prepare($query);
+
+    if ($stmt === false) {
+        die("MySQL error: " . $dbconnection->error);
+    }
+
     $stmt->bind_param("i", $bhouseId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($row = $result->fetch_assoc()) {
         return $row['monthly'];
     }
-    return 0; // Default to 0 if no rental found
+    return 0;
 }
-
-// Function to calculate the balance and check for overdue payments
 function calculateBalance($id, $monthlyRate, $paidAmount) {
     global $dbconnection;
 
-    // Get the last payment date and current balance
     $query = "SELECT last_payment_date FROM book WHERE id = ?";
     $stmt = $dbconnection->prepare($query);
+
+    if ($stmt === false) {
+        die("MySQL error: " . $dbconnection->error);
+    }
+
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -32,27 +52,21 @@ function calculateBalance($id, $monthlyRate, $paidAmount) {
     if ($row = $result->fetch_assoc()) {
         $lastPaymentDate = $row['last_payment_date'];
         $currentDate = date('Y-m-d');
-
-        // Check if 30 days have passed since the last payment
         $dateDifference = (strtotime($currentDate) - strtotime($lastPaymentDate)) / (60 * 60 * 24);
 
         if ($dateDifference >= 30) {
-            // If balance is not zero, add the monthly rent to the remaining balance
             if ($paidAmount < $monthlyRate) {
                 $balance = $monthlyRate - $paidAmount;
-                // Add this month's rent to the outstanding balance
                 return $balance + $monthlyRate;
             } else {
-                // If balance is zero, reset the balance to the new month's rental rate
                 return $monthlyRate;
             }
         } else {
-            // If 30 days have not passed, return the current balance
             return $monthlyRate - $paidAmount;
         }
     }
 
-    return $monthlyRate - $paidAmount; // Default calculation if no payment record is found
+    return $monthlyRate - $paidAmount;
 }
 
 // Check for payment or delete submission
@@ -61,26 +75,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $id = $_POST['id'];
         $paidAmount = $_POST['paid_amount'];
 
-        // Update the paid amount in the book table
-        $updateQuery = "UPDATE book SET paid_amount = paid_amount + ?, last_payment_date = CURRENT_DATE WHERE id = ?";
-        $stmt = $dbconnection->prepare($updateQuery);
-        $stmt->bind_param("di", $paidAmount, $id);
-        $stmt->execute();
+        // Verify that this booking belongs to the current user's rental
+        $verifyQuery = "SELECT b.id 
+                       FROM book b 
+                       INNER JOIN rental r ON b.bhouse_id = r.rental_id 
+                       WHERE b.id = ? AND r.register1_id = ?";
+        $verifyStmt = $dbconnection->prepare($verifyQuery);
+        $verifyStmt->bind_param("ii", $id, $current_user_id);
+        $verifyStmt->execute();
+        $verifyResult = $verifyStmt->get_result();
 
-        // Redirect back to the same page to reflect changes
+        if ($verifyResult->num_rows > 0) {
+            // Update the paid amount
+            $updateQuery = "UPDATE book SET paid_amount = paid_amount + ?, last_payment_date = CURRENT_DATE WHERE id = ?";
+            $stmt = $dbconnection->prepare($updateQuery);
+            $stmt->bind_param("di", $paidAmount, $id);
+            $stmt->execute();
+        }
+
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
     } elseif (isset($_POST['delete_id'])) {
-        // Handle deletion of a record
         $delete_id = $_POST['delete_id'];
 
-        // Delete the record from the database
-        $deleteQuery = "DELETE FROM book WHERE id = ?";
-        $stmt = $dbconnection->prepare($deleteQuery);
-        $stmt->bind_param("i", $delete_id);
-        $stmt->execute();
+        // Verify that this booking belongs to the current user's rental
+        $verifyQuery = "SELECT b.id 
+                       FROM book b 
+                       INNER JOIN rental r ON b.bhouse_id = r.rental_id 
+                       WHERE b.id = ? AND r.register1_id = ?";
+        $verifyStmt = $dbconnection->prepare($verifyQuery);
+        $verifyStmt->bind_param("ii", $delete_id, $current_user_id);
+        $verifyStmt->execute();
+        $verifyResult = $verifyStmt->get_result();
 
-        // Redirect after deletion
+        if ($verifyResult->num_rows > 0) {
+            // Delete the record
+            $deleteQuery = "DELETE FROM book WHERE id = ?";
+            $stmt = $dbconnection->prepare($deleteQuery);
+            $stmt->bind_param("i", $delete_id);
+            $stmt->execute();
+        }
+
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
     }
@@ -98,22 +133,35 @@ $pageno = isset($_GET['pageno']) ? (int)$_GET['pageno'] : 1;
 // Calculate the offset for the SQL query
 $offset = ($pageno - 1) * $results_per_page;
 
-// Get the total number of records with status 'confirm'
-$total_pages_sql = "SELECT COUNT(*) FROM book WHERE status = 'Confirm'";
-$result_pages = mysqli_query($dbconnection, $total_pages_sql);
-$total_rows = mysqli_fetch_array($result_pages)[0];
+// Get the total number of records with status 'confirm' for current user's rentals
+$total_pages_sql = "
+    SELECT COUNT(*) 
+    FROM book b
+    INNER JOIN rental r ON b.bhouse_id = r.rental_id
+    WHERE b.status = 'Confirm' 
+    AND r.register1_id = ?";
+
+$stmt_count = $dbconnection->prepare($total_pages_sql);
+$stmt_count->bind_param("i", $current_user_id);
+$stmt_count->execute();
+$total_rows = $stmt_count->get_result()->fetch_array()[0];
 $total_pages = ceil($total_rows / $results_per_page);
 
-// Fetch the records for the current page with status 'confirm'
-$query = "SELECT id, firstname, middlename, lastname, email, age, gender, contact_number, Address, date_posted, paid_amount, bhouse_id 
-          FROM book 
-          WHERE status = 'Confirm' 
-          LIMIT ?, ?";
+// Fetch the records for the current page
+$query = "
+    SELECT b.id, b.firstname, b.middlename, b.lastname, b.email, 
+           b.age, b.gender, b.contact_number, b.Address, 
+           b.date_posted, b.paid_amount, b.bhouse_id
+    FROM book b
+    INNER JOIN rental r ON b.bhouse_id = r.rental_id
+    WHERE b.status = 'Confirm' 
+    AND r.register1_id = ?
+    LIMIT ?, ?";
+
 $stmt = $dbconnection->prepare($query);
-$stmt->bind_param("ii", $offset, $results_per_page);
+$stmt->bind_param("iii", $current_user_id, $offset, $results_per_page);
 $stmt->execute();
 $result = $stmt->get_result();
-
 ?>
 <style>
     /* General table styles */

@@ -233,31 +233,21 @@ include('header.php');
         <br />
         <br />
         <br/>
-<div class="row">
-    <div class="col-md-12">
-        <div class="chart-container">
-            <canvas id="ratingChart" style="margin-top: -40px;"></canvas>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-6">
-        <div class="chart-container">
-            <canvas id="brokerPieChart" style="margin-top: -40px; width: 330px; height: 330px;"></canvas>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="chart-container3">
-            <canvas id="monthlyBookingsChart" style="margin-bottom: 225px;"></canvas>
-        </div>
-    </div>
-</div>
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<div class="container">
+    <h3>Boarding House Ratings</h3>
+    <canvas id="ratingChart"></canvas>
+</div>
+<div class="container">
+    <h3>Boarding House Ratings</h3>
+    <canvas id="monthlyBookingsChart"></canvas>
+</div>
+ 
 <?php
 
-// Removed the income query and PHP code related to fetching and processing income data
-
-// Fetch ratings for each boarding house and include only those with ratings greater than 0
+// Fetch average ratings for each boarding house
 $ratingQuery = "
     SELECT r.title as rental_name, IFNULL(ROUND(AVG(NULLIF(b.ratings, 0)), 2), 0) as average_rating
     FROM rental r
@@ -265,6 +255,8 @@ $ratingQuery = "
     GROUP BY r.title
 ";
 $ratingResult = mysqli_query($dbconnection, $ratingQuery);
+
+// Initialize arrays to store names and ratings for the chart
 $rentalNames = [];
 $rentalRatings = [];
 
@@ -277,35 +269,7 @@ if ($ratingResult) {
     echo "Error: " . mysqli_error($dbconnection);
 }
 // Fetch count of brokers for each boarding house
-$brokerQuery = "
-    SELECT r.title as rental_name, COUNT(b.id) as broker_count
-    FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    GROUP BY r.title
-";
-$brokerResult = mysqli_query($dbconnection, $brokerQuery);
-$rentalBrokers = [];
-$totalBrokers = 0;
-
-if ($brokerResult) {
-    while ($row = mysqli_fetch_assoc($brokerResult)) {
-        $rentalBrokers[$row['rental_name']] = $row['broker_count'];
-        $totalBrokers += $row['broker_count'];
-    }
-} else {
-    echo "Error: " . mysqli_error($dbconnection);
-}
-
-// Calculate percentages for brokers
-$brokerPercentages = [];
-if ($totalBrokers > 0) {
-    foreach ($rentalBrokers as $rental => $brokers) {
-        $percentage = ($brokers / $totalBrokers) * 100;
-        $brokerPercentages[$rental] = round($percentage, 2);
-    }
-} else {
-    echo "No boarders found, percentages cannot be calculated.";
-}
+ 
 
 
 // Initialize an array for all months with zero bookings
@@ -340,99 +304,45 @@ $bookings = array_values($allMonths);
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var ctxRating = document.getElementById('ratingChart').getContext('2d');
-        var ratingChart = new Chart(ctxRating, {
-            type: 'bar',
-            data: {
-                labels: <?php echo json_encode($rentalNames); ?>,
-                datasets: [{
-                    label: 'Boarding House Ratings',
-                    data: <?php echo json_encode($rentalRatings); ?>,
-                    backgroundColor: '#40bf40',
-                    borderColor: '#40bf40', 
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 5 // Set max to 5 for ratings
-                    }
-                }
-            }
-        });
-
-        var ctxBroker = document.getElementById('brokerPieChart').getContext('2d');
-        var brokerPieChart = new Chart(ctxBroker, {
-            type: 'doughnut',
-            data: {
-                labels: <?php echo json_encode(array_keys($brokerPercentages)); ?>,
-                datasets: [{
-                    label: 'Broker Distribution',
-                    data: <?php echo json_encode(array_values($brokerPercentages)); ?>,
-                    backgroundColor: [
-                        '#40bf40',
-                        '#ff1a1a',
-                        '#ff00ff',
-                        '#000066',
-                        '#006600',
-                        '#33cc33',
-                        '#ffbf80',
-                        '#ffff00',
-                        '#ff4da6',
-                        '#805500',
-                        '#adad85',
-                        '#6699ff',
-                        '#00ffff',
-                        '#ff9966',
-                        '#1f1f14',
-                        '#331a33',
-                        '#00ffcc',
-                        '#b30000'
-                    ],
-                    borderColor: '#ffffff', // Border color of the slices
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                cutout: '65%', // Adjust the size of the hole here (e.g., 65%)
-                plugins: {
-                    legend: {
-                        position: 'left',
-                        align: 'center', // Align legend items to the center
-                        labels: {
-                            padding: 20, // Add padding around legend items
-                            font: {
-                                size: 14 // Adjust font size of legend items
-                            }
-                        }
-                    },
+    var ctxRating = document.getElementById('ratingChart').getContext('2d');
+    var ratingChart = new Chart(ctxRating, {
+        type: 'bar',
+        data: {
+            labels: <?php echo json_encode($rentalNames); ?>,
+            datasets: [{
+                label: 'Average Rating',
+                data: <?php echo json_encode($rentalRatings); ?>,
+                backgroundColor: 'rgba(64, 191, 64, 0.6)',
+                borderColor: 'rgba(64, 191, 64, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5, // Set max to 5 for ratings
                     title: {
                         display: true,
-                        text: ' ',
-                        padding: {
-                            top: 20, // Adjust top padding
-                            bottom: 20 // Adjust bottom padding
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                label += context.raw.toFixed(2) + '%';
-                                return label;
-                            }
-                        }
+                        text: 'Rating (1 to 5)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Boarding Houses'
                     }
                 }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
             }
-        });
-
+        }
+    });
+ 
         var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d');
         var monthlyBookingsChart = new Chart(ctxBookings, {
             type: 'line',

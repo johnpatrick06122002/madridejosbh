@@ -17,6 +17,7 @@ $query = "
     FROM rental AS r
     LEFT JOIN book AS b ON r.rental_id = b.bhouse_id
     WHERE b.status = 'Confirm'
+    AND b.register1_id = '$login_session' -- Filter by specific boarding house
     AND (
         (b.last_payment_date BETWEEN '$start_date' AND '$end_date')
         OR (b.date_posted BETWEEN '$start_date' AND '$end_date')
