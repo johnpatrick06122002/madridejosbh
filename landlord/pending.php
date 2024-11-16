@@ -6,23 +6,26 @@ use PHPMailer\PHPMailer\Exception;
 
 // Include PHPMailer classes
 require '../vendor_copy/autoload.php'; // Adjust the path according to your structure
+// Check if landlord is logged in and get their ID
+session_start();
+if (!isset($_SESSION['register1_id'])) {
+    header("Location: login.php");
+    exit();
+}
+$landlord_id = $_SESSION['register1_id'];
 
-// Function to fetch the monthly rental rate for a specific rental
+// Function to fetch the monthly rental rate
 function getMonthlyRateForRental($bhouseId) {
     global $dbconnection;
-
-    $query = "SELECT monthly FROM rental WHERE rental_id = ?";
+    $query = "SELECT monthly FROM rental WHERE rental_id = ? AND register1_id = ?";
     $stmt = $dbconnection->prepare($query);
-    $stmt->bind_param("i", $bhouseId);
+    $stmt->bind_param("ii", $bhouseId, $_SESSION['register1_id']);
     $stmt->execute();
     $result = $stmt->get_result();
-    
-    if ($row = $result->fetch_assoc()) {
-        return $row['monthly'];
-    }
-    return 0; // Default to 0 if no rental found
+    return ($row = $result->fetch_assoc()) ? $row['monthly'] : 0;
 }
-// Function to send an email notification to multiple recipients
+
+// Email sending function remains the same
 function sendEmail($recipients, $subject, $body) {
     $mail = new PHPMailer(true);
     try {
@@ -30,92 +33,120 @@ function sendEmail($recipients, $subject, $body) {
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
         $mail->Username   = 'lucklucky2100@gmail.com';
-        $mail->Password   = 'kjxf ptjv erqn yygv'; // Ensure proper security practices
+        $mail->Password   = 'kjxf ptjv erqn yygv';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
-
         $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
-
-        // Add each recipient email address from the provided array
         foreach ($recipients as $email) {
-            $mail->addAddress($email); // Add the actual recipient email here
+            $mail->addAddress($email);
         }
-
         $mail->isHTML(true);
         $mail->Subject = $subject;
         $mail->Body    = $body;
-
         $mail->send();
         echo 'Message has been sent to all recipients';
     } catch (Exception $e) {
         echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
 }
-// Check for status update submission
+
+// Handle status update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['new_status']) && isset($_POST['id'])) {
-    $id = $_POST['id'];  // Get the specific ID of the booking being updated
+    $id = $_POST['id'];
     $newStatus = $_POST['new_status'];
-
-    // Update the status in the book table
-    $updateQuery = "UPDATE book SET status = ? WHERE id = ?";
-    $stmt = $dbconnection->prepare($updateQuery);
-    $stmt->bind_param("si", $newStatus, $id);
+    
+    // Verify this booking belongs to the logged-in landlord
+    $verifyQuery = "SELECT b.* FROM book b 
+                   JOIN rental r ON b.bhouse_id = r.rental_id 
+                   WHERE b.id = ? AND r.register1_id = ?";
+    $stmt = $dbconnection->prepare($verifyQuery);
+    $stmt->bind_param("ii", $id, $landlord_id);
     $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        // Update status
+        $updateQuery = "UPDATE book SET status = ? WHERE id = ?";
+        $stmt = $dbconnection->prepare($updateQuery);
+        $stmt->bind_param("si", $newStatus, $id);
+        $stmt->execute();
 
-    // Fetch email address for the current booking
-    $emailQuery = "SELECT email FROM book WHERE id = ?";  // Fetch the email for the current booking
-    $stmtEmail = $dbconnection->prepare($emailQuery);
-    $stmtEmail->bind_param("i", $id);  // Bind the specific booking ID
-    $stmtEmail->execute();
-    $resultEmail = $stmtEmail->get_result();
+        // Send email notification
+        $emailQuery = "SELECT email FROM book WHERE id = ?";
+        $stmtEmail = $dbconnection->prepare($emailQuery);
+        $stmtEmail->bind_param("i", $id);
+        $stmtEmail->execute();
+        $resultEmail = $stmtEmail->get_result();
 
-    if ($emailRow = $resultEmail->fetch_assoc()) {
-        $recipientEmail = $emailRow['email'];  // Fetch the email of the current recipient
+        if ($emailRow = $resultEmail->fetch_assoc()) {
+            $recipientEmail = $emailRow['email'];
+            if (!empty($recipientEmail)) {
+                $subject = "Booking Status Update";
+                $body = "Your booking status has been updated to: $newStatus.";
+                sendEmail([$recipientEmail], $subject, $body);
+            }
+        }
+        
+        header("Location: " . $_SERVER['PHP_SELF'] . "?updated_id=" . $id);
+        exit();
+    }
+}
 
-        // Check if the email is valid before sending
-        if (!empty($recipientEmail)) {
-            $subject = "Status Update Notification";
-            $body = "Your booking status has been updated to: $newStatus.";
-
-            // Send email to the recipient
-            sendEmail([$recipientEmail], $subject, $body);  // Send email to the specific recipient
+// Handle delete
+if (isset($_POST['delete_id'])) {
+    $deleteId = $_POST['delete_id'];
+    
+    // Verify this booking belongs to the logged-in landlord
+    $verifyQuery = "SELECT b.* FROM book b 
+                   JOIN rental r ON b.bhouse_id = r.rental_id 
+                   WHERE b.id = ? AND r.register1_id = ?";
+    $stmt = $dbconnection->prepare($verifyQuery);
+    $stmt->bind_param("ii", $deleteId, $landlord_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $deleteQuery = "DELETE FROM book WHERE id = ?";
+        $stmt = $dbconnection->prepare($deleteQuery);
+        $stmt->bind_param("i", $deleteId);
+        if ($stmt->execute()) {
+            header("Location: " . $_SERVER['PHP_SELF'] . "?deleted_id=" . $deleteId);
+            exit();
         }
     }
-
-    // Redirect back to the same page to reflect changes
-    header("Location: " . $_SERVER['PHP_SELF'] . "?removed_id=" . $id);  // Pass the updated id
-    exit();
 }
-// Include the header
+
 include('header.php');
 
-// Define the number of records per page
+// Pagination
 $results_per_page = 8;
-
-// Determine the current page number
 $pageno = isset($_GET['pageno']) ? (int)$_GET['pageno'] : 1;
-
-// Calculate the offset for the SQL query
 $offset = ($pageno - 1) * $results_per_page;
 
-// Get the total number of records excluding the removed row and only those not active
-$total_pages_sql = "SELECT COUNT(*) FROM book WHERE status != 'Confirm'";
-$result_pages = mysqli_query($dbconnection, $total_pages_sql);
-$total_rows = mysqli_fetch_array($result_pages)[0];
+// Get total pages for this landlord's bookings
+$total_pages_sql = "SELECT COUNT(*) FROM book b 
+                    JOIN rental r ON b.bhouse_id = r.rental_id 
+                    WHERE r.register1_id = ? AND b.status != 'Confirm'";
+$stmt = $dbconnection->prepare($total_pages_sql);
+$stmt->bind_param("i", $landlord_id);
+$stmt->execute();
+$total_rows = $stmt->get_result()->fetch_row()[0];
 $total_pages = ceil($total_rows / $results_per_page);
 
-// Fetch the records for the current page, excluding the removed row if present and only non-active statuses
-$query = "SELECT id, firstname, middlename, lastname, email, age, gender, contact_number, Address, gcash_picture, status 
-          FROM book 
-          WHERE id != ? AND status != 'Confirm' 
+// Fetch bookings for this landlord
+$query = "SELECT b.id, b.firstname, b.middlename, b.lastname, b.email, 
+                 b.age, b.gender, b.contact_number, b.Address, b.gcash_picture, 
+                 b.status, r.title as bhouse_title 
+          FROM book b 
+          JOIN rental r ON b.bhouse_id = r.rental_id 
+          WHERE r.register1_id = ? AND b.status != 'Confirm'
+          ORDER BY b.date_posted DESC 
           LIMIT ?, ?";
 $stmt = $dbconnection->prepare($query);
-$removed_id = isset($_GET['removed_id']) ? (int)$_GET['removed_id'] : 0; // Get the removed id from the query parameter
-$stmt->bind_param("iii", $removed_id, $offset, $results_per_page); // Bind the parameters
+$stmt->bind_param("iii", $landlord_id, $offset, $results_per_page);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
-
 <style>
     @media screen and (max-width: 768px) {
         table {
