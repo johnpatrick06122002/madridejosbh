@@ -259,15 +259,28 @@ if (isset($_POST['submit'])) {
             <label for="email">Email</label>
             <input type="email" name="email" id="email" required>
 
-            <label for="password">Password</label>
+          <label for="password">Password</label>
             <div class="input-container">
-                <input type="password" name="password" id="password" required>
+                <input type="password" style=" width: 100%; padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            position: relative; 
+            width: 100%;  
+            box-sizing: border-box;" name="password" id="password" required>
                 <i class="fas fa-eye" id="togglePassword"></i>
             </div>
-            
-            <label for="confirm_password">Confirm Password</label>
+           <label for="confirm_password">Confirm Password</label>
             <div class="input-container">
-                <input type="password" name="confirm_password" id="confirm_password" required>
+                <input type="password" style=" width: 100%; padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            position: relative; 
+            width: 100%;  
+            box-sizing: border-box;"name="confirm_password" id="confirm_password" required>
                 <i class="fas fa-eye" id="toggleConfirmPassword"></i>
             </div>
 
