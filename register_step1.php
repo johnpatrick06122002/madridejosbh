@@ -1,70 +1,151 @@
 <?php
 session_start();
-include('connection.php'); // Replace with your connection file
+include('connection.php');
 require 'vendor_copy/autoload.php'; // PHPMailer autoload
+
+// Google reCAPTCHA secret key
+$recaptcha_secret = '6LdEuIEqAAAAADNRqBLoTg11Lqx7yes1ieUsEOd4';
 
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+    $recaptcha_response = $_POST['g-recaptcha-response'];
 
-    // Validate email and password
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "<script>Swal.fire('Invalid Email', 'Please enter a valid email address.', 'error');</script>";
+    // Verify reCAPTCHA
+    $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+    $recaptcha_verify = file_get_contents($recaptcha_url . '?secret=' . $recaptcha_secret . '&response=' . $recaptcha_response);
+    $recaptcha_result = json_decode($recaptcha_verify);
+
+    if (!$recaptcha_result->success) {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Captcha Failed',
+                    text: 'Please complete the CAPTCHA before proceeding.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Invalid Email',
+                    text: 'Please enter a valid email address.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
     } elseif ($password !== $confirm_password) {
-        echo "<script>Swal.fire('Password Mismatch', 'Passwords do not match. Please try again.', 'error');</script>";
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Password Mismatch',
+                    text: 'Passwords do not match. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
     } elseif (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/', $password)) {
-        echo "<script>Swal.fire('Weak Password', 'Password must be at least 8 characters long, include numbers, letters, and at least one capital letter.', 'error');</script>";
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Weak Password',
+                    text: 'Password must be at least 8 characters long, include numbers, letters, and at least one capital letter.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
     } else {
-        // Check if the email is already registered
+        // Check if email exists
         $stmt = $dbconnection->prepare("SELECT * FROM register1 WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            echo "<script>Swal.fire('Email Exists', 'This email is already registered.', 'error');</script>";
+            echo "<script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Email Exists',
+                        text: 'This email is already registered.',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+                });
+            </script>";
         } else {
-            // Generate an OTP
+            // Generate OTP
             $otp = rand(100000, 999999);
             $_SESSION['otp'] = $otp;
             $_SESSION['email'] = $email;
             $_SESSION['password'] = password_hash($password, PASSWORD_DEFAULT);
 
-            // Insert the user data into the register1 table along with OTP
+            // Insert into database
             $stmt = $dbconnection->prepare("INSERT INTO register1 (email, password, otp) VALUES (?, ?, ?)");
             $stmt->bind_param("sss", $email, $_SESSION['password'], $otp);
 
             if ($stmt->execute()) {
-                // Proceed to send OTP using PHPMailer
                 $mail = new PHPMailer\PHPMailer\PHPMailer();
                 try {
                     $mail->isSMTP();
-                    $mail->Host = 'smtp.gmail.com';  // Set the SMTP server to send through
+                    $mail->Host = 'smtp.gmail.com';
                     $mail->SMTPAuth = true;
-                    $mail->Username = 'lucklucky2100@gmail.com'; // Your SMTP username
-                    $mail->Password = 'kjxf ptjv erqn yygv'; // Your SMTP password
+                    $mail->Username = 'lucklucky2100@gmail.com';
+                    $mail->Password = 'kjxf ptjv erqn yygv';
                     $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                     $mail->Port = 587;
 
-                    // Recipients
                     $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
                     $mail->addAddress($email);
-
-                    // Content
                     $mail->isHTML(true);
                     $mail->Subject = 'Your OTP Code';
-                    $mail->Body    = "Your OTP code is <b>$otp</b>";
+                    $mail->Body = "Your OTP code is <b>$otp</b>";
 
-                    $mail->send();
-                    // Redirect to OTP page after sending the OTP
-                    header("Location: register_otp.php");
-                    exit();
+                    if($mail->send()) {
+                        echo "<script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: 'OTP has been sent to your email address',
+                                    icon: 'success',
+                                    confirmButtonColor: '#3085d6'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = 'register_otp.php';
+                                    }
+                                });
+                            });
+                        </script>";
+                    }
                 } catch (Exception $e) {
-                    echo "<script>Swal.fire('OTP Failed', 'Error sending OTP: {$mail->ErrorInfo}', 'error');</script>";
+                    echo "<script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                                title: 'OTP Failed',
+                                text: 'Error sending OTP. Please try again.',
+                                icon: 'error',
+                                confirmButtonColor: '#3085d6'
+                            });
+                        });
+                    </script>";
                 }
             } else {
-                echo "<script>Swal.fire('Database Error', 'Failed to register. Please try again.', 'error');</script>";
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            title: 'Database Error',
+                            text: 'Failed to register. Please try again.',
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    });
+                </script>";
             }
         }
     }
@@ -78,8 +159,9 @@ if (isset($_POST['submit'])) {
     <title>Register Step 1</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-       body {
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+     <style>
+  body {
     background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('b.png') no-repeat center center fixed;
     background-size: 70%;
     font-family: Arial, sans-serif;
@@ -98,8 +180,8 @@ if (isset($_POST['submit'])) {
          background-size:cover; 
     }
 }
-        
-       .register-form {
+  
+        .register-form {
             background-color: #fff;
             padding: 20px;
             border-radius: 25px;
@@ -107,7 +189,6 @@ if (isset($_POST['submit'])) {
             width: 290px;
             margin-top: -80px;
         }
-        
         
         .register-form h2 {
             text-align: center;
@@ -164,71 +245,39 @@ if (isset($_POST['submit'])) {
             color: #555; /* Change icon color if needed */
             cursor: pointer;
         }
+        .form .message {
+    margin: 15px 0 0;
+    color: black !important;
+    font-size: 12px;
+}
     </style>	
 </head>
 <body>
     <div class="register-form">
-        <h2>Create Account</h2>
-        <form action="register_step1.php" method="POST">
+        <h2>Register - Step 1</h2>
+        <form id="registrationForm" method="POST">
             <label for="email">Email</label>
             <input type="email" name="email" id="email" required>
 
             <label for="password">Password</label>
             <div class="input-container">
-                <input type="password" style=" width: 100%; padding: 10px;
-            margin-bottom: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            position: relative; 
-            width: 100%;  
-            box-sizing: border-box;" name="password" id="password" required>
+                <input type="password" name="password" id="password" required>
                 <i class="fas fa-eye" id="togglePassword"></i>
             </div>
-
+            
             <label for="confirm_password">Confirm Password</label>
             <div class="input-container">
-                <input type="password" style=" width: 100%; padding: 10px;
-            margin-bottom: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            position: relative; 
-            width: 100%;  
-            box-sizing: border-box;"name="confirm_password" id="confirm_password" required>
+                <input type="password" name="confirm_password" id="confirm_password" required>
                 <i class="fas fa-eye" id="toggleConfirmPassword"></i>
             </div>
 
+            <!-- Google reCAPTCHA -->
+            <div class="g-recaptcha" data-sitekey="6LdEuIEqAAAAAJp33EewtqMHDcVowUNiNrB0P51x"></div>
+            
             <button type="submit" name="submit">Send OTP</button>
-            <center> 
-                <p class="message" style="color: black;">Already have an account? <a href="login.php">Sign in</a></p>
-            <p class="message"><a href="index.php">WebPage</a></p>
-        
-                </center>
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://kit.fontawesome.com/64d58efce2.js" crossorigin="anonymous"></script>
-   
-    <script>
-        // Toggle password visibility
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordField = document.getElementById('password');
-        togglePassword.addEventListener('click', function () {
-            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordField.setAttribute('type', type);
-            this.classList.toggle('fa-eye-slash');
-        });
-
-        // Toggle confirm password visibility
-        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-        const confirmPasswordField = document.getElementById('confirm_password');
-        toggleConfirmPassword.addEventListener('click', function () {
-            const type = confirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            confirmPasswordField.setAttribute('type', type);
-            this.classList.toggle('fa-eye-slash');
-        });
-    </script>
 </body>
 </html>
