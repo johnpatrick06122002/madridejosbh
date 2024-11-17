@@ -81,18 +81,17 @@ if (isset($_POST["login"])) {
 
         @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
 
-        body {
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../bh.jpg') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Roboto', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+       body {
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../b.png') no-repeat center center fixed;
+    background-size: 70%;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensures full screen coverage */
+    margin: 0;
+    padding: 0;
+    }
 
         .login-page {
             width: 360px;
