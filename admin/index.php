@@ -259,6 +259,9 @@ color:black;
                 <input type="password" name="password" placeholder="Password" id="password" required/>
                 <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility()"></i>
             </div>
+             <p style="text-align: left; margin-top: -15px; margin-bottom: 15px; font-size: 12px;">
+                <a href="forgot_password.php" style="color: blue; text-decoration: none;">Forgot Password?</a>
+            </p>
             <button type="submit" name="login">Login</button>
             <p class="message" style="color: #f9f5f4;"> Return to <a href="../index.php">WebPage</a></p>
         </form>
