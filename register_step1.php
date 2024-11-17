@@ -291,6 +291,10 @@ if (isset($_POST['submit'])) {
 </div>
 <br>
 <button type="submit" name="submit" id="submitBtn" disabled>Send OTP</button>
+ <center> 
+                <p class="message">Already have an account? <a href="login.php">Sign in</a></p>
+                <p class="message"><a href="index.php">WebPage</a></p>
+            </center>
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Captcha complete callback
