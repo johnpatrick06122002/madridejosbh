@@ -4,7 +4,7 @@ include('connection.php');
 require 'vendor_copy/autoload.php'; // PHPMailer autoload
 
 // Google reCAPTCHA secret key
-$recaptcha_secret = '6LdTwIEqAAAAABV79BcBNJM8XvD1mjsTyQf7NgIh';
+$recaptcha_secret = '6LdEuIEqAAAAADNRqBLoTg11Lqx7yes1ieUsEOd4';
 
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
@@ -286,7 +286,7 @@ if (isset($_POST['submit'])) {
 
            <!-- Google reCAPTCHA -->
 <div class="g-recaptcha" 
-     data-sitekey="6LdTwIEqAAAAAB9xx4POW_ICfyTSokz_D5VYmoiH" 
+     data-sitekey="6LdEuIEqAAAAAJp33EewtqMHDcVowUNiNrB0P51x" 
      data-callback="onCaptchaComplete">
 </div>
 <br>
