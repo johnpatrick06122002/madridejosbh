@@ -289,7 +289,7 @@ if (isset($_POST['submit'])) {
      data-sitekey="6LdEuIEqAAAAAJp33EewtqMHDcVowUNiNrB0P51x" 
      data-callback="onCaptchaComplete">
 </div>
-
+<br>
 <button type="submit" name="submit" id="submitBtn" disabled>Send OTP</button>
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
