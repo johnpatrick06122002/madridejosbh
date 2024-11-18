@@ -190,7 +190,6 @@ h3 {
     }
 }
 </style>
-
 <div class="dashboard-container">
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
