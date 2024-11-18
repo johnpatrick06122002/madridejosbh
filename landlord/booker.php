@@ -164,95 +164,137 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 <style>
-    /* General table styles */
-    .table {
+/* Main layout container */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Sidebar styles */
+.sidebar-container {
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #e3e6f0;
+    flex-shrink: 0;
+}
+
+/* Main content area */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background: #f8f9fc;
+    overflow-x: hidden;
+}
+
+/* Table container */
+.table-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+/* Table styles */
+.table-responsive {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.table {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.table th {
+    background: #f8f9fc;
+    font-weight: 600;
+    padding: 12px 15px;
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+/* Button styles */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+}
+
+.btn i {
+    font-size: 14px;
+}
+
+ 
+
+/* Header styles */
+h3 {
+    margin: 0 0 20px 0;
+    color: #5a5c69;
+    font-weight: 500;
+    font-size: 1.75rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .sidebar-container {
         width: 100%;
-        table-layout: auto;
+        position: static;
+        height: auto;
+    }
+    
+    .main-content {
+        padding: 15px;
     }
 
-    /* Make sure table scrolls horizontally on smaller screens */
-    .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+    .table th, .table td {
+        padding: 8px;
+        font-size: 14px;
     }
 
-    /* Card layout for mobile */
-    .card {
-        border: 1px solid #ddd;
-        margin-bottom: 20px;
-        padding: 10px;
-        border-radius: 5px;
+    .btn {
+        padding: 4px 8px;
+        min-width: 30px;
     }
 
-    /* For screens larger than 700px (tablets, desktops) */
-    @media screen and (min-width: 700px) {
-        th, td {
-            font-size: 14px;
-            padding: 8px;
-        }
+     
+
+    h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
     }
 
-    /* For small screens (700px or less) */
-    @media screen and (max-width: 700px) {
-        .table {
-            display: none; /* Hide the table */
-        }
-
-        /* Ensure content wraps inside cards */
-        .card th, .card td {
-            white-space: normal; /* Allow text wrapping */
-            word-wrap: break-word;
-        }
-
-        /* Style for headers in card layout */
-        .card-header {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 16px; /* Increased size for better visibility */
-        }
-
-        .card p {
-            font-size: 14px; /* Increased size for better visibility */
-            margin: 5px 0; /* Added margin for spacing */
-        }
+    .action-buttons {
+        flex-direction: column;
+        gap: 3px;
     }
-
-    /* For very small screens (400px or less) */
-    @media screen and (max-width: 400px) {
-        .card {
-            font-size: 10px; /* Even smaller font */
-        }
-    }
-
-    @media screen and (max-width: 700px) {
-        .sidebar a {
-            float: revert-layer !important;  
-        }
-    }
-    @media (min-width: 576px) {
-    .col-sm-9 {
-        -ms-flex: 0 0 75%;
-        flex: 0 0 75%;
-        max-width: 100% !important;
-    }
-}
- .btn-danger {
-    margin-right: 15px !important;
-}
-.btn-info {
-    margin-left: 10px !important;
-}
-h3{
-    margin-left: 15px;
 }
 </style>
 
-<div class="row">
-    <div class="col-sm-2">
+<div class="dashboard-container">
+    <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-    <br><br><br>
-    <div class="col-sm-9">
+   
+    <div class="main-content"> <br><br><br>
         <h3>Book Information</h3>
         <br />
 
