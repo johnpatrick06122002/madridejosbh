@@ -171,404 +171,208 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 
  
 ?>
+<!-- Modified HTML structure -->
+<style>
+/* Main layout container */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
 
-<style>  
- /* Container styles */
- .row.pb-10 {
-    padding-bottom: 10px;
- }
+/* Sidebar styles */
+.sidebar-container {
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #e3e6f0;
+    flex-shrink: 0;
+}
 
- /* Card box styles */
- .card-box {
+/* Main content area */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background: #f8f9fc;
+    overflow-x: hidden;
+}
+
+/* Dashboard cards row */
+.dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* Card styles */
+.card-box {
+    flex: 1;
+    min-width: 240px;
     background-color: #ffffff;
     border: 1px solid #e3e6f0;
     border-radius: 5px;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
     padding: 20px;
-    margin-bottom: 20px;
- }
+}
 
- .card-box.height-100-p {
-    height: 100%;
- }
+/* Chart containers */
+.chart-container1, .chart-container2, .chart-container3 {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    margin-bottom: 30px;
+}
 
- /* Widget styles */
- .widget-style3 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
- }
-
- .widget-data {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
- }
-
- .weight-700 {
-    font-weight: 700;
- }
-
- .font-24 {
-    font-size: 20px !important;
- }
-
- .text-dark {
-    color: #5a5c69;
-    text-align: left;
- }
-
- .font-14 {
-    font-size: 14px;
- }
-
- .text-secondary {
-    color: #858796;
- }
-
- .weight-500 {
-    font-weight: 500;
- }
-
- /* Widget icon styles */
- .widget-icon {
-    display: flex;
-    align-items: center;
- }
-
- .widget-icon .icon {
-    font-size: 2em;
-    color: #00eccf;
- }
-
-  /* Custom width for .col-xl-3 on screens that are at least 1200px wide */
- @media (min-width: 1200px) {
-    .col-xl-3 {
-        -ms-flex: 0 0 25%;
-        flex: 0 0 25%;
-        max-width: 20%;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
     }
- } 
- .fa {
-    display: inline-block;
-    font: normal normal normal 14px / 1 FontAwesome;
-    font-size: inherit;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    float: right; /* or */
-    text-align: right; /* or */
-    margin-left: 70px; /* or */
-
-    /* any other method to position right */
- }
- .chart-container1 {
-    position: relative;
-    width: 80%;  /* Adjust the width as needed */
-    height: 450px; /* Adjust the height as needed */
- }
- .chart-container2 {
-    position: relative;
-    width: 70%;  /* Adjust the width as needed */
-    height: 450px; /* Adjust the height as needed */
-    margin-left: 1px;
- }
- .chart-container3 {
     
-    width: 82%;  /* Adjust the width as needed */
-    height: 420px;
-     
- }
- .fa {
-    display: inline-block;
-    font: normal normal normal 14px / 1 FontAwesome;
-    font-size: inherit;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    float: right; /* or */
-    text-align: right; /* or */
-    margin-left: 80px; /* or */
-    color: black;
-
-    /* any other method to position right */
- }
- @keyframes pulse {
-    0% {
-        transform: scale(1.5);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-    }
- }
-
- .animated-icon {
-    animation: pulse 1.3s infinite;
- }
- /* Container styles */
- .row.pb-10 {
-    padding-bottom: 10px;
- }
-
- /* Card box styles */
- .card-box {
-    background-color: #ffffff;
-    border: 1px solid #e3e6f0;
-    border-radius: 5px;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
-    padding: 20px;
-    margin-bottom: 20px;
- }
-
- .card-box.height-100-p {
-    height: 100%;
-  }
-
- /* Widget styles */
- .widget-style3 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
- }
-
- .widget-data {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
- } 
-
- .weight-700 {
-    font-weight: 700;
- }
-
- .font-24 {
-    font-size: 24px;
- }
-
- .text-dark {
-    color: #5a5c69;
- }
-
- .font-14 {
-    font-size: 14px;
- }
-
- .text-secondary {
-    color: #858796;
- }
-
- .weight-500 {
-    font-weight: 500;
- }
-
- /* Widget icon styles */
- .widget-icon {
-    display: flex;
-    align-items: center;
- }
-
- .widget-icon .icon {
-    font-size: 2em;
-    color: #00eccf;
- }
-
- /* For small screens, stack the cards vertically */
- @media (max-width: 576px) {
-    .col-xl-3, .col-lg-3, .col-md-6 {
+    .sidebar-container {
         width: 100%;
-        max-width: 80%;
-        margin-bottom: 10px;
-        margin-left: 40px;
+        position: static;
+        height: auto;
+    }
+    
+    .main-content {
+        padding: 15px;
     }
     
     .card-box {
-        padding: 15px;
+        min-width: 100%;
     }
+    
+    .chart-container1, .chart-container2, .chart-container3 {
+        width: 100% !important;
+        height: 300px !important;
+    }
+}
 
-    .widget-data {
-        text-align: center;
-    }
+/* Existing styles with improvements */
+.widget-style3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    .widget-icon {
-        justify-content: center;
-        margin: 0 auto;
-    }
- }
+.widget-data {
+    flex-grow: 1;
+}
 
- /* Adjust charts for mobile */
- .chart-container1, .chart-container2, .chart-container3 {
-    width: 100% !important;
-    height: auto !important;
-    margin: 0 auto;
- }
-
- /* Custom width for .col-xl-3 on larger screens */
- @media (min-width: 1200px) {
-    .col-xl-3 {
-        flex: 0 0 25%;
-        max-width: 20%;
-    }
- }
-  @media screen and (max-width: 700px) {
-    .sidebar a {
-       float: revert-layer !important;  
-    }
- }
- .fa {
-   
-    font: normal normal normal 14px / 1 FontAwesome;
-    font-size: inherit;
-    float: right;
-    margin-left: 80px;
-    color: black;
- } 
-
- .animated-icon {
-    animation: pulse 1.3s infinite;
- }
-
- @keyframes pulse {
-    0% {
-        transform: scale(1.5);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-    }
- }
- h3{
+.widget-icon {
     margin-left: 15px;
- }
+}
+
+.font-24 {
+    font-size: 20px !important;
+}
+
+.animated-icon {
+    animation: pulse 1.3s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1.5); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+h3 {
+    margin: 0 0 20px 0;
+    color: #5a5c69;
+    font-weight: 500;
+}
 </style>
 
-<div class="row">
-    <div class="col-sm-2">
+<div class="dashboard-container">
+    <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-<br><br>
-    <div class="col-sm-10">
-        <br />
+    
+    <div class="main-content">
         <h3>Dashboard</h3>
-        <br />
-        <br />
-       <div class="row pb-10">
-    <!-- Boarding House Card -->
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-        <div class="card-box height-100-p widget-style3">
-            <div class="d-flex flex-wrap align-items-center">
-                <div class="widget-data">
-                    <div class="weight-700 font-24 text-dark">
-                        <?php
-                        $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental WHERE register1_id ='$login_session'");
-                        if ($result) {
-                            $row = mysqli_fetch_array($result);
-                            $total = $row[0];
-                            echo $total;
-                        } else {
-                            echo "Error: " . mysqli_error($dbconnection);
-                        }
-                        ?>
+        
+        <div class="dashboard-cards">
+            <!-- Boarding House Card -->
+            <div class="card-box">
+                <div class="widget-style3">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-dark">
+                            <?php
+                            $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental WHERE register1_id ='$login_session'");
+                            if ($result) {
+                                $row = mysqli_fetch_array($result);
+                                echo $row[0];
+                            }
+                            ?>
+                        </div>
+                        <div class="font-14 text-secondary weight-500">Boarding House</div>
                     </div>
-                    <div class="font-14 text-secondary weight-500">
-                        Boarding House
-                    </div>
-                </div>
-                <div class="widget-icon ml-auto">
-                    <div class="icon" data-color="#00eccf">
+                    <div class="widget-icon">
                         <i class="fa fa-home animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Requesting Card -->
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-        <div class="card-box height-100-p widget-style3">
-            <div class="d-flex flex-wrap align-items-center">
-                <div class="widget-data">
-                    <div class="weight-700 font-24 text-dark">
-                        <?php
-                        $result = mysqli_query($dbconnection, "SELECT count(*) FROM book WHERE register1_id='$login_session' AND status=''");
-                        if ($result) {
-                            $row = mysqli_fetch_array($result);
-                            $total = $row[0];
-                            echo $total;
-                        } else {
-                            echo "Error: " . mysqli_error($dbconnection);
-                        }
-                        ?>
+            <!-- Requesting Card -->
+            <div class="card-box">
+                <div class="widget-style3">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-dark">
+                            <?php
+                            $result = mysqli_query($dbconnection, "SELECT count(*) FROM book WHERE register1_id='$login_session' AND status=''");
+                            if ($result) {
+                                $row = mysqli_fetch_array($result);
+                                echo $row[0];
+                            }
+                            ?>
+                        </div>
+                        <div class="font-14 text-secondary weight-500">Requesting</div>
                     </div>
-                    <div class="font-14 text-secondary weight-500">
-                        Requesting
-                    </div>
-                </div>
-                <div class="widget-icon ml-auto">
-                    <div class="icon" data-color="#00eccf">
+                    <div class="widget-icon">
                         <i class="fa fa-envelope animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Approved Card -->
-<div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-    <div class="card-box height-100-p widget-style3">
-        <div class="d-flex flex-wrap align-items-center">
-            <div class="widget-data">
-                <div class="weight-700 font-24 text-dark">
-                    <?php
-                    // Count the number of confirmed bookings for the logged-in user
-                    $result = mysqli_query($dbconnection, "SELECT COUNT(*) FROM book WHERE register1_id='$login_session' AND status='Confirm'");
-                    if ($result) {
-                        $row = mysqli_fetch_array($result);
-                        $total = $row[0];  // Get the count from the query result
-                        echo $total;       // Display the total
-                    } else {
-                        // Display an error message if the query fails
-                        echo "Error: " . mysqli_error($dbconnection);
-                    }
-                    ?>
-                </div>
-                <div class="font-14 text-secondary weight-500">
-                    Confirmed
-                </div>
-            </div>
-            <div class="widget-icon ml-auto">
-                <div class="icon" data-color="#00eccf">
-                    <i class="fa fa-thumbs-o-up animated-icon" aria-hidden="true"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
- 
-    <!-- Total Monthly Income Card -->
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-        <div class="card-box height-100-p widget-style3">
-            <div class="d-flex flex-wrap align-items-center">
-                <div class="widget-data">
-                    <div class="weight-700 font-24 text-dark">
-                        <?php echo number_format($total_income); ?>
+            <!-- Confirmed Card -->
+            <div class="card-box">
+                <div class="widget-style3">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-dark">
+                            <?php
+                            $result = mysqli_query($dbconnection, "SELECT COUNT(*) FROM book WHERE register1_id='$login_session' AND status='Confirm'");
+                            if ($result) {
+                                $row = mysqli_fetch_array($result);
+                                echo $row[0];
+                            }
+                            ?>
+                        </div>
+                        <div class="font-14 text-secondary weight-500">Confirmed</div>
                     </div>
-                    <div class="font-14 text-secondary weight-500">
-                        Total Monthly Income
+                    <div class="widget-icon">
+                        <i class="fa fa-thumbs-o-up animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
-                <div class="widget-icon ml-auto">
-                    <div class="icon" data-color="#00eccf">
+            </div>
+
+            <!-- Total Monthly Income Card -->
+            <div class="card-box">
+                <div class="widget-style3">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-dark">
+                            <?php echo number_format($total_income); ?>
+                        </div>
+                        <div class="font-14 text-secondary weight-500">Total Monthly Income</div>
+                    </div>
+                    <div class="widget-icon">
                         <i class="fa fa-money animated-icon" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
         <br />
@@ -591,6 +395,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 
     </div>
 </div>
+
 
 <?php include('footer.php'); ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
