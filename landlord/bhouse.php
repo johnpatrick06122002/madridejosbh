@@ -100,45 +100,7 @@ if (isset($_POST["delete"])) {
     font-size: 14px;
 }
 
-/* Pagination styles */
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.pagination {
-    display: flex;
-    gap: 5px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.pagination li {
-    margin: 0;
-}
-
-.pagination a {
-    padding: 8px 12px;
-    background: #fff;
-    border: 1px solid #e3e6f0;
-    border-radius: 4px;
-    color: #5a5c69;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.pagination .disabled a {
-    opacity: 0.5;
-    pointer-events: none;
-}
-
-.pagination a:hover:not(.disabled a) {
-    background: #f8f9fc;
-}
+ 
 
 /* Header styles */
 h3 {
@@ -174,10 +136,7 @@ h3 {
         min-width: 30px;
     }
 
-    .pagination a {
-        padding: 6px 10px;
-        font-size: 14px;
-    }
+     
 
     h3 {
         font-size: 1.5rem;
@@ -190,6 +149,7 @@ h3 {
     }
 }
 </style>
+
 <div class="dashboard-container">
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
@@ -286,6 +246,7 @@ h3 {
 </div>
 
 <?php include('footer.php'); ?>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
