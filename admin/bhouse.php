@@ -43,13 +43,126 @@ $result = mysqli_query($dbconnection, $sql);
     <title>Boarding House List</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+/* Main layout container */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Sidebar styles */
+.sidebar-container {
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #e3e6f0;
+    flex-shrink: 0;
+}
+
+/* Main content area */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background: #f8f9fc;
+    overflow-x: hidden;
+}
+
+/* Dashboard cards row */
+.dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* Card styles */
+.card-box {
+    flex: 1;
+    min-width: 240px;
+    background-color: #ffffff;
+    border: 1px solid #e3e6f0;
+    border-radius: 5px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    padding: 20px;
+}
+
+/* Chart containers */
+.chart-container1, .chart-container2, .chart-container3 {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    margin-bottom: 30px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .sidebar-container {
+        width: 100%;
+        position: static;
+        height: auto;
+    }
+    
+    .main-content {
+        padding: 15px;
+    }
+    
+    .card-box {
+        min-width: 100%;
+    }
+    
+    .chart-container1, .chart-container2, .chart-container3 {
+        width: 100% !important;
+        height: 300px !important;
+    }
+}
+
+/* Existing styles with improvements */
+.widget-style3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.widget-data {
+    flex-grow: 1;
+}
+
+.widget-icon {
+    margin-left: 15px;
+}
+
+.font-24 {
+    font-size: 20px !important;
+}
+
+.animated-icon {
+    animation: pulse 1.3s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1.5); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+h3 {
+    margin: 0 0 20px 0;
+    color: #5a5c69;
+    font-weight: 500;
+}
+</style>
 </head>
 
-<div class="row">
-    <div class="col-sm-2">
+<div class="dashboard-container">
+    <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-    <div class="col-sm-8"><br><br>
+     <div class="main-content">  <br><br>
         <h3>Boarding House List</h3>
         <table class="table table-striped">
             <thead>
