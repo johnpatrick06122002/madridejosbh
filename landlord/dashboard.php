@@ -290,8 +290,8 @@ h3 {
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-    <br><br>
-    <div class="main-content">
+    
+    <div class="main-content"><br><br>
         <h3>Dashboard</h3>
         
         <div class="dashboard-cards">
@@ -372,7 +372,7 @@ h3 {
                     </div>
                 </div>
             </div>
-        </div>  <br />
+        </div> <br />
 
         <div class="row">
      <div class="container">
@@ -392,10 +392,10 @@ h3 {
 
     </div>
 </div>
+
 </div>
 
-      
-
+       
 
 <?php include('footer.php'); ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
