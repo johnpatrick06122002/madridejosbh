@@ -164,6 +164,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 <style>
+    
 /* Main layout container */
 .dashboard-container {
     display: flex;
@@ -286,6 +287,87 @@ h3 {
         flex-direction: column;
         gap: 3px;
     }
+}
+    /* General table styles */
+    .table {
+        width: 100%;
+        table-layout: auto;
+    }
+
+    /* Make sure table scrolls horizontally on smaller screens */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+    }
+
+    /* Card layout for mobile */
+    .card {
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    /* For screens larger than 700px (tablets, desktops) */
+    @media screen and (min-width: 700px) {
+        th, td {
+            font-size: 14px;
+            padding: 8px;
+        }
+    }
+
+    /* For small screens (700px or less) */
+    @media screen and (max-width: 700px) {
+        .table {
+            display: none; /* Hide the table */
+        }
+
+        /* Ensure content wraps inside cards */
+        .card th, .card td {
+            white-space: normal; /* Allow text wrapping */
+            word-wrap: break-word;
+        }
+
+        /* Style for headers in card layout */
+        .card-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 16px; /* Increased size for better visibility */
+        }
+
+        .card p {
+            font-size: 14px; /* Increased size for better visibility */
+            margin: 5px 0; /* Added margin for spacing */
+        }
+    }
+
+    /* For very small screens (400px or less) */
+    @media screen and (max-width: 400px) {
+        .card {
+            font-size: 10px; /* Even smaller font */
+        }
+    }
+
+    @media screen and (max-width: 700px) {
+        .sidebar a {
+            float: revert-layer !important;  
+        }
+    }
+    @media (min-width: 576px) {
+    .col-sm-9 {
+        -ms-flex: 0 0 75%;
+        flex: 0 0 75%;
+        max-width: 100% !important;
+    }
+}
+ .btn-danger {
+    margin-right: 15px !important;
+}
+.btn-info {
+    margin-left: 10px !important;
+}
+h3{
+    margin-left: 15px;
 }
 </style>
 
