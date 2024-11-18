@@ -1,72 +1,16 @@
-<?php include('connection.php'); ?>
-<?php error_reporting(0); ?>
-<?php include('landlord/session.php'); ?>
+<?php
+session_start(); // Start session to check login status
+include('connection.php');
+error_reporting(0);
+include('landlord/session.php');
 
-<?php 
-if(isset($_POST["register"])) {
+// Determine if the user is logged in based on the session variable
+$login_session = $_SESSION['admin_loggedin'] ?? null;
 
-    $name = $_POST['name'];
-    $Address = $_POST['Address'];
-    $contact_number = "+63".$_POST['contact_number'];
-    $facebook = $_POST['facebook'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $profile_photo = $_FILES['profile_photo']['name'];
-    $target = "uploads/".basename($profile_photo);
+// Determine the user role based on session variables
+$is_admin = isset($_SESSION['admin_loggedin']) && $_SESSION['admin_loggedin'] === true;
+$is_landlord = isset($_SESSION['login_user']) && !empty($_SESSION['login_user']);
 
-    $sql = "INSERT INTO landlords (name, email, password, Address, contact_number, facebook, profile_photo) VALUES ('$name', '$email', '$password', '$Address', '$contact_number', '$facebook', '$profile_photo')";
-
-    if ($dbconnection->query($sql) === TRUE) {
-        echo '<script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Registration Successful",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                });
-              </script>';
-        move_uploaded_file($_FILES['profile_photo']['tmp_name'], $target);
-    }
-}
-
-if(isset($_POST["login"])) {
-    session_start();
-    $myusername = $_POST['myemail'];
-    $mypassword = $_POST['mypassword']; 
-      
-    $sql = "SELECT id FROM landlords WHERE email = '$myusername' and password = '$mypassword'";
-    $result = mysqli_query($dbconnection,$sql);
-    $row = mysqli_fetch_array($result,MYSQLI_ASSOC);
-    $count = mysqli_num_rows($result);
-   
-    if($count == 1) {
-        $_SESSION['login_user'] = $myusername;
-        echo '<script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Login Successful",
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(function() {
-                        window.location.href = "landlord/dashboard.php";
-                    });
-                });
-              </script>';
-    } else {
-        echo '<script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Login Failed",
-                        text: "Username or Password is Incorrect",
-                    });
-                });
-              </script>';
-    }
-}
 ?>
 
 <?php $banner = array('banner.jpg', 'banner2.jpg', 'banner3.jpg'); ?>
@@ -472,7 +416,7 @@ ul.pagination li:last-child {
 
 <!-- Updated Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">Madri BH Finder</a>
+    <a class="navbar-brand" href="#">Madridejos Boarding House Finder</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -498,15 +442,22 @@ ul.pagination li:last-child {
                         <i class="icon-copy fa fa-user-circle-o" aria-hidden="true"></i> Sign Up
                     </a>
                 </li>
-                <?php } else { ?>
+                  <?php } else { ?>
+                <!-- Show Dashboard link based on role -->
                 <li class="nav-item">
-                    <a class="nav-link active" href="landlord/dashboard.php">
-                        <i class="fa fa-tachometer" aria-hidden="true"></i> Dashboard
-                    </a>
+                    <?php if ($is_admin) { ?>
+                        <a class="nav-link active" href="admin/dashboard.php">
+                            <i class="fa fa-tachometer" aria-hidden="true"></i> Dashboard
+                        </a>
+                    <?php } elseif ($is_landlord) { ?>
+                        <a class="nav-link active" href="landlord/dashboard.php">
+                            <i class="fa fa-tachometer" aria-hidden="true"></i> Landlord Dashboard
+                        </a>
+                    <?php } ?>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="landlord/logout.php">
-                        <i class="fa fa-power-off" aria-hidden="true"></i> Logout
+                    <a class="nav-link active" href="logout.php">
+                        <i class="fa fa-sign-out" aria-hidden="true"></i> Sign Out
                     </a>
                 </li>
                 <?php } ?>
