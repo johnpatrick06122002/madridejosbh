@@ -372,10 +372,7 @@ h3 {
                     </div>
                 </div>
             </div>
-        </div>
-</div>
-
-        <br />
+        </div>  <br />
 
         <div class="row">
      <div class="container">
@@ -395,6 +392,9 @@ h3 {
 
     </div>
 </div>
+</div>
+
+      
 
 
 <?php include('footer.php'); ?>
