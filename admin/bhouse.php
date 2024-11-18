@@ -13,7 +13,7 @@ include('header.php');
 // Handle delete operation
 if (isset($_POST["delete_id"])) {
     $id = $_POST['delete_id'];
-    $sql = "DELETE FROM rental WHERE id='$id'";
+    $sql = "DELETE FROM rental WHERE rental_id='$id'";
 
     if ($dbconnection->query($sql) === TRUE) {
         echo "<script>Swal.fire('Deleted!', 'Record has been deleted.', 'success');</script>";
