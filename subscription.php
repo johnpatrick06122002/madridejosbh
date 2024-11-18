@@ -18,20 +18,24 @@ $result = $stmt->get_result();
 $subscription = $result->fetch_assoc();
 
 if ($subscription) {
-   $current_date = new DateTime(); // This will capture your laptop's time, i.e., October 31, 9:00 PM.
-$start_date = new DateTime('2024-10-01 09:00:00'); // Start date from the database.
+    $current_date = new DateTime();
+    $start_date = new DateTime($subscription['start_date']);
 
-if ($subscription['plan'] == 'monthly') {
-    $expiration_date = (clone $start_date)->modify('+30 days'); // Expiration date is October 31, 9:00 AM.
-}
+    // Determine expiration date based on the plan
+    if ($subscription['plan'] === 'monthly') {
+        $expiration_date = (clone $start_date)->modify('+30 days');
+    } elseif ($subscription['plan'] === 'trial') {
+        $expiration_date = (clone $start_date)->modify('+30 days');
+    } elseif ($subscription['plan'] === 'yearly') {
+        $expiration_date = (clone $start_date)->modify('+1 year');
+    }
 
-if ($current_date > $expiration_date) {
-    // Current time (9:00 PM) is later than expiration (9:00 AM).
-    $stmt2 = $dbconnection->prepare("UPDATE subscriptions SET status = 'inactive' WHERE id = ?");
-    $stmt2->bind_param("i", $subscription['id']);
-    $stmt2->execute();
-}
-
+    // Mark the subscription as expired if the current date is beyond the expiration date
+    if ($current_date > $expiration_date) {
+        $stmt2 = $dbconnection->prepare("UPDATE subscriptions SET status = 'inactive' WHERE id = ?");
+        $stmt2->bind_param("i", $subscription['id']);
+        $stmt2->execute();
+    }
 }
 
 // Subscription processing logic
@@ -52,17 +56,27 @@ if (isset($_POST['subscribe'])) {
     $stmt2->bind_param("is", $register1_id, $subscription_plan);
 
     if ($stmt2->execute()) {
-        // Redirect to login.php upon successful subscription
-        header("Location: login.php");
-        exit(); // Ensure no further code is executed
+        if ($subscription_plan === 'trial') {
+            // Set a session flag for SweetAlert
+            $_SESSION['alert_type'] = 'success';
+            $_SESSION['alert_message'] = 'Free Trial Activated! Enjoy your free 1-month trial.';
+            $_SESSION['redirect'] = 'login.php';
+        } else {
+            // Set a session flag for SweetAlert for other plans
+            $_SESSION['alert_type'] = 'success';
+            $_SESSION['alert_message'] = 'Subscription Successful!';
+            $_SESSION['redirect'] = 'login.php';
+        }
     } else {
-        // Display simple error message in case of failure
-        echo "<p>Subscription failed. Please try again.</p>";
+        // Set an error alert
+        $_SESSION['alert_type'] = 'error';
+        $_SESSION['alert_message'] = 'Subscription failed. Please try again.';
     }
+
+    header("Location: subscription.php");
+    exit();
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,6 +84,7 @@ if (isset($_POST['subscribe'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choose Your Subscription Plan</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -81,12 +96,13 @@ if (isset($_POST['subscribe'])) {
             margin: 0;
         }
 
-        .subscription-form {
+        .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
+            max-width: 800px;
+            width: 100%;
         }
 
         h2 {
@@ -95,23 +111,37 @@ if (isset($_POST['subscribe'])) {
             color: #333;
         }
 
-        .plan {
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
         }
 
-        .plan label {
-            font-size: 16px;
-            color: #666;
+        .plan-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s ease;
         }
 
-        .plan input {
-            width: auto;
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .plan-card input {
+            margin-top: 10px;
+        }
+
+        .plan-card.free-trial {
+            background-color: #e7f9f0;
+            border-color: #42ba96;
         }
 
         button {
+            margin-top: 20px;
             background-color: #007bff;
             color: #fff;
             border: none;
@@ -128,22 +158,71 @@ if (isset($_POST['subscribe'])) {
     </style>
 </head>
 <body>
-    <div class="subscription-form">
+    <div class="container">
         <h2>Select Your Subscription Plan</h2>
         <form action="subscription.php" method="POST">
-            <div class="plan">
-                <label for="plan1">Monthly Plan - $10/month</label>
-                <input type="radio" name="plan" id="plan1" value="monthly" required>
-            </div>
-            <div class="plan">
-                <label for="plan2">Yearly Plan - $100/year</label>
-                <input type="radio" name="plan" id="plan2" value="yearly" required>
+            <div class="plans">
+                <!-- Free Trial Plan -->
+                <div class="plan-card free-trial">
+                    <h3>Free Trial</h3>
+                    <p>1 Month - Free</p>
+                    <input type="radio" name="plan" id="plan-trial" value="trial" required>
+                    <label for="plan-trial">Select</label>
+                </div>
+
+                <!-- Monthly Plan -->
+                <div class="plan-card">
+                    <h3>Monthly Plan</h3>
+                    <p>$10/month</p>
+                    <input type="radio" name="plan" id="plan1" value="monthly" required>
+                    <label for="plan1">Select</label>
+                </div>
+
+                <!-- 3 Months Plan -->
+                <div class="plan-card">
+                    <h3>3 Months Plan</h3>
+                    <p>$25/3 months</p>
+                    <input type="radio" name="plan" id="plan3" value="3months" required>
+                    <label for="plan3">Select</label>
+                </div>
+
+                <!-- 6 Months Plan -->
+                <div class="plan-card">
+                    <h3>6 Months Plan</h3>
+                    <p>$50/6 months</p>
+                    <input type="radio" name="plan" id="plan6" value="6months" required>
+                    <label for="plan6">Select</label>
+                </div>
+
+                <!-- Yearly Plan -->
+                <div class="plan-card">
+                    <h3>Yearly Plan</h3>
+                    <p>$100/year</p>
+                    <input type="radio" name="plan" id="plan12" value="yearly" required>
+                    <label for="plan12">Select</label>
+                </div>
             </div>
 
             <button type="submit" name="subscribe">Subscribe</button>
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SweetAlert Trigger -->
+    <script>
+        <?php if (isset($_SESSION['alert_type'])): ?>
+            Swal.fire({
+                icon: '<?php echo $_SESSION['alert_type']; ?>',
+                title: '<?php echo $_SESSION['alert_message']; ?>',
+                confirmButtonText: 'Continue'
+            }).then(() => {
+                <?php if (isset($_SESSION['redirect'])): ?>
+                window.location.href = '<?php echo $_SESSION['redirect']; ?>';
+                <?php endif; ?>
+            });
+            <?php 
+            unset($_SESSION['alert_type'], $_SESSION['alert_message'], $_SESSION['redirect']);
+            ?>
+        <?php endif; ?>
+    </script>
 </body>
 </html>
