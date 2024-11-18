@@ -153,12 +153,12 @@ h3 {
  
 
  
-<div class="row">
-    <div class="col-sm-2">
+<div class="dashboard-container">
+    <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-
-       <div class="main-content">
+  
+       <div class="main-content">  <br><br>
         <h3>Dashboard</h3>
       
        
@@ -187,9 +187,8 @@ h3 {
             </div>
         </div>
     </div>
-</div>
-
-           <div class="dashboard-cards">
+ 
+ 
             <!-- Boarding House Card -->
             <div class="card-box">
                 <div class="widget-style3">
