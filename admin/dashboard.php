@@ -21,31 +21,85 @@ if (isset($_SESSION['just_loggedin']) && $_SESSION['just_loggedin']) {
 // Include header.php which contains necessary HTML and PHP code
 include('header.php');
 ?>
-<style>  
-/* Container styles */
-.row.pb-10 {
-    padding-bottom: 10px;
-    
+<style>
+/* Main layout container */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
 }
-.text-secondary {
-    color: black !important;
+
+/* Sidebar styles */
+.sidebar-container {
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #e3e6f0;
+    flex-shrink: 0;
 }
-/* Card box styles */
+
+/* Main content area */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background: #f8f9fc;
+    overflow-x: hidden;
+}
+
+/* Dashboard cards row */
+.dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* Card styles */
 .card-box {
+    flex: 1;
+    min-width: 240px;
     background-color: #ffffff;
     border: 1px solid #e3e6f0;
     border-radius: 5px;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
     padding: 20px;
-    margin-bottom: 20px;
-    text-color: black;
 }
 
-.card-box.height-100-p {
-    height: 100%;
+/* Chart containers */
+.chart-container1, .chart-container2, .chart-container3 {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    margin-bottom: 30px;
 }
 
-/* Widget styles */
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .sidebar-container {
+        width: 100%;
+        position: static;
+        height: auto;
+    }
+    
+    .main-content {
+        padding: 15px;
+    }
+    
+    .card-box {
+        min-width: 100%;
+    }
+    
+    .chart-container1, .chart-container2, .chart-container3 {
+        width: 100% !important;
+        height: 300px !important;
+    }
+}
+
+/* Existing styles with improvements */
 .widget-style3 {
     display: flex;
     justify-content: space-between;
@@ -53,98 +107,34 @@ include('header.php');
 }
 
 .widget-data {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-grow: 1;
 }
 
-.weight-700 {
-    font-weight: 700;
+.widget-icon {
+    margin-left: 15px;
 }
 
 .font-24 {
-    font-size: 24px;
-}
-
-.text-dark {
-    color: #5a5c69;
-}
-
-.font-14 {
-    font-size: 14px;
-}
-
-.text-secondary {
-    color: #858796;
-}
-
-.weight-500 {
-    font-weight: 500;
-}
-
-/* Widget icon styles */
-.widget-icon {
-    display: flex;
-    align-items: center;
-}
-
-.widget-icon .icon {
-    font-size: 2em;
-    color: #00eccf;
-}
-
-/* Custom width for .col-xl-3 on screens that are at least 1200px wide */
-@media (min-width: 1200px) {
-    .col-xl-3 {
-        -ms-flex: 0 0 25%;
-        flex: 0 0 25%;
-        max-width: 25%;
-    }
-}
-.fa {
-    display: inline-block;
-    font: normal normal normal 14px / 1 FontAwesome;
-    font-size: inherit;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    float: right; /* or */
-    text-align: right; /* or */
-    margin-left: 80px; /* or */
-    color: black;
-
-    /* any other method to position right */
-}
-.chart-container {
-    width: 100%;
-    height: auto;
-}
-
-.chart-container3 {
-    position: relative;
-    width: 100%;  /* Adjust the width as needed */
-    height: 450px; /* Adjust the height as needed */
-    margin-top: 210px;
-    margin-right: 300px;
-}
-@keyframes pulse {
-    0% {
-        transform: scale(1.5);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-    }
+    font-size: 20px !important;
 }
 
 .animated-icon {
     animation: pulse 1.3s infinite;
 }
 
+@keyframes pulse {
+    0% { transform: scale(1.5); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+h3 {
+    margin: 0 0 20px 0;
+    color: #5a5c69;
+    font-weight: 500;
+}
 </style>
- <body>
+ 
    <?php if ($showWelcomeMessage): ?>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
@@ -160,23 +150,25 @@ include('header.php');
 
 
     <?php include('footer.php'); ?>
-</body>
+ 
+
+ 
 <div class="row">
     <div class="col-sm-2">
         <?php include('sidebar.php'); ?>
     </div>
 
-      <div class="col-sm-9">  <br /> <br />
+       <div class="main-content">
         <h3>Dashboard</h3>
       
        
         
-        <div class="row pb-10" >
-            <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-    <div class="card-box height-100-p widget-style3">
-        <div class="d-flex flex-wrap">
-            <div class="widget-data">
-                <div class="weight-700 font-24 text-dark">
+       <div class="dashboard-cards">
+            <!-- Boarding House Card -->
+            <div class="card-box">
+                <div class="widget-style3">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-dark">
                     <?php
                     $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental");
                     $row = mysqli_fetch_array($result);
@@ -197,12 +189,12 @@ include('header.php');
     </div>
 </div>
 
-           
-             <div class="col-xl-3 col-lg-3 col-md-6 mb-20">
-    <div class="card-box height-100-p widget-style3">
-        <div class="d-flex flex-wrap">
-            <div class="widget-data">
-                <div class="weight-700 font-24 text-dark">
+           <div class="dashboard-cards">
+            <!-- Boarding House Card -->
+            <div class="card-box">
+                <div class="widget-style3">
+                    <div class="widget-data">
+                        <div class="weight-700 font-24 text-dark">
                     <?php
                     // Count the number of active subscriptions
                     $result = mysqli_query($dbconnection, "
@@ -227,15 +219,6 @@ include('header.php');
         </div>
     </div>
 </div>
-
-             
-        </div>
-        <br />
-        <br />
-        <br/>
-<!-- Include Chart.js library -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <div class="container">
     <h3>Boarding House Ratings</h3>
     <canvas id="ratingChart"></canvas>
@@ -244,6 +227,15 @@ include('header.php');
     <h3>Boarding House Ratings</h3>
     <canvas id="monthlyBookingsChart"></canvas>
 </div>
+             
+        </div>
+        <br />
+        <br />
+        <br/>
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
  
 <?php
 
