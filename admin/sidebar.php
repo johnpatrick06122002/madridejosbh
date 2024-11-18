@@ -104,7 +104,10 @@
                 display: block; /* Show menu button in mobile view */
             }
         }
-        
+     img{
+      width: 50%;
+            height: 50%;
+     }   
     </style>
 
     <!-- Menu button (hamburger icon) -->
