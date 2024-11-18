@@ -66,7 +66,26 @@
             font-size: 18px;
             color: black;
         }
+.sidebar .admin-photo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    margin-bottom: 20px;
+  }
 
+  .sidebar .admin-photo img {
+    width: 130px; /* Adjust size as needed */
+    height: 120px; /* Adjust size as needed */
+    border-radius: 50%;
+    margin-bottom: 10px; /* Adjust margin as needed */
+  }
+
+  .sidebar .admin-photo .admin-name {
+    color: black; /* Adjust text color as needed */
+    font-size: 18px; /* Adjust font size as needed */
+    font-family: san-serif;
+  }
         /* Hamburger icon styling */
         .menu-btn {
             font-size: 30px;
