@@ -290,7 +290,7 @@ h3 {
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-    
+    <br><br>
     <div class="main-content">
         <h3>Dashboard</h3>
         
