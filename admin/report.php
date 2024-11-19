@@ -1,156 +1,217 @@
 <?php
-session_start(); // Start session at the beginning of the script
+include('../connection.php');
 
-// Check if the admin is logged in
-if (!isset($_SESSION['admin_loggedin']) || $_SESSION['admin_loggedin'] !== true) {
-    // Redirect to login page if not logged in
-    header("Location: index.php");
-    exit; // Stop further execution
-}
+// Get the start and end date for the selected interval (defaults to this month)
+$start_date = isset($_GET['start_date']) ? $_GET['start_date'] . '-01' : date('Y-m-01');  // Default to first day of the current month
+$end_date = isset($_GET['end_date']) ? $_GET['end_date'] . '-31' : date('Y-m-t');  // Default to last day of the current month
 
-include('header.php'); // Include header.php which contains necessary HTML and PHP code
+// SQL query to count bookings for the selected interval and show associated boarding house information
+$query = "SELECT 
+                COUNT(b.id) AS booking_count,
+                MONTH(b.date_posted) AS month,
+                YEAR(b.date_posted) AS year,
+                r.title AS boarding_house_title
+          FROM `book` b
+          JOIN `rental` r ON b.bhouse_id = r.rental_id  -- Join on rental_id
+          WHERE b.date_posted BETWEEN ? AND ? 
+          GROUP BY YEAR(b.date_posted), MONTH(b.date_posted), r.title
+          ORDER BY YEAR(b.date_posted) DESC, MONTH(b.date_posted) DESC";
+
+// Prepare and bind
+$stmt = $dbconnection->prepare($query);
+$stmt->bind_param("ss", $start_date, $end_date);  // Binding the start and end dates
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
-<?php
-// Initialize variables
-$total_income = 0;
-
-// Fetch data from the rental table and join with the book and landlord tables
-$query = "
-    SELECT r.rental_id AS rental_id, r.title, r.monthly, l.name AS landlord_name, b.name AS broker_name
-    FROM rental AS r
-    LEFT JOIN book AS b ON r.rental_id = b.bhouse_id AND b.status = 'Approved'
-    LEFT JOIN landlords AS l ON r.landlord_id = l.id
-";
-$result = mysqli_query($dbconnection, $query);
-
-if (!$result) {
-    die("Error: " . mysqli_error($dbconnection));
-}
-
-$rows = [];
-
-// Fetch data and organize it
-while ($row = mysqli_fetch_assoc($result)) {
-    $rental_id = $row['rental_id'];
-    $title = htmlspecialchars($row['title']);
-    $monthly = floatval($row['monthly']);  // Ensure monthly is treated as a float
-    $landlord_name = htmlspecialchars($row['landlord_name']);
-    $broker_name = htmlspecialchars($row['broker_name']);
-
-    // Organize the data by rental ID
-    if (!isset($rows[$rental_id])) {
-        $rows[$rental_id] = [
-            'title' => $title,
-            'landlord' => $landlord_name,
-            'monthly' => $monthly,
-            'broker_count' => 0,
-            'total_monthly' => 0
-        ];
-    }
-
-    if ($broker_name) {
-        $rows[$rental_id]['broker_count']++;
-        $rows[$rental_id]['total_monthly'] += $monthly;
-        $total_income += $monthly;
-    }
-}
-
-// Prepare rows for display
-$display_rows = [];
-foreach ($rows as $rental_id => $data) {
-    if ($data['broker_count'] > 0) {
-        $total_monthly_rent = '₱' . number_format($data['monthly'] * $data['broker_count'], 2);
-        $display_rows[] = [
-            'title' => $data['title'],
-            'landlord' => $data['landlord'],
-            'brokers' => $data['broker_count'],
-            'monthly_rent' => '₱' . number_format($data['monthly'], 2),
-            'total_monthly' => $total_monthly_rent
-        ];
-    }
-}
-?>
-
-<style>
-    .print-logo, .print-text {
-        display: none;
-        margin-right: 200px;
-    }
-
-    @media print {
-        .sidebar, .btn-print {
-            display: none;
-        }
-        .print-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .print-logo {
-            margin-right: 20px;
-        }
-        .print-logo, .print-text {
-            display: block;
-        }
-
-        .print-logo img {
-            width: 100px;
-            height: 100px;
-        }
-    }
-    .btn {
-        margin-right: 40px;
-        width: 90px;
-    }
-</style>
-
-<div class="row">
-    <div class="col-sm-2">
+<!-- Main content container -->
+<div class="dashboard-container">
+    <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-    <div class="col-sm-10">
-        <br />
-        <div class="print-header">
-            <div class="print-logo">
-                <img src="../bh.jpg" alt="Logo" />
+
+    <div class="main-content">
+        <h3>Booking Report</h3>
+        <div class="content">
+            <p>Showing bookings from <strong><?php echo $start_date; ?></strong> to <strong><?php echo $end_date; ?></strong></p>
+            
+            <!-- Report form to select start and end dates -->
+            <form method="get" class="report-form">
+                <div class="form-group">
+                    <label for="start_date">Start Date:</label>
+                    <input type="month" name="start_date" id="start_date" value="<?php echo date('Y-m', strtotime($start_date)); ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date:</label>
+                    <input type="month" name="end_date" id="end_date" value="<?php echo date('Y-m', strtotime($end_date)); ?>" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+            </form>
+
+            <!-- Print Button -->
+            <button onclick="printReport()" class="btn btn-info">Print Report</button>
+
+            <!-- Display the report table -->
+            <div class="report-table">
+                <?php
+                if ($result->num_rows > 0) {
+                    echo "<table class='table table-striped' id='report-table'>";
+                    echo "<thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Year</th>
+                                <th>Boarding House</th>
+                                <th>Booking Count</th>
+                            </tr>
+                          </thead>
+                          <tbody>";
+
+                    while ($row = $result->fetch_assoc()) {
+                        echo "<tr>
+                                <td>" . date('F', mktime(0, 0, 0, $row['month'], 10)) . "</td>
+                                <td>{$row['year']}</td>
+                                <td>{$row['boarding_house_title']}</td>
+                                <td>{$row['booking_count']}</td>
+                              </tr>";
+                    }
+
+                    echo "</tbody></table>";
+                } else {
+                    echo "<p>No bookings found for the selected period.</p>";
+                }
+                ?>
             </div>
-            <div class="print-text">
-                <h2>Madridejos Boarding House Finder</h2>
-            </div>
-        </div>
-        <br><br><br><br>
-        <h3>
-            Monthly Report
-            <button class="btn btn-primary btn-print" style="float: right;" onclick="window.print()">Print</button>
-        </h3>
-        <br />
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Boarding House</th>
-                    <th>Landlord</th>
-                    <th>Number of Brokers</th>
-                    <th>Monthly Rent</th>
-                    <th>Total Monthly Rent</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($display_rows as $row): ?>
-                    <tr>
-                        <td><?php echo $row['title']; ?></td>
-                        <td><?php echo $row['landlord']; ?></td>
-                        <td><?php echo $row['brokers']; ?></td>
-                        <td><?php echo $row['monthly_rent']; ?></td>
-                        <td><?php echo $row['total_monthly']; ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <div>
-            <strong style="margin-left: 1190px;">Total Income: ₱<?php echo number_format($total_income, 2); ?></strong>
         </div>
     </div>
 </div>
 
-<?php include('footer.php'); ?>
+<!-- Close connection -->
+<?php
+$stmt->close();
+$dbconnection->close();
+?>
+
+<!-- CSS Styling -->
+<style>
+
+/* Main layout container */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Sidebar styles */
+.sidebar-container {
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #e3e6f0;
+    flex-shrink: 0;
+}
+
+/* Main content area */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background: #f8f9fc;
+    overflow-x: hidden;
+}
+/* Form styles */
+.report-form {
+    margin-bottom: 20px;
+}
+
+.report-form .form-group {
+    margin-bottom: 15px;
+}
+
+.report-form label {
+    font-weight: bold;
+}
+
+.report-form input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.report-form button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.report-form button:hover {
+    background-color: #45a049;
+}
+
+/* Print button styles */
+.btn-info {
+    padding: 10px 20px;
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+/* Table styles */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    .sidebar-container {
+        width: 100%;
+        position: static;
+        height: auto;
+    }
+
+    .main-content {
+        padding: 15px;
+    }
+}
+</style>
+
+<!-- JavaScript for printing the report -->
+<script>
+function printReport() {
+    var printContents = document.getElementById('report-table').outerHTML;
+    var originalContents = document.body.innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
+}
+</script>

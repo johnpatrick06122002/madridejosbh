@@ -1,34 +1,15 @@
 <?php
 session_start();
 include('connection.php');
-require 'vendor_copy/autoload.php'; // PHPMailer autoload
-
-// Google reCAPTCHA secret key
-$recaptcha_secret = '6LdEuIEqAAAAADNRqBLoTg11Lqx7yes1ieUsEOd4';
+require 'vendor_copy/autoload.php';
 
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-    $recaptcha_response = $_POST['g-recaptcha-response'];
 
-    // Verify reCAPTCHA
-    $recaptcha_url = 'https://www.google.com/recaptcha/api/siteverify';
-    $recaptcha_verify = file_get_contents($recaptcha_url . '?secret=' . $recaptcha_secret . '&response=' . $recaptcha_response);
-    $recaptcha_result = json_decode($recaptcha_verify);
-
-    if (!$recaptcha_result->success) {
-        echo "<script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    title: 'Captcha Failed',
-                    text: 'Please complete the CAPTCHA before proceeding.',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6'
-                });
-            });
-        </script>";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    // Using JavaScript for showing alerts since it's more reliable
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -108,6 +89,7 @@ if (isset($_POST['submit'])) {
                     $mail->Body = "Your OTP code is <b>$otp</b>";
 
                     if($mail->send()) {
+                        // Use JavaScript for redirect after showing alert
                         echo "<script>
                             document.addEventListener('DOMContentLoaded', function() {
                                 Swal.fire({
@@ -157,9 +139,9 @@ if (isset($_POST['submit'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Step 1</title>
+    <!-- Make sure SweetAlert2 CSS is loaded before any scripts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
      <style>
   body {
     background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('b.png') no-repeat center center fixed;
@@ -259,7 +241,8 @@ if (isset($_POST['submit'])) {
             <label for="email">Email</label>
             <input type="email" name="email" id="email" required>
 
-          <label for="password">Password</label>
+            
+            <label for="password">Password</label>
             <div class="input-container">
                 <input type="password" style=" width: 100%; padding: 10px;
             margin-bottom: 16px;
@@ -284,71 +267,77 @@ if (isset($_POST['submit'])) {
                 <i class="fas fa-eye" id="toggleConfirmPassword"></i>
             </div>
 
-           <!-- Google reCAPTCHA -->
-<div class="g-recaptcha" 
-     data-sitekey="6LdEuIEqAAAAAJp33EewtqMHDcVowUNiNrB0P51x" 
-     data-callback="onCaptchaComplete">
-</div>
-<br>
-<button type="submit" name="submit" id="submitBtn" disabled>Send OTP</button>
- <center> 
+            <button type="submit" name="submit">Send OTP</button>
+            <br>
+            <center> 
                 <p class="message">Already have an account? <a href="login.php">Sign in</a></p>
                 <p class="message"><a href="index.php">WebPage</a></p>
             </center>
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    // Captcha complete callback
-    function onCaptchaComplete() {
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = false;
-    }
+        </form>
+    </div>
 
-    // Password visibility toggle
-    document.getElementById('togglePassword').addEventListener('click', function() {
-        const passwordField = document.getElementById('password');
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-        this.classList.toggle('fa-eye-slash');
-    });
+    <!-- Load scripts at the end of body -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Password visibility toggle
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+        });
 
-    document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
-        const confirmPasswordField = document.getElementById('confirm_password');
-        const type = confirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        confirmPasswordField.setAttribute('type', type);
-        this.classList.toggle('fa-eye-slash');
-    });
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmPasswordField = document.getElementById('confirm_password');
+            const type = confirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordField.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+        });
 
-    // Form validation
-    document.getElementById('registrationForm').addEventListener('submit', function(e) {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirm_password').value;
+        // Form validation
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            // Email validation
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Invalid Email',
+                    text: 'Please enter a valid email address.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
 
-        // Email validation
-        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Invalid Email',
-                text: 'Please enter a valid email address.',
-                icon: 'error',
-                confirmButtonColor: '#3085d6'
-            });
-            return;
-        }
+            // Password validation
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Password Mismatch',
+                    text: 'Passwords do not match. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
 
-        // Password validation
-        if (password !== confirmPassword) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Password Mismatch',
-                text: 'Passwords do not match. Please try again.',
-                icon: 'error',
-                confirmButtonColor: '#3085d6'
-            });
-            return;
-        }
-    });
-</script>
+            // Password strength validation
+            if (!password.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/)) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Weak Password',
+                    text: 'Password must be at least 8 characters long, include numbers, letters, and at least one capital letter.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
 
+            // If all validations pass, form will submit normally
+        });
+    </script>
 </body>
 </html>

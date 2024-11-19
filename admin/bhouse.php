@@ -13,12 +13,28 @@ include('header.php');
 // Handle delete operation
 if (isset($_POST["delete_id"])) {
     $id = $_POST['delete_id'];
-    $sql = "DELETE FROM rental WHERE rental_id='$id'";
+    
+    // Start a transaction to ensure data integrity
+    $dbconnection->begin_transaction();
 
-    if ($dbconnection->query($sql) === TRUE) {
-        echo "<script>Swal.fire('Deleted!', 'Record has been deleted.', 'success');</script>";
-    } else {
-        echo "<script>Swal.fire('Error!', 'Error deleting record: " . addslashes($dbconnection->error) . "', 'error');</script>";
+    try {
+        // Delete associated boarders first (from the `book` table)
+        $delete_boarders_sql = "DELETE FROM book WHERE bhouse_id = '$id'";
+        if ($dbconnection->query($delete_boarders_sql) !== TRUE) {
+            throw new Exception("Error deleting boarders: " . $dbconnection->error);
+        }
+        
+        // Delete the rental record
+        $delete_rental_sql = "DELETE FROM rental WHERE rental_id='$id'";
+        if ($dbconnection->query($delete_rental_sql) === TRUE) {
+            $dbconnection->commit(); // Commit the transaction if both deletes succeed
+            echo "<script>Swal.fire('Deleted!', 'Record has been deleted.', 'success');</script>";
+        } else {
+            throw new Exception("Error deleting rental: " . $dbconnection->error);
+        }
+    } catch (Exception $e) {
+        $dbconnection->rollback(); // Rollback transaction on error
+        echo "<script>Swal.fire('Error!', '" . $e->getMessage() . "', 'error');</script>";
     }
 }
 
@@ -43,7 +59,7 @@ $result = mysqli_query($dbconnection, $sql);
     <title>Boarding House List</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
+<style>
 /* Main layout container */
 .dashboard-container {
     display: flex;
@@ -155,14 +171,15 @@ h3 {
     color: #5a5c69;
     font-weight: 500;
 }
-</style>
+    </style>
 </head>
 
 <div class="dashboard-container">
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-     <div class="main-content">  <br><br>
+    <div class="main-content">  
+        <br><br>
         <h3>Boarding House List</h3>
         <table class="table table-striped">
             <thead>

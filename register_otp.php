@@ -30,14 +30,21 @@ if (isset($_POST['verify'])) {
         $_SESSION['otp_verified'] = true;
 
         // Redirect to the same page
-       header("Location: register_step2.php"); // Corrected redirection
-exit();
-
+        header("Location: register_step2.php");
+        exit();
     } else {
-        $msg = "<div class='alert alert-danger'>Invalid OTP code. Please try again.</div>";
+        // Display an error using SweetAlert
+        $msg = "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid OTP',
+                text: 'The OTP you entered is incorrect. Please try again.'
+            });
+        </script>";
     }
 }
 
+// Handle OTP resend
 if (isset($_POST['resend_otp'])) {
     $email = $_SESSION['email'];
     $new_otp = rand(100000, 999999); // Generate a new OTP
@@ -64,17 +71,33 @@ if (isset($_POST['resend_otp'])) {
         $mail->Body = "Your new OTP code is: $new_otp";
 
         if ($mail->send()) {
-            $msg = "<div class='alert alert-success'>New OTP sent to your email!</div>";
+            echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'OTP Sent',
+                    text: 'A new OTP has been sent to your email!'
+                });
+            </script>";
         } else {
-            $msg = "<div class='alert alert-danger'>Failed to send OTP. Please try again later.</div>";
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to send OTP. Please try again later.'
+                });
+            </script>";
         }
     } catch (Exception $e) {
-        $msg = "<div class='alert alert-danger'>Mailer Error: {$mail->ErrorInfo}</div>";
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Mailer Error: {$mail->ErrorInfo}'
+            });
+        </script>";
     }
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -216,7 +239,7 @@ if (isset($_POST['resend_otp'])) {
         }
 
         // Resend OTP countdown timer
-        let countdown = 60; // 60 seconds countdown
+        let countdown = 60;
         let resendButton = document.getElementById('resendOtpButton');
         let countdownDisplay = document.getElementById('countdown');
 
@@ -225,7 +248,7 @@ if (isset($_POST['resend_otp'])) {
             countdownDisplay.style.display = "inline";
             countdownDisplay.innerText = ` (${countdown})`;
 
-            let interval = setInterval(function() {
+            let interval = setInterval(function () {
                 countdown--;
                 countdownDisplay.innerText = ` (${countdown})`;
                 if (countdown <= 0) {
@@ -240,13 +263,28 @@ if (isset($_POST['resend_otp'])) {
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    alert("New OTP sent to your email!");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'OTP Sent',
+                        text: 'A new OTP has been sent to your email!'
+                    });
                 }
             };
             xhr.send("resend_otp=1");
         }
+
+        // Trigger SweetAlert if OTP is verified
+        <?php if (isset($_SESSION['otp_verified']) && $_SESSION['otp_verified']): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Verification Successful',
+            text: 'Your OTP has been verified. Redirecting...'
+        }).then(() => {
+            window.location.href = "register_step2.php";
+        });
+        <?php unset($_SESSION['otp_verified']); endif; ?>
     </script>
 </body>
 

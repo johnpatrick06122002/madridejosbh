@@ -1,92 +1,116 @@
 <?php
-session_start(); // Start session at the beginning of the script
+session_start();
+
+// Initialize login attempts if not set
+if (!isset($_SESSION['login_attempts'])) {
+    $_SESSION['login_attempts'] = 0;
+    $_SESSION['lock_time'] = null;
+}
+
+$now = time();
+$alert_message = '';
+
+// Check for lock time
+if ($_SESSION['lock_time'] && $now < $_SESSION['lock_time']) {
+    $remaining = $_SESSION['lock_time'] - $now;
+    $remaining_minutes = ceil($remaining / 60);
+    $alert_message = [
+        'icon' => 'error',
+        'title' => 'Login Locked',
+        'text' => "Please wait {$remaining_minutes} minutes before trying again."
+    ];
+}
 
 if (isset($_POST["login"])) {
-    // Database connection (assuming $dbconnection is your database connection variable)
     include('connection.php');
 
-    // Sanitize input data
     $myusername = mysqli_real_escape_string($dbconnection, $_POST['myemail']);
     $mypassword = mysqli_real_escape_string($dbconnection, $_POST['mypassword']);
 
-    // Query to fetch the user details based on email
-    $sql = "SELECT id, password FROM register1 WHERE email = '$myusername'";
+    $sql = "SELECT id, password, confirmation, verification FROM register1 WHERE email = '$myusername'";
     $result = mysqli_query($dbconnection, $sql);
 
     if ($result) {
         $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
         if ($row) {
-            // Verify the password using password_verify() if you're using password hashing
-            if (password_verify($mypassword, $row['password'])) {
-                // Set session variable indicating user is logged in
+            // Check verification
+            if ($row['verification'] != 1) {
+                $alert_message = [
+                    'icon' => 'warning',
+                    'title' => 'Account Not Verified',
+                    'text' => 'Please verify your email first.'
+                ];
+            }
+            // Check approval
+            elseif ($row['confirmation'] != 'approved') {
+                $alert_message = [
+                    'icon' => 'info',
+                    'title' => 'Account Pending Approval',
+                    'text' => 'Please wait for your account to be approved by the administrator.'
+                ];
+            }
+            // Check password
+            elseif (password_verify($mypassword, $row['password'])) {
+                $_SESSION['login_attempts'] = 0;
+                $_SESSION['lock_time'] = null;
                 $_SESSION['login_user'] = $myusername;
-                $_SESSION['register1_id'] = $row['id']; // Save the user's register1_id in the session
+                $_SESSION['register1_id'] = $row['id'];
 
-                // Now check if the user is associated with a record in the rental table
                 $register1_id = $row['id'];
-                $rental_check_sql = "SELECT id FROM rental WHERE register1_id = '$register1_id'";
-                $rental_check_result = mysqli_query($dbconnection, $rental_check_sql);
+    $rental_check_sql = "SELECT id FROM rental WHERE register1_id = '$register1_id'";
+    $rental_check_result = mysqli_query($dbconnection, $rental_check_sql);
 
-                if (mysqli_num_rows($rental_check_result) > 0) {
-                    // User has an existing rental, redirect to dashboard
-                    echo '<script>
-                            document.addEventListener("DOMContentLoaded", function() {
-                                Swal.fire({
-                                    icon: "success",
-                                    title: "Login Successful",
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                }).then(function() {
-                                    window.location.href = "landlord/dashboard.php";
-                                });
-                            });
-                          </script>';
+    if (mysqli_num_rows($rental_check_result) > 0) {
+                    $alert_message = [
+                        'icon' => 'success',
+                        'title' => 'Login Successful',
+                        'text' => 'Welcome back! Redirecting to your dashboard.'
+                    ];
+                    echo '<script>setTimeout(function(){ window.location.href = "landlord/dashboard.php"; }, 1500);</script>';
                 } else {
-                    // No rental record, redirect to create page
-                    echo '<script>
-                            document.addEventListener("DOMContentLoaded", function() {
-                                Swal.fire({
-                                    icon: "success",
-                                    title: "Login Successful",
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                }).then(function() {
-                                    window.location.href = "landlord/create.php";
-                                });
-                            });
-                          </script>';
+                    echo '<script>setTimeout(function(){ window.location.href = "landlord/create.php"; }, 1500);</script>';
                 }
-            } else {
-                // Password incorrect
-                echo '<script>
-                        document.addEventListener("DOMContentLoaded", function() {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Login Failed",
-                                text: "Username or Password is Incorrect",
-                            });
-                        });
-                      </script>';
+} else {
+                handle_failed_login();
             }
         } else {
-            // No matching user found
-            echo '<script>
-                    document.addEventListener("DOMContentLoaded", function() {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Login Failed",
-                            text: "Username or Password is Incorrect",
-                        });
-                    });
-                  </script>';
+            handle_failed_login();
         }
     } else {
-        // SQL query failed
-        echo "Error: " . mysqli_error($dbconnection);
+        $alert_message = [
+            'icon' => 'error',
+            'title' => 'Error',
+            'text' => mysqli_error($dbconnection)
+        ];
     }
 }
-?>
 
+function handle_failed_login() {
+    global $now, $alert_message;
+    $_SESSION['login_attempts']++;
+
+    if ($_SESSION['login_attempts'] >= 3) {
+        if ($_SESSION['lock_time'] === null || $now > $_SESSION['lock_time']) {
+            if ($_SESSION['login_attempts'] > 6) {
+                $_SESSION['lock_time'] = $now + 3600; // 1 hour
+            } else {
+                $_SESSION['lock_time'] = $now + 180; // 3 minutes
+            }
+        }
+    }
+
+    $remaining_attempts = max(0, 3 - ($_SESSION['login_attempts'] % 3));
+    $lock_message = $_SESSION['login_attempts'] >= 3 ? 
+        'Your account is temporarily locked. Please try again later.' : 
+        "You have $remaining_attempts attempts left.";
+
+    $alert_message = [
+        'icon' => 'error',
+        'title' => 'Login Failed',
+        'text' => $lock_message
+    ];
+}
+?>
 
 <!DOCTYPE html>
 <html>
@@ -101,7 +125,7 @@ if (isset($_POST["login"])) {
 <style type="text/css">
         @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
 
-      body {
+       body {
     background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('b.png') no-repeat center center fixed;
     background-size: 70%;
     font-family: Arial, sans-serif;
@@ -111,32 +135,33 @@ if (isset($_POST["login"])) {
     min-height: 100vh; /* Ensures full screen coverage */
     margin: 0;
     padding: 0;
-}
-@media (max-width: 768px) {
+    }
+    @media (max-width: 768px) {
     body {
          
       
         min-height: 100vh;
          background-size:cover; 
     }
-}
-         .login-page {
-            width: 300px;
+    }
+
+        .login-page {
+            width: 330px;
             padding: 8% 0 0;
             margin: auto;
-            height: 535px;
+            height: 500px;
         }
 
         .form {
             position: relative;
             z-index: 1;
             background:white;
-            max-width: 360px;
+            max-width: 500px;
             margin: 0 auto 100px;
             padding: 45px;
             text-align: center;
             box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-            border-radius: 25px;
+            border-radius: 20px;
         }
 
         .form input {
@@ -230,17 +255,17 @@ if (isset($_POST["login"])) {
         .input-container {
   position: relative;
   margin-bottom: 15px;
-}
+    }
 
-.input-container .icon {
+    .input-container .icon {
   position: absolute;
   left: 15px;
   top: 35%;
   transform: translateY(-50%);
   color: #888;
-}
+    }
 
-.input-container input {
+    .input-container input {
   width: 100%;
   height: 50px;
   padding: 10px 10px 10px 40px; /* Adjust padding to make space for the icon */
@@ -248,19 +273,19 @@ if (isset($_POST["login"])) {
   border: 1px solid #ccc;
   border-radius: 50px;
   color: black;
-}
+    }
 
-.input-container input::placeholder {
+    .input-container input::placeholder {
     color: black; /* Set placeholder text color to white */
-}
-.input-container input:focus {
+    }
+    .input-container input:focus {
   border-color: #007bff;
   outline: none;
-}
-h2{
-color:black;
+    }
+    h2{
+    color:black;
 
-}
+    }
 </style>
 </head>
 <body>
@@ -287,6 +312,25 @@ color:black;
         </form>
     </div>
 </div>
+<?php if ($alert_message): ?>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                icon: '<?php echo $alert_message['icon']; ?>',
+                title: '<?php echo $alert_message['title']; ?>',
+                text: '<?php echo $alert_message['text']; ?>',
+                <?php if ($alert_message['icon'] === 'success'): ?>
+                showConfirmButton: false,
+                timer: 1500 // Auto-hide the success message after 1.5 seconds
+                <?php endif; ?>
+            });
+            <?php if (isset($_SESSION['lock_time']) && $_SESSION['lock_time'] > $now): ?>
+            document.querySelector("button[name='login']").disabled = true;
+            startCountdown(<?php echo $_SESSION['lock_time'] - $now; ?>);
+            <?php endif; ?>
+        });
+    </script>
+<?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -302,6 +346,25 @@ color:black;
         // Toggle the eye icon
         this.classList.toggle('fa-eye-slash');
     });
+    
+    function startCountdown(remainingTime) {
+    const countdownDisplay = document.createElement('div');
+    countdownDisplay.style.color = 'red';
+    countdownDisplay.style.marginTop = '10px';
+    document.querySelector('.form').appendChild(countdownDisplay);
+
+    const countdownInterval = setInterval(function () {
+        if (remainingTime <= 0) {
+            clearInterval(countdownInterval);
+            countdownDisplay.textContent = "You can now try logging in again.";
+            document.querySelector("button[name='login']").disabled = false; // Re-enable the login button
+        } else {
+            countdownDisplay.textContent = "Time remaining: " + Math.ceil(remainingTime / 60) + " minute(s)";
+            remainingTime -= 1;
+        }
+    }, 1000);
+}
+
 </script>
 </body>
 </html>
