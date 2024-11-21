@@ -7,9 +7,25 @@ if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+   $recaptcha_response = $_POST['g-recaptcha-response'];
 
-    // Using JavaScript for showing alerts since it's more reliable
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    // Verify reCAPTCHA
+    $secret_key = "6LdEuIEqAAAAADNRqBLoTg11Lqx7yes1ieUsEOd4";
+    $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret_key&response=$recaptcha_response");
+    $response_data = json_decode($response);
+
+   if (!$response_data->success) {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'reCAPTCHA Failed',
+                    text: 'Please complete the reCAPTCHA.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -139,144 +155,168 @@ if (isset($_POST['submit'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Step 1</title>
-    <!-- Make sure SweetAlert2 CSS is loaded before any scripts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-     <style>
-  body {
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('b.png') no-repeat center center fixed;
-    background-size: 70%;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh; /* Ensures full screen coverage */
-    margin: 0;
-    padding: 0;
-}
-@media (max-width: 768px) {
-    body {
-         
-      
-        min-height: 100vh;
-         background-size:cover; 
-    }
-}
-  
+    <style>
+        :root {
+            --gradient-start: #6a11cb;
+            --gradient-end: #2575fc;
+            --text-color: #333;
+            --input-bg: #f8f9fa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('b.png') no-repeat center center fixed;
+            background-size: 70%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
         .register-form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 25px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 290px;
+            background: rgba(255, 255, 255, 0.9);
+             color: black;
+            padding: 40px;
+            border-radius: 15px;
+            width: 380px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
             margin-top: -80px;
         }
-        
+
         .register-form h2 {
             text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .register-form form {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .register-form label {
-            margin-bottom: 8px;
-            color: #555;
-        }
-        
-        .register-form input[type="email"],
-        .register-form input[type="password"] {
-            padding: 10px;
-            margin-bottom: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            position: relative; /* Keep relative for icon positioning */
-            width: 100%; /* Ensure it takes full width */
-            box-sizing: border-box; /* Include padding in the total width */
-        }
-        
-        .register-form button {
-            padding: 12px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        .register-form button:hover {
-            background-color: #0056b3;
+            margin-bottom: 30px;
+            font-weight: 600;
         }
 
         .input-container {
-            position: relative; /* Relative positioning for absolute children */
-            margin-bottom: 16px; /* Space between input fields */
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .register-form label {
+            display: block;
+            margin-bottom: 8px;
+            color: black;
+        }
+
+        .register-form input[type="email"],
+        .register-form input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: var(--input-bg);
+          
+            border-radius: 8px;
+            font-size: 15px;
+            color: var(--text-color);
         }
 
         .input-container i {
-            position: absolute; /* Absolute positioning of the icon */
-            right: 15px; /* Align icon to the right */
-            top: 40%; /* Center icon vertically */
-            transform: translateY(-50%); /* Adjust for exact vertical centering */
-            color: #555; /* Change icon color if needed */
+            position: absolute;
+            right: 15px;
+            top: 70%;
+            transform: translateY(-50%);
+            color: black;
             cursor: pointer;
         }
+  
+
+    .register-form button:hover {
+        background: #eba832;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 160, 71, 0.4);
+    }
+        .register-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #7272eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
         .form .message {
-    margin: 15px 0 0;
-    color: black !important;
-    font-size: 12px;
+            margin: 15px 0 0;
+            text-align: center;
+            color: black;
+        }
+
+        .form .message a {
+            color: black ;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .form .message a:hover {
+            background-color: #eba832;
+        }
+        .g-recaptcha {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
 }
-    </style>	
+    </style>
 </head>
 <body>
     <div class="register-form">
         <h2>Register - Step 1</h2>
         <form id="registrationForm" method="POST">
-            <label for="email">Email</label>
-            <input type="email" name="email" id="email" required>
-
-            
-            <label for="password">Password</label>
             <div class="input-container">
-                <input type="password" style=" width: 100%; padding: 10px;
-            margin-bottom: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            position: relative; 
-            width: 100%;  
-            box-sizing: border-box;" name="password" id="password" required>
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" required>
+            </div>
+            
+            <div class="input-container">
+                <label for="password">Password</label>
+                <input type="password" style=" width: 100%; padding: 12px 15px; background-color: var(--input-bg);
+          border-radius: 8px;
+            font-size: 15px;
+            color: var(--text-color);" name="password" id="password" required>
                 <i class="fas fa-eye" id="togglePassword"></i>
             </div>
-           <label for="confirm_password">Confirm Password</label>
+
             <div class="input-container">
-                <input type="password" style=" width: 100%; padding: 10px;
-            margin-bottom: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            position: relative; 
-            width: 100%;  
-            box-sizing: border-box;"name="confirm_password" id="confirm_password" required>
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" style=" width: 100%; padding: 12px 15px; background-color: var(--input-bg);
+          border-radius: 8px;
+            font-size: 15px;
+            color: var(--text-color);" name="confirm_password" id="confirm_password" required>
                 <i class="fas fa-eye" id="toggleConfirmPassword"></i>
             </div>
-
+            <div class="g-recaptcha" data-sitekey="6LdEuIEqAAAAAJp33EewtqMHDcVowUNiNrB0P51x"></div>
             <button type="submit" name="submit">Send OTP</button>
-            <br>
-            <center> 
-                <p class="message">Already have an account? <a href="login.php">Sign in</a></p>
-                <p class="message"><a href="index.php">WebPage</a></p>
-            </center>
+            
+            <div class="form">
+                <div class="message">
+                    Already have an account? 
+                    <a href="login.php" onclick="window.location.href='login.php'; return false;">Sign in</a>
+                </div>
+                <div class="message">
+                    <a href="index.php" onclick="window.location.href='index.php'; return false;">WebPage</a>
+                </div>
+            </div>
         </form>
     </div>
-
-    <!-- Load scripts at the end of body -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Password visibility toggle
