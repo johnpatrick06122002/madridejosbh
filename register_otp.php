@@ -100,150 +100,153 @@ if (isset($_POST['resend_otp'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify OTP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <title>Verify OTP</title>
     <style>
-        /* General Styles */
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Inter', sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
-
+        .verify-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
         h2 {
             margin-bottom: 20px;
-            font-size: 24px;
             color: #333;
         }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 5px;
-            color: white;
-            margin: 1rem 0;
-            font-weight: 500;
-            width: 65%;
-            text-align: center;
-        }
-
-        .alert-success {
-            background-color: #42ba96;
-        }
-
-        .alert-danger {
-            background-color: #fc5555;
-        }
-
-        /* OTP Boxes */
-        .otp-container {
+        .otp-input-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 20px;
         }
-
-        .otp-container input {
+        .otp-input {
             width: 45px;
             height: 45px;
+            text-align: center;
             font-size: 18px;
-            text-align: center;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
-
-        /* Verify Button */
+        .otp-input:focus {
+            border-color: #2575fc;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.1);
+        }
         .btn {
-            background-color: #007bff;
-            color: #fff;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: white;
             border: none;
-            border-radius: 4px;
-            padding: 12px 20px;
-            cursor: pointer;
+            border-radius: 8px;
             font-size: 16px;
-            margin-bottom: 10px;
-            width: 200px;
-            text-align: center;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        /* Resend Button */
-        .resend-btn {
-            font-size: 14px;
-            color: #007bff;
             cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
         }
-
-        #resendOtpButton:disabled {
-            color: #ccc;
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .btn:disabled {
+            background: #ccc;
             cursor: not-allowed;
         }
-    </style>
-</head>
+        #countdown {
+            color: #666;
+            font-size: 14px;
+        }
 
-<body>
-    <h2>Verify OTP</h2>
-    <?php echo $msg; ?>
-
-    <!-- OTP Input Boxes -->
-    <div class="otp-container">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp2')" id="otp1">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp3')" id="otp2">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp4')" id="otp3">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp5')" id="otp4">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp6')" id="otp5">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, '')" id="otp6">
-    </div>
-
-    <!-- Hidden field to hold full OTP -->
-    <form action="" method="POST" onsubmit="return combineOtp();">
-        <input type="hidden" name="otp" id="otp" />
-        <input type="submit" name="verify" value="Verify" class="btn" />
-    </form>
-
-    <!-- Resend OTP Button -->
-    <div class="resend-btn">
-        <button type="button" id="resendOtpButton" onclick="resendOtp()">Resend OTP</button>
-        <span id="countdown" style="display:none;"> (60)</span>
-    </div>
-
-    <script>
-        // Move focus to the next input field
-        function moveToNext(current, nextFieldID) {
-            if (current.value.length === 1 && nextFieldID) {
-                document.getElementById(nextFieldID).focus();
+        /* Mobile Responsiveness */
+        @media screen and (max-width: 480px) {
+            .verify-container {
+                padding: 20px;
+                max-width: 100%;
+                margin: 0;
+            }
+            .otp-input-container {
+                gap: 5px;
+            }
+            .otp-input {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            .btn {
+                padding: 10px;
+                font-size: 15px;
             }
         }
 
-        // Combine OTP boxes into one value for submission
-        function combineOtp() {
-            const otp = Array.from(document.querySelectorAll('.otp-box'))
-                            .map(input => input.value)
-                            .join('');
-            document.getElementById('otp').value = otp;
-            return otp.length === 6; // Only allow form submission if OTP is complete
+        @media screen and (max-width: 320px) {
+            .otp-input-container {
+                gap: 3px;
+            }
+            .otp-input {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
         }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <h2>Verify OTP</h2>
+        <?php echo $msg; ?>
 
-        // Resend OTP countdown timer
+        <form action="" method="POST" id="otpForm">
+            <div class="otp-input-container">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="hidden" name="otp" id="hiddenOtpInput">
+            </div>
+            <button type="submit" name="verify" class="btn">Verify</button>
+        </form>
+
+        <form action="" method="POST">
+            <button type="submit" name="resend_otp" id="resendOtpButton" class="btn">Resend OTP</button>
+            <span id="countdown"></span>
+        </form>
+    </div>
+
+    <script>
+        // Previous countdown script
         let countdown = 60;
         let resendButton = document.getElementById('resendOtpButton');
         let countdownDisplay = document.getElementById('countdown');
-
-        function resendOtp() {
+        
+        resendButton.addEventListener('click', function (e) {
             resendButton.disabled = true;
             countdownDisplay.style.display = "inline";
             countdownDisplay.innerText = ` (${countdown})`;
@@ -258,22 +261,34 @@ if (isset($_POST['resend_otp'])) {
                     countdown = 60;
                 }
             }, 1000);
+        });
 
-            // AJAX request to resend OTP
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'OTP Sent',
-                        text: 'A new OTP has been sent to your email!'
-                    });
+        // New OTP input handling
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const hiddenOtpInput = document.getElementById('hiddenOtpInput');
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                // Ensure only numbers
+                input.value = input.value.replace(/[^0-9]/g, '');
+
+                // Auto move to next input
+                if (input.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
                 }
-            };
-            xhr.send("resend_otp=1");
-        }
+
+                // Combine all inputs
+                const otpValue = Array.from(otpInputs).map(inp => inp.value).join('');
+                hiddenOtpInput.value = otpValue;
+            });
+
+            // Allow backspace to move back
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
 
         // Trigger SweetAlert if OTP is verified
         <?php if (isset($_SESSION['otp_verified']) && $_SESSION['otp_verified']): ?>
@@ -287,5 +302,4 @@ if (isset($_POST['resend_otp'])) {
         <?php unset($_SESSION['otp_verified']); endif; ?>
     </script>
 </body>
-
 </html>

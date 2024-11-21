@@ -3,41 +3,71 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <?php 
-$rental_id = $_GET['bh_id'];
+// Step 1: Sanitize and validate rental ID
+$rental_id = isset($_GET['bh_id']) ? intval($_GET['bh_id']) : 0;
 $sql_register1 = "SELECT * FROM rental WHERE rental_id='$rental_id'";
+
 $result_register1 = mysqli_query($dbconnection, $sql_register1);
+if (!$result_register1) {
+    die("Query Failed: " . mysqli_error($dbconnection));
+}
+
 while ($row_register1 = $result_register1->fetch_assoc()) {
     $register1_id = $row_register1['id'];
 }
 
 if (isset($_POST['submitfeedback'])) {
-    $boardernumber = "+63" . mysqli_real_escape_string($dbconnection, $_POST['boardersnumber']);
-    $sqlfdbck = "SELECT * FROM book WHERE bhouse_id = '$rental_id' AND contact_number = '$boardernumber'";
+    // Step 1: Sanitize the email input
+    $boarderEmail = mysqli_real_escape_string($dbconnection, $_POST['boarderemail']);
+    
+    // Step 2: Check if the email exists in the `book` table
+    $sqlfdbck = "SELECT * FROM book WHERE email = '$boarderEmail'";
     $resultfdbck = mysqli_query($dbconnection, $sqlfdbck);
+    
+    if (!$resultfdbck) {
+        die("Query Failed: " . mysqli_error($dbconnection));
+    }
+
     $countfdbck = mysqli_num_rows($resultfdbck);
 
     if ($countfdbck == 1) {
-        $ratings = floatval($_POST['rate']); // Ensure the rating is treated as float
+        // Step 3: Sanitize and validate feedback inputs
+        $ratings = floatval($_POST['rate']); // Ensure the rating is treated as a float
         $feedback = mysqli_real_escape_string($dbconnection, $_POST['feedbackmsg']);
-        mysqli_query($dbconnection, "UPDATE book SET ratings = '$ratings', feedback = '$feedback' WHERE bhouse_id = '$rental_id' AND contact_number = '$boardernumber'");
-        echo '<script type="text/javascript">
-            Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: "Your feedback has been submitted."
-            });
-        </script>';
+        
+        // Step 4: Update the rating and feedback based on `email`
+        $update_query = "UPDATE book SET ratings = '$ratings', feedback = '$feedback' WHERE email = '$boarderEmail'";
+        
+        if (mysqli_query($dbconnection, $update_query)) {
+            echo '<script type="text/javascript">
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "Your feedback has been submitted."
+                });
+            </script>';
+        } else {
+            echo '<script type="text/javascript">
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "There was an error submitting your feedback. Please try again later."
+                });
+            </script>';
+        }
     } else {
         echo '<script type="text/javascript">
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "Sorry! We couldn\'t find your number. You might not be a boarder here or your registered contact number is incorrect."
+                text: "Sorry! We couldn\'t find your email. You might not be a boarder here or your registered email is incorrect."
             });
         </script>';
     }
 }
 ?>
+
+
 
 <div class="container">
 <br />
@@ -104,19 +134,18 @@ $freewater = $row['water'] == 'yes' ? '<i class="fa fa-check-circle text-success
 $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-success" aria-hidden="true"></i>' : '<i class="fa fa-times-circle text-danger" aria-hidden="true"></i>';
 ?>
 <style>
-
-    /* Container to maintain aspect ratio */
+/* Map Container to maintain 16:9 aspect ratio */
 .map-container {
     position: relative;
     width: 100%;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
     height: 0;
     overflow: hidden;
     max-width: 100%;
     margin: auto;
 }
 
-/* Responsive map iframe */
+/* Responsive Map Iframe */
 .responsive-map {
     position: absolute;
     top: 0;
@@ -125,7 +154,6 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
     height: 100%;
     border: none;
 }
-
 </style>
 <div class="row text-center">
     <div class="col">
@@ -155,11 +183,19 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
                 <?php echo $row['description']; ?>
             </div>
         </div>
-         <div class="map-container">
-    <iframe class="responsive-map" src="<?php echo $row['map']; ?>" allowfullscreen></iframe>
+     
+<div class="map-container">
+    <iframe 
+        class="responsive-map" 
+        src="<?php echo $row['map']; ?>" 
+        allowfullscreen 
+        loading="lazy">
+    </iframe>
 </div>
+
     </div>
-    <div class="col-md-4">
+   
+    <div class="col-md-4"> <br>
         <h3>Landlord's INFO</h3>
 <?php
  
@@ -334,7 +370,6 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
 
 </div>
 
-
 <!-- The Modal Feedback -->
 <div class="modal" id="feedback">
     <div class="modal-dialog">
@@ -346,14 +381,15 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
             <div class="modal-body">
                 <form action="" method="POST">
                     <div class="form-group">
-                        <span class="text-muted"><i class="fa fa-info-circle" aria-hidden="true"></i> We use your mobile number to validate if you're a boarder</span>
-                        <div class="input-group-text">+63 &nbsp
-                            <input onkeypress='phnumber(event)' type="text" maxlength="10" minlength="10" name="boardersnumber" class="form-control" placeholder="Your Registered Number" required>
+                        <span class="text-muted"><i class="fa fa-info-circle" aria-hidden="true"></i> We use your email to validate if you're a boarder</span>
+                        <div class="input-group">
+                            <input type="email" name="boarderemail" class="form-control" placeholder="Your Registered Email" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <center>
-                            <select class="torate" name="rate" required>
+                            <label for="rate" class="text-muted">Rate us:</label>
+                            <select class="form-control torate" name="rate" id="rate" required>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>
@@ -364,17 +400,18 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
                     </div>
                     <div class="form-group">
                         <label class="text-muted">Feedback:</label>
-                        <textarea class="form-control" name="feedbackmsg"></textarea>
+                        <textarea class="form-control" name="feedbackmsg" placeholder="Write your feedback here..." required></textarea>
                     </div>
             </div>
             <!-- Modal footer -->
             <div class="modal-footer">
-                <input type="submit" name="submitfeedback" class="btn btn-success">
+                <input type="submit" name="submitfeedback" class="btn btn-success" value="Submit Feedback">
                 <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times-circle" aria-hidden="true"></i> Close</button>
             </div>
             </form>
         </div>
     </div>
 </div>
+
 
 <?php include('footer.php'); ?>

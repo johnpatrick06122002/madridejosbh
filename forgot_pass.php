@@ -75,8 +75,13 @@ if ($update_stmt->execute()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-       body {
+     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('b.png') no-repeat center center fixed;
            background-size: 70%;
            font-family: Arial, sans-serif;
@@ -87,28 +92,68 @@ if ($update_stmt->execute()) {
            margin: 0;
            padding: 0;
        }
-       form {
-           background: white;
-           padding: 20px;
-           border-radius: 8px;
-           box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-           width: 300px;
-           text-align: center;
-       }
-       button {
-           background-color: #007bff;
-           color: white;
-           border: none;
-           padding: 10px;
-           border-radius: 4px;
-           cursor: pointer;
-           font-size: 16px;
-           width: 100%;
-           transition: background-color 0.3s;
-       }
-       button:hover {
-           background-color: #0056b3;
-       }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .container h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #2575fc;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.1);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                padding: 25px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -136,11 +181,15 @@ if ($update_stmt->execute()) {
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
-    <form method="POST" action="forgot_pass.php">
-        <h2>Forgot Password</h2>
-        <label for="email">Enter your email:</label>
-        <input type="email" id="email" name="email" required>
-        <button type="submit" name="submit">Send OTP</button>
-    </form>
+  <div class="container">
+        <form method="POST" action="forgot_pass.php">
+            <h2>Forgot Password</h2>
+            <div class="input-group">
+                <label for="email">Enter your email</label>
+                <input type="email" id="email" name="email" required placeholder="example@email.com">
+            </div>
+            <button type="submit" name="submit">Send OTP</button>
+        </form>
+    </div>
 </body>
 </html>

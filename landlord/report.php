@@ -86,6 +86,7 @@ foreach ($rows as $rental_id => $data) {
     <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Add viewport for responsive design -->
     <title>Monthly Report</title>
     <style>
+           
         /* General mobile layout adjustments */
         @media screen and (max-width: 700px) {
             .sidebar a {
@@ -96,12 +97,25 @@ foreach ($rows as $rental_id => $data) {
         h3 {
             margin-left: 10px;
         }
-
+@media print {
+    .print-logo {
+        display: block !important; /* Show logo only during print */
+        margin: 0 auto 20px;
+        width: 100px; /* Adjust width as needed */
+    }
+}
         /* Print-specific styles */
-        @media print {
-            /* Hide sidebar and unnecessary buttons for print */
-            .sidebar, .btn-print, form {
+          @media print {
+            .sidebar-container, .btn-print, .btn-download, form {
                 display: none;
+            }
+
+            
+            .print-title {
+                text-align: center;
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 20px;
             }
 
             /* Adjust layout for printing */
@@ -140,7 +154,7 @@ foreach ($rows as $rental_id => $data) {
                 margin-left: 0;
             }
         }
-
+  
         /* Show Download PDF button and hide Print button on mobile view (screen width <= 700px) */
         @media screen and (max-width: 700px) {
             .btn-print {
@@ -160,6 +174,7 @@ foreach ($rows as $rental_id => $data) {
                 display: none; /* Hide the Download PDF button on desktop */
             }
         }
+        
         /* Main layout container */
 .dashboard-container {
     display: flex;
@@ -296,6 +311,10 @@ h3 {
             <button type="submit" class="btn btn-primary">Generate Report</button>
         </form>
         <br />
+      <div class="printable-report">
+            <!-- Modify this section in the HTML -->
+<img src="../b.png" alt="Logo" class="print-logo" style="display: none;"> <!-- Logo hidden by default -->
+          
 
         <table class="table table-striped">
             <thead>

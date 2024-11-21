@@ -19,7 +19,7 @@ if (isset($_POST['submit'])) {
     $contact_number = $_POST['contact_number'];
     $profile_photo = isset($_FILES['profile_photo']['name']) ? $_FILES['profile_photo']['name'] : '';
 
-    // Handle file uploads
+    // Handle file upload
     if ($profile_photo) {
         move_uploaded_file($_FILES['profile_photo']['tmp_name'], "uploads/" . basename($profile_photo));
     }
@@ -36,13 +36,14 @@ if (isset($_POST['submit'])) {
     $stmt = $dbconnection->prepare("INSERT INTO register2 (register1_id, firstname, middlename, lastname, address, contact_number, profile_photo) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("issssss", $register1_id, $firstname, $middlename, $lastname, $address, $contact_number, $profile_photo);
 
+    // Flag to track registration status
+    $registration_successful = false;
+
     // Handle successful registration
     if ($stmt->execute()) {
-        // Redirect to subscription page upon success
-        header("Location: subscription.php");
+        $registration_successful = true;
     } else {
-        // Display error message
-        echo "<p>Registration failed. Please try again.</p>";
+        $registration_error = "Registration failed. Please try again.";
     }
 }
 ?>
@@ -51,87 +52,182 @@ if (isset($_POST['submit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Step 2</title>
+    <title>Complete Your Registration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        :root {
+            --primary-color: #3b82f6;
+            --background-color: #f3f4f6;
+            --text-color: #1f2937;
+            --input-border-color: #d1d5db;
+        }
+
+        * {
             margin: 0;
-        }
-
-        .register-form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        label {
-            margin-bottom: 5px;
-            display: block;
-            color: #666;
-        }
-
-        input[type="text"], input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 0;
             box-sizing: border-box;
         }
 
-        button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 10px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+            color: var(--text-color);
         }
 
-        button:hover {
-            background-color: #0056b3;
+        .register-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            transition: transform 0.3s ease;
+        }
+
+        .register-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .register-form h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid var(--input-border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group input[type="file"] {
+            padding: 10px;
+            border-style: dashed;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                width: 95%;
+                margin: 20px;
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="register-form">
-        <h2>Complete Your Registration</h2>
-        <form action="register_step2.php" method="POST" enctype="multipart/form-data">
-            <label for="firstname">First Name</label>
-            <input type="text" name="firstname" id="firstname" required>
+    <div class="register-container">
+        <div class="register-form">
+            <h2>Complete Your Registration</h2>
+            <form id="registrationForm" action="register_step2.php" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="firstname">First Name</label>
+                    <input type="text" name="firstname" id="firstname" required>
+                </div>
 
-            <label for="middlename">Middle Name (Optional)</label>
-            <input type="text" name="middlename" id="middlename">
+                <div class="form-group">
+                    <label for="middlename">Middle Name (Optional)</label>
+                    <input type="text" name="middlename" id="middlename">
+                </div>
 
-            <label for="lastname">Last Name</label>
-            <input type="text" name="lastname" id="lastname" required>
+                <div class="form-group">
+                    <label for="lastname">Last Name</label>
+                    <input type="text" name="lastname" id="lastname" required>
+                </div>
 
-            <label for="address">Address</label>
-            <input type="text" name="address" id="address" required>
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" name="address" id="address" required>
+                </div>
 
-            <label for="contact_number">Contact Number</label>
-            <input type="text" name="contact_number" id="contact_number" required>
+                <div class="form-group">
+                    <label for="contact_number">Contact Number</label>
+                    <input type="text" name="contact_number" id="contact_number" required>
+                </div>
 
-            <label for="profile_photo">Profile Photo</label>
-            <input type="file" name="profile_photo" id="profile_photo">
+                <div class="form-group">
+                    <label for="profile_photo">Profile Photo</label>
+                    <input type="file" name="profile_photo" id="profile_photo">
+                </div>
 
-            <button type="submit" name="submit">Submit</button>
-        </form>
+                <button type="submit" name="submit" class="submit-btn">Submit</button>
+            </form>
+        </div>
     </div>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    
+    <script>
+        <?php if (isset($registration_successful) && $registration_successful): ?>
+            Swal.fire({
+                title: 'Registration Successful!',
+                text: 'You will now be redirected to the subscription page.',
+                icon: 'success',
+                confirmButtonText: 'Proceed',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = 'subscription.php';
+                }
+            });
+        <?php elseif (isset($registration_error)): ?>
+            Swal.fire({
+                title: 'Registration Failed',
+                text: '<?php echo $registration_error; ?>',
+                icon: 'error',
+                confirmButtonText: 'Try Again'
+            });
+        <?php endif; ?>
+    </script>
 </body>
 </html>

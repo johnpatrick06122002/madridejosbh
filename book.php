@@ -1,11 +1,12 @@
 <?php
 // Set Content Security Policy
- 
+
+
 // Include database connection
 include('connection.php');
 
 // PHPMailer dependencies
- require 'vendor_copy/autoload.php'; // PHPMailer autoload
+require 'vendor_copy/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -59,28 +60,21 @@ $payment_type = '';
 $paid_amount_value = 0;
 $installment_months = 0;
 
-// Check if downpayment is set
 if (!is_null($row['downpayment_amount']) && $row['downpayment_amount'] > 0) {
     $payment_type = 'downpayment';
     $paid_amount_value = $row['downpayment_amount'];
-} 
-// Otherwise, check for installment
-elseif (!is_null($row['installment_amount']) && $row['installment_amount'] > 0 && !is_null($row['installment_months'])) {
+} elseif (!is_null($row['installment_amount']) && $row['installment_amount'] > 0 && !is_null($row['installment_months'])) {
     $payment_type = 'installment';
     $paid_amount_value = $row['installment_amount'];
     $installment_months = $row['installment_months'];
 } else {
-    // Handle case where neither downpayment nor installment is set
     echo '<script>Swal.fire("Error", "No valid payment option set for this rental.", "error");</script>';
     exit();
 }
 
-// Landlord's email
 $landlord_email = $row['email'];
 
-// Booking logic
 if (isset($_POST["booknow"])) {
-    // Sanitize and validate user inputs
     $firstname = sanitizeInput($_POST['firstname'], 'name');
     $middlename = sanitizeInput($_POST['middlename'], 'name');
     $lastname = sanitizeInput($_POST['lastname'], 'name');
@@ -91,12 +85,11 @@ if (isset($_POST["booknow"])) {
     $address = sanitizeInput($_POST['Address'], 'address');
     $paid_amount_value = filter_var($_POST['paid_amount'], FILTER_VALIDATE_FLOAT);
 
-    // Validate required fields
     if (!$firstname || !$lastname || !$age || !$gender || !$gcash_number || !$email || !$address || $paid_amount_value === false) {
         echo '<script>Swal.fire("Error", "All fields are required and must be valid.", "error");</script>';
         exit();
     }
-    // File upload validation
+
     $gcash_picture = $_FILES['gcash_picture'];
     $target_dir = "uploads/gcash_pictures/";
     $file_extension = strtolower(pathinfo($gcash_picture["name"], PATHINFO_EXTENSION));
@@ -112,13 +105,12 @@ if (isset($_POST["booknow"])) {
         exit();
     }
 
-    if ($gcash_picture['size'] > 5000000) { // 5MB limit
+    if ($gcash_picture['size'] > 5000000) {
         echo '<script>Swal.fire("Error", "File is too large. Maximum size is 5MB.", "error");</script>';
         exit();
     }
 
     if (move_uploaded_file($gcash_picture["tmp_name"], $target_file)) {
-        // Insert booking into the database
         $sql_book = "
             INSERT INTO book (firstname, middlename, lastname, age, gender, contact_number, email, register1_id, bhouse_id, Address, gcash_picture, paid_amount)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -142,10 +134,8 @@ if (isset($_POST["booknow"])) {
         if ($stmt_book->execute()) {
             echo '<script>Swal.fire("Success", "Successfully Booked. Please complete your payment.", "success");</script>';
 
-            // Send email to the landlord using PHPMailer
             $mail = new PHPMailer(true);
             try {
-                // Server settings
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
@@ -157,7 +147,6 @@ if (isset($_POST["booknow"])) {
                 $mail->setFrom('lucklucky2100@gmail.com', 'Your Site Name');
                 $mail->addAddress($landlord_email);
 
-                // Content
                 $mail->isHTML(true);
                 $mail->Subject = 'New Booking Alert';
                 $mail->Body = "
@@ -192,76 +181,165 @@ if (isset($_POST["booknow"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Now</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* Main container styling */
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #5f27cd;
+            --background-color: #f4f6ff;
+            --text-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-color) 0%, #e6e9f0 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 20px;
-            background: #f9f9f9;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .form-group {
-            margin-bottom: 20px;
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 650px;
+            animation: fadeIn 0.5s ease-out;
         }
-        .form-control {
-            width: 90%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .btn-primary, .btn-back {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 4px;
-            display: inline-block;
-            width: 48%;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #0069d9;
-        }
-        .btn-back {
-            background-color: #6c757d;
-            border: none;
-            color: white;
-        }
-        .btn-back:hover {
-            background-color: #5a6268;
-        }
+
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-weight: 600;
+            position: relative;
         }
-        /* Responsive styling */
+
+        h2::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 4px;
+            background: var(--secondary-color);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .btn-primary, .btn-back {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #495057;
+            transform: translateY(-2px);
+        }
+
+        #image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border: 2px dashed #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        #image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
         @media (max-width: 768px) {
             .container {
-                width: 90%;
-                padding: 15px;
+                padding: 20px;
             }
-            .form-group {
-                margin-bottom: 15px;
-            }
-            .btn-primary, .btn-back {
-                width: 100%;
-                margin-bottom: 10px;
+
+            .btn-container {
+                flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Book Now</h2>
+        <h2>Book Your Rental</h2>
 
-        <a href="view.php?bh_id=<?php echo $rental_id; ?>" class="btn btn-secondary">Back</a>
+        <div class="btn-container">
+            <a href="view.php?bh_id=<?php echo $rental_id; ?>" class="btn-back">Back to Details</a>
+        </div>
 
         <form id="bookingForm" method="POST" action="book.php?bh_id=<?php echo htmlspecialchars($rental_id, ENT_QUOTES, 'UTF-8'); ?>" enctype="multipart/form-data">
             <div class="form-group">
@@ -277,12 +355,12 @@ if (isset($_POST["booknow"])) {
                 <input type="text" class="form-control" id="lastname" name="lastname" required>
             </div>
             <div class="form-group">
-                <label for="age">Age:</label><br>
+                <label for="age">Age:</label>
                 <input type="number" class="form-control" id="age" name="age" required>
             </div>
             <div class="form-group">
                 <label for="gender">Gender:</label>
-                <select class="form-control" id="gender" name="gender" required style="width:97%;">
+                <select class="form-control" id="gender" name="gender" required>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
@@ -300,44 +378,45 @@ if (isset($_POST["booknow"])) {
                 <label for="Address">Address:</label>
                 <input type="text" class="form-control" id="Address" name="Address" required>
             </div>
-            <h3>Payment Type: <?php echo ucfirst($payment_type); ?></h3>
-            <!-- Image preview and reference number input -->
-<div class="form-group">
-    <label for="gcash_picture">GCash Payment Proof (JPG/PNG only):</label>
-    <input type="file" class="form-control-file" id="gcash_picture" name="gcash_picture" accept=".jpg,.jpeg,.png" required>
-</div>
+            <h3 style="color: var(--primary-color); margin-bottom: 15px;">Payment Type: <?php echo ucfirst($payment_type); ?></h3>
+            
+            <div class="form-group">
+                <label for="gcash_picture">GCash Payment Proof (JPG/PNG only):</label>
+                <input type="file" class="form-control" id="gcash_picture" name="gcash_picture" accept=".jpg,.jpeg,.png" required>
+            </div>
 
-<div class="form-group">
-    <label>Preview:</label>
-    <div id="image-preview" style="margin-top: 10px;"></div> <!-- Container for previewed image -->
-</div>
+            <div class="form-group">
+                <label>Preview:</label>
+                <div id="image-preview"></div>
+            </div>
 
-<!-- Reference Number Field Added Here -->
-<div class="form-group">
-    <label for="reference_number">Reference Number:</label>
-    <input type="text" class="form-control" id="reference_number" name="reference_number" readonly>
-</div>
+            <div class="form-group">
+                <label for="reference_number">Reference Number:</label>
+                <input type="text" class="form-control" id="reference_number" name="reference_number" readonly>
+            </div>
 
-<!-- Amount Field Added Here -->
-<div class="form-group">
-    <label for="amount">Amount:</label>
-    <input type="text" class="form-control" id="amount" name="amount" readonly>
-</div>
-
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="text" class="form-control" id="amount" name="amount" readonly>
+            </div>
 
             <div class="form-group">
                 <label><?php echo ucfirst($payment_type); ?> Amount:</label>
-                <p class="form-control-static"><?php echo htmlspecialchars($paid_amount_value, ENT_QUOTES, 'UTF-8'); ?></p>
+                <p style="color: var(--secondary-color); font-weight: 600;"><?php echo htmlspecialchars($paid_amount_value, ENT_QUOTES, 'UTF-8'); ?></p>
                 <input type="hidden" name="paid_amount" value="<?php echo htmlspecialchars($paid_amount_value, ENT_QUOTES, 'UTF-8'); ?>">
             </div>
+
             <?php if ($payment_type == 'installment'): ?>
             <div class="form-group">
                 <label>Installment Months:</label>
-                <p class="form-control-static"><?php echo htmlspecialchars($installment_months, ENT_QUOTES, 'UTF-8'); ?></p>
+                <p style="color: var(--secondary-color); font-weight: 600;"><?php echo htmlspecialchars($installment_months, ENT_QUOTES, 'UTF-8'); ?></p>
                 <input type="hidden" name="installment_months" value="<?php echo htmlspecialchars($installment_months, ENT_QUOTES, 'UTF-8'); ?>">
             </div>
             <?php endif; ?>
-            <button type="submit" class="btn btn-primary" name="booknow">Book Now</button>
+
+            <div class="btn-container">
+                <button type="submit" class="btn-primary" name="booknow">Book Now</button>
+            </div>
         </form>
     </div>
    
