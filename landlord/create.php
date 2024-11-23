@@ -1,4 +1,85 @@
 <?php include('header.php'); ?>
+
+
+
+<?php 
+if(isset($_POST["create"])) {
+  // Escape all input values
+  $rental_id = mysqli_real_escape_string($dbconnection, $_POST['rental_id']);
+  $title = mysqli_real_escape_string($dbconnection, $_POST['title']);
+  $address = mysqli_real_escape_string($dbconnection, $_POST['address']);
+  $slots = mysqli_real_escape_string($dbconnection, $_POST['slots']);
+  $monthly = mysqli_real_escape_string($dbconnection, $_POST['monthly']);
+  $map = "https://maps.google.com/maps?q=".mysqli_real_escape_string($dbconnection, $_POST['latitude']).",".mysqli_real_escape_string($dbconnection, $_POST['longitude'])."&t=&z=15&ie=UTF8&iwloc=&output=embed";
+  $description = mysqli_real_escape_string($dbconnection, $_POST['description']);
+  $payment_policy = mysqli_real_escape_string($dbconnection, $_POST['payment_policy']);
+ 
+  $downpayment_amount = isset($_POST['downpayment_amount']) ? mysqli_real_escape_string($dbconnection, $_POST['downpayment_amount']) : null;
+  $installment_months = isset($_POST['installment_months']) ? mysqli_real_escape_string($dbconnection, $_POST['installment_months']) : null;
+  $installment_amount = isset($_POST['installment_amount']) ? mysqli_real_escape_string($dbconnection, $_POST['installment_amount']) : null;
+  
+  $photo = $_FILES['photo']['name'];
+  $target = "../uploads/".basename($photo);
+
+  if (isset($_POST['free_wifi'])) {
+    $freewifi = 'yes';
+  } else {
+    $freewifi = 'no';
+  }
+
+  if (isset($_POST['free_water'])) {
+    $freewater = 'yes';
+  } else {
+    $freewater = 'no';
+  }
+
+  if (isset($_POST['free_kuryente'])) {
+    $freekuryente = 'yes';
+  } else {
+    $freekuryente = 'no';
+  }
+
+  // Insert data into rental table
+  $sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, register1_id, monthly, wifi, water, kuryente, downpayment_amount, installment_months, installment_amount) 
+          VALUES ('$rental_id', '$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente', '$downpayment_amount', '$installment_months', '$installment_amount')";
+
+  if ($dbconnection->query($sql) === TRUE) {
+    move_uploaded_file($_FILES['photo']['tmp_name'], $target);
+
+    // Gallery handling
+    $totalfiles = count($_FILES['gallery']['name']);
+    for($i = 0; $i < $totalfiles; $i++){
+      $filename = $_FILES['gallery']['name'][$i];
+      if(move_uploaded_file($_FILES["gallery"]["tmp_name"][$i], '../uploads/'.$filename)){
+        $insert = "INSERT INTO gallery (file_name, rental_id) VALUES ('$filename', '$rental_id')";
+        mysqli_query($dbconnection, $insert);
+      }
+    }
+
+    // Success alert and redirect
+    echo '<script type="text/javascript">
+      Swal.fire({
+        title: "Success!",
+        text: "Successfully Added",
+        icon: "success",
+        confirmButtonText: "OK"
+      }).then(function() {
+        window.location.href = "dashboard.php"; // Redirect to dashboard after OK click
+      });
+    </script>';
+  } else {
+    // Error alert
+    echo '<script type="text/javascript">
+      Swal.fire({
+        title: "Error!",
+        text: "There was an error adding the rental.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
+    </script>';
+  }
+}
+?>
 <head>
   <!-- SweetAlert2 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
