@@ -43,7 +43,7 @@ if (isset($_POST["login"])) {
                         Swal.fire({
                             icon: "error",
                             title: "Oops...",
-                            text: "Username or Password is Incorrect"
+                            text: "Email or Password is Incorrect"
                         });
                     });
                   </script>';
@@ -54,7 +54,7 @@ if (isset($_POST["login"])) {
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
-                        text: "Username or Password is Incorrect"
+                        text: "Email or Password is Incorrect"
                     });
                 });
               </script>';
@@ -66,7 +66,6 @@ if (isset($_POST["login"])) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,24 +76,39 @@ if (isset($_POST["login"])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style type="text/css">
-        
+        /* Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700');
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #43A047;
+            --background-color: #f3f4f6;
+            --text-color: #1f2937;
+            --input-border-color: #d1d5db;
+        }
 
-       body {
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../b.png') no-repeat center center fixed;
-    background-size: 70%;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh; /* Ensures full screen coverage */
-    margin: 0;
-    padding: 0;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(67, 160, 71, 0.1)), url('../b.png') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Inter', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            perspective: 1000px;
+        }
 
         .login-page {
-            width: 360px;
+            width: 100%;
+            max-width: 400px;
             padding: 8% 0 0;
             margin: auto;
         }
@@ -102,144 +116,132 @@ if (isset($_POST["login"])) {
         .form {
             position: relative;
             z-index: 1;
-            background:white;
-            max-width: 360px;
+            background: rgba(255, 255, 255, 0.9);
+            max-width: 400px;
             margin: 0 auto 100px;
             padding: 45px;
             text-align: center;
-            box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
         }
 
-        .form input {
-            font-family: "Roboto", sans-serif;
-            outline: 0;
-            background: none;
+        .form:hover {
+            transform: translateY(-10px) rotateX(5deg);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-container .icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        .input-container input {
             width: 100%;
-            border: 0;
-            margin: 0 0 15px;
-            padding: 15px;
+            height: 50px;
+            padding: 10px 10px 10px 40px;
             box-sizing: border-box;
+            border: 2px solid var(--input-border-color);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
             font-size: 14px;
-            border-radius: 50px;
-            text-color: black;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .input-container input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-container input::placeholder {
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .input-container .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        .input-container .toggle-password:hover {
+            color: var(--secondary-color);
+        }
+
+        .forgot-password {
+            text-align: left;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .forgot-password a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: var(--secondary-color);
         }
 
         .form button {
-            font-family: "Roboto", sans-serif;
+            font-family: 'Inter', sans-serif;
             text-transform: uppercase;
-            outline: 0;
-            background:#f9f5f4;
+            background: var(--primary-color);
             width: 100%;
-            border: 0;
+            border: none;
             padding: 15px;
-            color: black;
+            color: white;
             font-size: 14px;
-            border-radius: 50px;
-            -webkit-transition: all 0.3 ease;
-            transition: all 0.3 ease;
+            font-weight: 600;
+            border-radius: 10px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .form button:hover, .form button:active, .form button:focus {
-            background: #43A047;
+        .form button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
 
         .form .message {
             margin: 15px 0 0;
-            color: black!important;
+            color: var(--text-color);
             font-size: 12px;
         }
 
         .form .message a {
-            color: blue;
+            color: var(--primary-color);
             text-decoration: none;
+            transition: color 0.3s ease;
         }
 
         .form .message a:hover {
-            color: #43A047;
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        .container:before, .container:after {
-            content: "";
-            display: block;
-            clear: both;
-        }
-
-        .container .info {
-            margin: 50px auto;
-            text-align: center;
-        }
-
-        .container .info h1 {
-            margin: 0 0 15px;
-            padding: 0;
-            font-size: 36px;
-            font-weight: 300;
-            color: #1a1a1a;
-        }
-
-        .container .info span {
-            color: #4d4d4d;
-            font-size: 12px;
-        }
-
-        .container .info span a {
-            color: #000000;
-            text-decoration: none;
-        }
-
-        .container .info span .fa {
-            color: #EF3B3A;
-        }
-        .input-container {
-  position: relative;
-  margin-bottom: 15px;
-}
-
-.input-container .icon {
-  position: absolute;
-  left: 15px;
-  top: 35%;
-  transform: translateY(-50%);
-  color: #888;
-}
-
-.input-container input {
-  width: 100%;
-  height: 50px;
-  padding: 10px 10px 10px 40px; /* Adjust padding to make space for the icon */
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 50px;
-  color: black;
-}
-
-.input-container input::placeholder {
-    color: black; /* Set placeholder text color to white */
-}
-.input-container input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-h2{
-color:black;
-
-}
- .input-container .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 35%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #888;
+            color: var(--secondary-color);
         }
     </style>
 </head>
@@ -247,7 +249,7 @@ color:black;
 
 <div class="login-page">
     <div class="form">
-        <h2>Login</h2>
+        <h2>Admin Login</h2>
         <form class="login-form" action="" method="POST">
             <div class="input-container">
                 <i class="fa fa-user icon"></i>
@@ -258,11 +260,11 @@ color:black;
                 <input type="password" name="password" placeholder="Password" id="password" required/>
                 <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility()"></i>
             </div>
-             <p style="text-align: left; margin-top: -15px; margin-bottom: 15px; font-size: 12px;">
-                <a href="forgot_password.php" style="color: blue; text-decoration: none;">Forgot Password?</a>
+            <p class="forgot-password">
+                <a href="forgot_password.php">Forgot Password?</a>
             </p>
             <button type="submit" name="login">Login</button>
-            <p class="message" style="color: #f9f5f4;"> Return to <a href="../index.php">WebPage</a></p>
+            <p class="message">Return to <a href="../index.php">WebPage</a></p>
         </form>
     </div>
 </div>
