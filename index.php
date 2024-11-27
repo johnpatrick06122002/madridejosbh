@@ -36,6 +36,7 @@ if(isset($_POST["search"])) {
   <br />
   <br />
   <br />
+  <br>
   <h2 class="tagline">A PERFECT PLACE TO FIND YOUR PERFECT BHOUSE</h2>
  <center>
   <form action="" method="POST">

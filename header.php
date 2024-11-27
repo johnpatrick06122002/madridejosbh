@@ -402,7 +402,7 @@ ul.pagination li:last-child {
    .navbar {
       position: fixed;
       width: 100%;
-      height: 10%;
+      height: 11%;
       top: 0;
       left: 0;
       z-index: 1030; /* Keeps navbar on top */
