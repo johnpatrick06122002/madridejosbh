@@ -611,13 +611,15 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
                         </div>
                     </div>
                     <div>
-                        <select name="star_rating_option" class="ratings" data-fratings="<?php echo $ratings; ?>" disabled>
-                            <option value="1" <?php if ($ratings == 1) echo 'selected'; ?>>★☆☆☆☆</option>
-                            <option value="2" <?php if ($ratings == 2) echo 'selected'; ?>>★★☆☆☆</option>
-                            <option value="3" <?php if ($ratings == 3) echo 'selected'; ?>>★★★☆☆</option>
-                            <option value="4" <?php if ($ratings == 4) echo 'selected'; ?>>★★★★☆</option>
-                            <option value="5" <?php if ($ratings == 5) echo 'selected'; ?>>★★★★★</option>
+                         <span class="fs-1 my-0 fw-bolder text-success">
+                        <select name="star_rating_option" class="ratings" data-fratings="<?php echo $ratings; ?>">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
                         </select>
+            </span>
                     </div>
                 </div>
                 <div class="card-body">
