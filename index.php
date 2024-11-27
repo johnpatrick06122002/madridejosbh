@@ -37,23 +37,91 @@ if(isset($_POST["search"])) {
   <br />
   <br />
   <h2 class="tagline">A PERFECT PLACE TO FIND YOUR PERFECT BHOUSE</h2>
-  <center>
+ <center>
   <form action="" method="POST">
     <div class="input-group" id="searchbox">
-    
-    <input name="query" type="text" class="form-control" placeholder="Search your barangay">
-    <div class="input-group-append">
-      <button name="search" class="btn btn-secondary" type="submit">
-        <i class="fa fa-search"></i>
+      <input name="query" type="text" class="form-control" placeholder="Search your barangay">
+      <button name="search" class="btn" type="submit">
+        Search <i class="fa fa-search"></i>
       </button>
-
     </div>
-  </div>
-</form>
+  </form>
 </center>
 </div>
 <br><br>
 <style>
+
+#searchbox {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 30px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+#searchbox input {
+    border: none;
+    flex: 1;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+    color: #333333;
+    border-radius: 30px 0 0 30px;
+    outline: none;
+}
+
+#searchbox input::placeholder {
+    color: #999999;
+    font-size: 0.9rem;
+}
+
+#searchbox button {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    color: #ffffff;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 0 30px 30px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#searchbox button:hover {
+    background: linear-gradient(90deg, #0056b3, #003f7f);
+}
+
+#searchbox button i {
+    margin-left: 8px;
+    font-size: 1rem;
+}
+
+#searchbox button:focus {
+    outline: none;
+}
+
+@media (max-width: 768px) {
+    #searchbox {
+        flex-direction: column;
+        border-radius: 10px;
+    }
+
+    #searchbox input, #searchbox button {
+        border-radius: 0;
+        width: 100%;
+    }
+
+    #searchbox button {
+        border-radius: 0 0 10px 10px;
+    }
+}
 /* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
 
@@ -186,7 +254,7 @@ body {
 }
 
 </style>
-
+<br><br><br>
 <div class="container">
     <div class="row mx-auto" id="recent">
         <?php
@@ -212,7 +280,7 @@ body {
                     <div class="slots">
                         <i class="fa fa-bed"></i> <?php echo $available_slots; ?> Slots Available
                     </div>
-                </div><br><br>
+                </div>
                 <div class="course_card_footer">
                      <?php
                         // Sum all ratings for the current rental
@@ -237,7 +305,7 @@ body {
         </div>
         <?php } ?>
     </div>
-
+<br><br>
     <center>
        <ul class="pagination">
     <li class="<?php if ($pageno <= 1) echo 'disabled'; ?>">
