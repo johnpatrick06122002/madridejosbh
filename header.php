@@ -13,7 +13,7 @@ $is_landlord = isset($_SESSION['login_user']) && !empty($_SESSION['login_user'])
 
 ?>
 
-<?php $banner = array('p1.jpg', 'p2.jpg', 'p3.jpg'); ?>
+<?php $banner = array('p.jpg', 'p2.jpg', '3.jpg'); ?>
 
 <!DOCTYPE html>
 <html>
@@ -37,14 +37,87 @@ $is_landlord = isset($_SESSION['login_user']) && !empty($_SESSION['login_user'])
 <style type="text/css">
 
 * {box-sizing: border-box;}
- 
+
+body {
+  margin: 0;
+}
+
+.topnav {
+  overflow: hidden;
+  background-color: white;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 5;
+  box-shadow: -2px 2px 10px #747474;
+
+}
+
+.topnav a {
+  float: left;
+  display: block;
+  color: black;
+  text-align: center;
+  padding: 20px 21px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: black;
+  color: white;
+}
+
+.topnav a.active {
+  background-color: white;
+  color: black;
+  border-radius: 10px;
+}
+
+.topnav .login-container {
+  float: right;
+}
+
+.topnav input[type=text] {
+  padding: 6px;
+  margin-top: 8px;
+  font-size: 17px;
+  border: none;
+  width:120px;
+}
+
+.topnav .login-container button {
+  float: right;
+  padding: 6px 10px;
+  margin-top: 8px;
+  margin-right: 16px;
+  background-color: blue;
+  color: white;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.topnav .login-container button:hover {
+  background-color: white;
+  color:black;
+}
 .gallery img {
     object-fit: contain;
     height: 320px;
     width: auto;
     display: inline-block;
 }
-
+a.bknw {
+    font-family: math;
+    background: #59a14b;
+    color: #fff;
+    padding: 10px;
+    float: right;
+    border-radius: 3px;
+    box-shadow: 2px 2px 2px #386430;
+}
 img.logo {
     width: 35px;
     height: 35px;
@@ -83,11 +156,59 @@ div#recent {
 .wrap::-webkit-scrollbar {
     display: none;
 }
- 
+button.prev {
+    position: absolute;
+    top: 35%;
+    left: 10%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    border-radius: 24px;
+    width: 40px;
+    height: 40px;
+}
+
+button.next {
+    position: absolute;
+    top: 35%;
+    right: 10%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    border-radius: 24px;
+    width: 40px;
+    height: 40px;
+}
 form .br-theme-fontawesome-stars .br-widget a {
   font-size: 40px !important;
 }
- 
+.message {
+    background: #ffed6d;
+    width: 320px;
+    height: 200px;
+    position: fixed;
+    box-shadow: 2px 2px 2px #00000070;
+    border: thin solid silver;
+    border-radius: 10px;
+    top: 50%;
+    left: 50%;
+    margin-top: -100px;
+    margin-left: -150px;
+    padding: 10px;
+    z-index: 3;
+}
+a.closemessage {
+    font-size: 38px;
+    color: #c50e0e;
+    position: absolute;
+    top: 0;
+    right: 7px;
+}
+.msgresult {
+    margin-top: 30px;
+    font-size: larger;
+    font-weight: bold;
+}
+
+
 /* For large screens (992px and above) */
 @media (min-width: 992px) {
     .navbar-expand-lg .navbar-collapse {
@@ -105,6 +226,74 @@ form .br-theme-fontawesome-stars .br-widget a {
         color: #f39c12; /* Ensure the text remains white */
     }
 }
+
+.course_card {
+  margin: 25px 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  transition: 0.25s ease-in-out;
+  border: thin solid #ff920a;
+    box-shadow: 5px 4px 10px #9f9f9f;
+}
+.course_card_img {
+  max-height: 100%;
+  max-width: 100%;
+}
+.course_card_img img {
+  height: 250px;
+  width: 100%;
+  transition: 0.25s all;
+}
+.course_card_img img:hover {
+  transform: translateY(-3%);
+}
+.course_card_content {
+  padding: 16px;
+  height: 150px;
+}
+.course_card_content h3 {
+  font-family: nunito sans;
+  font-family: 18px;
+}
+.course_card_content p {
+  font-family: nunito sans;
+  text-align: justify;
+}
+.course_card_footer {
+  padding: 10px 0px;
+  margin: 16px;
+}
+.course_card_footer a {
+  text-decoration: none;
+  font-family: nunito sans;
+/*  margin: 0 10px 0 0;*/
+  text-transform: uppercase;
+/*  color: #f96332;*/
+/*  padding: 10px;*/
+  font-size: 14px;
+}
+.course_card:hover {
+  transform: scale(1.025);
+  border-radius: 0.375rem;
+  box-shadow: 0 0 2rem rgba(0, 0, 0, 0.25);
+}
+.course_card:hover .course_card_img img {
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+}
+
+
+/*gallery*/
+
+.wrap {
+    overflow-x: scroll;
+    position: relative;
+}
 .gallery {
     white-space: nowrap;
 }
@@ -113,6 +302,24 @@ form .br-theme-fontawesome-stars .br-widget a {
 .main {
     width: 50%;
     margin: 50px auto;
+}
+
+/* Bootstrap 4 text input with search icon */
+
+.has-search .form-control {
+    padding-left: 2.375rem;
+}
+
+.has-search .form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
 }
 
 div#searchbox {
@@ -132,7 +339,7 @@ div#searchbox button.btn.btn-secondary {
 }
 
 .pagination {
-  width: 150px;
+  width: 160px;
 }
 ul.pagination li {
     background: #04AA6D;
@@ -173,9 +380,14 @@ ul.pagination li:last-child {
     box-shadow: none;
 }
 
- 
+.navbar-collapse {
+    flex-grow: 0;
+}
 
-/* For smaller screens (max-width: 991px) */
+.navbar-nav .nav-link {
+    padding: 1rem 0.5rem;
+}
+
 @media (max-width: 991.98px) {
     .navbar-collapse {
         background-color: #343a408f;
@@ -185,11 +397,6 @@ ul.pagination li:last-child {
 
     .navbar-nav .nav-link {
         padding: 0.5rem 0;
-    }
-
-    /* Optionally adjust nav-link for smaller screens */
-    .navbar-nav .nav-link {
-        font-size: 16px; /* Adjust font size for readability */
     }
 }
    .navbar {
@@ -210,8 +417,8 @@ ul.pagination li:last-child {
     .navbar-collapse {
       transition: height 0.3s ease;
     }
-
-   /* Enhance the navbar brand text */
+    /* Enhance the navbar brand text */
+    @media (min-width: 992px) {
 .navbar-dark .navbar-brand {
     color: white; /* Retaining your brand color */
     font-family: 'Roboto', sans-serif; /* Example: Using a clean sans-serif font (Google Font) */
@@ -227,8 +434,7 @@ ul.pagination li:last-child {
 .navbar-dark .navbar-brand:hover {
     color: #f39c12; /* Change color on hover for interaction */
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4); /* Stronger shadow on hover for emphasis */
-}
-
+}}
 </style>
 </head>
 

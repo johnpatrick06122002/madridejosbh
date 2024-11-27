@@ -155,6 +155,7 @@ body {
 .course_card_content {
     padding: 16px;
     text-align: center;
+    height: 200px;
 }
 
 .course_card_content h5 {
