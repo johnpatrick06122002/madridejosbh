@@ -1,4 +1,18 @@
     <?php
+    include('../connection.php');
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Ensure the login session variable is set
+if (isset($_SESSION['register1_id'])) {
+    $login_session = $_SESSION['register1_id'];
+} else {
+    // Redirect or show an error if the user is not logged in
+    header("Location: login.php");
+    exit();
+}
+
     // Function to fetch profile photo and name based on user ID
     function fetchProfileData($dbconnection, $login_session) {
         $query = "SELECT id, profile_photo, firstname FROM register2 WHERE register1_id = ?";
