@@ -212,7 +212,7 @@ body {
                     <div class="slots">
                         <i class="fa fa-bed"></i> <?php echo $available_slots; ?> Slots Available
                     </div>
-                </div>
+                </div><br><br>
                 <div class="course_card_footer">
                      <?php
                         // Sum all ratings for the current rental
