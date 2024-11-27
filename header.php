@@ -13,7 +13,7 @@ $is_landlord = isset($_SESSION['login_user']) && !empty($_SESSION['login_user'])
 
 ?>
 
-<?php $banner = array('banner.jpg', 'banner2.jpg', 'banner3.jpg'); ?>
+<?php $banner = array('p1.jpg', 'p2.jpg', 'p3.jpg'); ?>
 
 <!DOCTYPE html>
 <html>
