@@ -425,7 +425,7 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
             <i class="fa fa-tint" aria-hidden="true"></i> FREE WATER <?php echo $freewater; ?>
         </div>
     </div>
-    <div class="col">
+    <div class="col"><br>
         <div class="feature-card">
             <i class="fa fa-lightbulb-o" aria-hidden="true"></i> FREE KURYENTE <?php echo $freekuryente; ?>
         </div>
