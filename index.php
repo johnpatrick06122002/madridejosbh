@@ -53,47 +53,168 @@ if(isset($_POST["search"])) {
 </center>
 </div>
 <br><br>
+<style>
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f5f7;
+    margin: 0;
+    padding: 0;
+}
+
+.course_card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.course_card_img img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.course_card_content {
+    padding: 16px;
+    text-align: center;
+}
+
+.course_card_content h5 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333333;
+    margin-bottom: 12px;
+}
+
+.course_card_content .price {
+    font-size: 1.1rem;
+    color: #ff5722;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.course_card_content .address {
+    font-size: 0.9rem;
+    color: #777777;
+    margin-bottom: 12px;
+}
+
+.course_card_content .slots {
+    font-size: 0.9rem;
+    color: #555555;
+    margin-top: 8px;
+}
+
+.course_card_content .slots i {
+    color: #007bff;
+    margin-right: 5px;
+}
+
+.course_card_footer {
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ececec;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.course_card_footer .ratingshome {
+    color: #ffc107;
+    font-size: 1.2rem;
+}
+
+.course_card_footer .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #ffffff;
+    background-color: #007bff;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.course_card_footer .btn:hover {
+    background-color: #0056b3;
+}
+
+.course_card_footer .btn.disabled {
+    background-color: #b0b0b0;
+    pointer-events: none;
+}
+.pagination a {
+    color: #007bff;
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+    display: inline-flex;
+    align-items: center; /* Align icon and text vertically */
+}
+
+.pagination a i {
+    margin-right: 5px; /* Adds space between icon and text */
+}
+
+.pagination a:hover {
+    background: #007bff;
+    color: #ffffff;
+}
+
+.pagination a.disabled {
+    pointer-events: none;
+    color: #cccccc;
+    border-color: #cccccc;
+}
+
+.pagination li.disabled a {
+    cursor: not-allowed;
+}
+
+</style>
+
 <div class="container">
-<div class="row mx-auto" id="recent">
-<?php
+    <div class="row mx-auto" id="recent">
+        <?php
+        $sql = $sql_show;
+        $result = mysqli_query($dbconnection, $sql);
+        while ($row = $result->fetch_assoc()) {
+            $rent_id = $row['rental_id'];
 
-$sql = $sql_show;
-$result = mysqli_query($dbconnection, $sql);
-while ($row = $result->fetch_assoc()) {
-    $rent_id = $row['rental_id'];
-
-    // Query to count confirmed bookings for the current rental
-    $result_book = mysqli_query($dbconnection, "SELECT COUNT(1) FROM book WHERE bhouse_id='$rent_id' AND status='Confirm'");
-    $row_book = mysqli_fetch_array($result_book);
-    $reserved = $row_book[0]; // Total confirmed bookings
-
-    $available_slots = $row['slots'] - $reserved; // Calculate available slots
-?>
-
-    <div class="col-lg-4 col-md-6 col-sm-12">
-        <div class="course_card">
-            <div class="course_card_img">
-                <img src="uploads/<?php echo $row['photo']; ?>" style="height: 300px; object-fit: cover;" />
-            </div>
-            <div class="course_card_content">
-                <h5 class="title"><?php echo $row['title']; ?></h5>
-
-                <div class="row">
-                    <div class="col-sm-8">
-                        ₱ <?php echo $row['monthly']; ?> / Monthly <br />
-                    </div>
-                    <div class="col-md-4">
-                        <i class="fa fa-bed" aria-hidden="true"></i> <?php echo $available_slots; ?> Available
+            $result_book = mysqli_query($dbconnection, "SELECT COUNT(1) FROM book WHERE bhouse_id='$rent_id' AND status='Confirm'");
+            $row_book = mysqli_fetch_array($result_book);
+            $reserved = $row_book[0];
+            $available_slots = $row['slots'] - $reserved;
+        ?>
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="course_card">
+                <div class="course_card_img">
+                    <img src="uploads/<?php echo $row['photo']; ?>" alt="<?php echo htmlspecialchars($row['title']); ?>">
+                </div>
+                <div class="course_card_content">
+                    <h5><?php echo htmlspecialchars($row['title']); ?></h5>
+                    <div class="price">₱ <?php echo number_format($row['monthly'], 2); ?> / Monthly</div>
+                    <div class="address"><?php echo htmlspecialchars($row['address']); ?></div>
+                    <div class="slots">
+                        <i class="fa fa-bed"></i> <?php echo $available_slots; ?> Slots Available
                     </div>
                 </div>
-
-                <i class="fa fa-map-marker" aria-hidden="true"></i> <?php echo $row['address']; ?>
-                <br />
-            </div>
-            <div class="course_card_footer">
-                <div class="row">
-                    <div class="col-6">
-                        <?php
+                <div class="course_card_footer">
+                     <?php
                         // Sum all ratings for the current rental
                         $sql_rating = "SELECT SUM(ratings) as totalrating FROM book WHERE bhouse_id='$rent_id' AND ratings IS NOT NULL";
                         $result_rating = $dbconnection->query($sql_rating);
@@ -104,44 +225,34 @@ while ($row = $result->fetch_assoc()) {
                             $count++;
                         }
                         ?>
-                        <select class="ratingshome" data-rating="<?php echo $totalrating; ?>">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <a class="bknw <?php if($available_slots == 0){ echo 'disabled'; } ?>" 
-                           href="<?php if($available_slots > 0){ echo 'view.php?bh_id='.$row['rental_id']; } else { echo ''; } ?>"
-                           <?php if($available_slots == 0){ echo 'disabled'; } ?>>
-                           <?php echo $available_slots == 0 ? 'Fully Booked' : 'Book Now'; ?>
-                        </a>
-                    </div>
+                    <span class="ratingshome">
+                        <?php for ($i = 0; $i < 5; $i++) echo ($i < $totalrating ? "★" : "☆"); ?>
+                    </span>
+                    <a class="btn <?php echo $available_slots == 0 ? 'disabled' : ''; ?>" 
+                       href="<?php echo $available_slots > 0 ? 'view.php?bh_id=' . $row['rental_id'] : '#'; ?>">
+                       <?php echo $available_slots == 0 ? 'Fully Booked' : 'Book Now'; ?>
+                    </a>
                 </div>
             </div>
         </div>
+        <?php } ?>
     </div>
 
-<?php
-}
-?>
-
-</div>
-
-<center>
-<ul class="pagination">
-        <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
-            <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1)."#recent"; } ?>"><i class="fa fa-chevron-left" aria-hidden="true"></i> Prev</a>
-        </li>
-        <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
-            <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1)."#recent"; } ?>">Next <i class="fa fa-chevron-right" aria-hidden="true"></i></a>
-        </li>
+    <center>
+       <ul class="pagination">
+    <li class="<?php if ($pageno <= 1) echo 'disabled'; ?>">
+        <a href="<?php if ($pageno > 1) echo "?pageno=" . ($pageno - 1) . "#recent"; ?>">
+            <i class="fa fa-chevron-left"></i> Prev
+        </a>
+    </li>
+    <li class="<?php if ($pageno >= $total_pages) echo 'disabled'; ?>">
+        <a href="<?php if ($pageno < $total_pages) echo "?pageno=" . ($pageno + 1) . "#recent"; ?>">
+            Next <i class="fa fa-chevron-right"></i>
+        </a>
+    </li>
 </ul>
-</center>
 
-</div>
+    </center>
 </div>
 
 <?php include('footer.php'); ?>

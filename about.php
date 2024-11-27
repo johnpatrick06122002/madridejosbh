@@ -77,7 +77,7 @@
         <h1>About Madridejos Boarding House Finder</h1>
         <p>
             Welcome to Madridejos Boarding House Finder, the premier platform for finding comfortable and affordable accommodations 
-            in the heart of Madridejos. Our mission is to connect tenants and landlords, simplifying the rental process for everyone.
+            in the heart of Madridejos. Our mission is to connect boarders and landlords, simplifying the rental process for everyone.
         </p>
     </div>
 
