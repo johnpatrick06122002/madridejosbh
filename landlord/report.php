@@ -105,56 +105,127 @@ foreach ($rows as $rental_id => $data) {
     }
 }
         /* Print-specific styles */
-          @media print {
-            .sidebar-container, .btn-print, .btn-download, form {
-                display: none;
-            }
+@media print {
+    /* Reset page margins and ensure full content printing */
+    @page {
+        margin: 0.5in;
+        size: portrait;
+    }
 
-            
-            .print-title {
-                text-align: center;
-                font-size: 18px;
-                font-weight: bold;
-                margin-bottom: 20px;
-            }
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.4;
+        color: #000;
+        background: #fff;
+    }
 
-            /* Adjust layout for printing */
-            .col-sm-10 {
-                width: 100%;
-                margin: 0 auto;
-            }
+    /* Hide non-printable elements */
+    .sidebar-container, .btn-print, .btn-download, form {
+        display: none !important;
+    }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
+    /* Show and style the logo */
+    .print-logo {
+        display: block !important;
+        margin: 0 auto 30px;
+        width: 120px;
+        height: auto;
+    }
 
-            table, th, td {
-                border: 1px solid black;
-            }
+    /* Header styling */
+    .print-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
+    }
 
-            th, td {
-                padding: 10px;
-                text-align: left;
-            }
+    /* Table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        page-break-inside: auto;
+    }
 
-            /* Make font sizes larger for better readability */
-            body {
-                font-size: 14px;
-            }
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
 
-            /* Ensure titles and content fit properly */
-            h3 {
-                text-align: center;
-                font-size: 18px;
-            }
+    th {
+        background-color: #f5f5f5 !important;
+        color: #333;
+        font-weight: bold;
+        padding: 12px 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
 
-            strong {
-                font-size: 16px;
-                margin-left: 0;
-            }
-        }
-  
+    td {
+        padding: 10px 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    /* Nested tables styling */
+    td table {
+        margin: 0;
+    }
+
+    td table td {
+        border: none;
+        padding: 4px 0;
+    }
+
+    /* Total amount styling */
+    strong {
+        display: block;
+        margin: 20px 0;
+        font-size: 16px;
+        color: #000;
+        text-align: right;
+        padding-right: 20px;
+    }
+
+    /* Main content area */
+    .main-content {
+        padding: 0;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .printable-report {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    /* Header styling */
+    h3 {
+        text-align: center;
+        font-size: 22px;
+        margin: 20px 0;
+        color: #333;
+    }
+
+    /* Ensure good page breaks */
+    h3, table, .printable-report {
+        page-break-before: auto;
+    }
+
+    /* Add subtle zebra striping */
+    tr:nth-child(even) {
+        background-color: #f9f9f9 !important;
+    }
+
+    /* Print background colors */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
         /* Show Download PDF button and hide Print button on mobile view (screen width <= 700px) */
         @media screen and (max-width: 700px) {
             .btn-print {
@@ -359,19 +430,96 @@ h3 {
 <script>
     function generatePDF() {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
 
-        // Add title to the PDF
-        doc.text("Monthly Report", 10, 10);
+        // Set initial position
+        let yPos = 20;
 
-        // Add additional report data
-        doc.text("Total Income: ₱<?php echo number_format($total_income, 2); ?>", 10, 20);
+        // Add logo (assuming b.png is your logo)
+        // Note: You'll need to convert this to base64 or use a full path
+        const logoPath = '../b.png';
+        doc.addImage(logoPath, 'PNG', doc.internal.pageSize.getWidth() / 2 - 25, yPos, 50, 50);
+        
+        yPos += 60; // Space after logo
 
-        // You can loop through the data and add more details if needed
+        // Set font styles
+        doc.setFont('helvetica');
+        
+        // Add title with styling
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text("Monthly Report", doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' });
+        
+        // Add horizontal line
+        doc.setLineWidth(0.5);
+        yPos += 5;
+        doc.line(20, yPos, 190, yPos);
+
+        // Set default font size for content
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+
+        // Add total income with styling
+        yPos += 15;
+        doc.setFont('helvetica', 'bold');
+        doc.text("Total Income: ₱<?php echo number_format($total_income, 2); ?>", 20, yPos);
+        
+        // Create table header
+        yPos += 20;
+        const headers = ['Title', 'Total Paid Amount'];
+        const columnWidths = [100, 70];
+        
+        // Draw table header background
+        doc.setFillColor(245, 245, 245);
+        doc.rect(20, yPos - 5, 170, 10, 'FD');
+        
+        // Add table headers
+        doc.setFont('helvetica', 'bold');
+        headers.forEach((header, i) => {
+            doc.text(header, 25 + (i * columnWidths[0]), yPos);
+        });
+        
+        // Add data rows with borders
         <?php foreach ($display_rows as $index => $row): ?>
-        doc.text("Title: <?php echo $row['title']; ?>", 10, <?php echo ($index + 1) * 30; ?>);
-        doc.text("Total Paid Amount: ₱<?php echo number_format($row['total_paid_amount'], 2); ?>", 10, <?php echo ($index + 1) * 35; ?>);
+            yPos += 15;
+            
+            // Check if we need a new page
+            if (yPos > 270) {
+                doc.addPage();
+                yPos = 20;
+                
+                // Redraw headers on new page
+                doc.setFillColor(245, 245, 245);
+                doc.rect(20, yPos - 5, 170, 10, 'FD');
+                doc.setFont('helvetica', 'bold');
+                headers.forEach((header, i) => {
+                    doc.text(header, 25 + (i * columnWidths[0]), yPos);
+                });
+                yPos += 15;
+            }
+            
+            // Draw cell borders
+            doc.rect(20, yPos - 5, columnWidths[0], 10);
+            doc.rect(20 + columnWidths[0], yPos - 5, columnWidths[1], 10);
+            
+            // Add cell content
+            doc.setFont('helvetica', 'normal');
+            doc.text("<?php echo $row['title']; ?>", 25, yPos);
+            doc.text("₱<?php echo number_format($row['total_paid_amount'], 2); ?>", 25 + columnWidths[0], yPos);
         <?php endforeach; ?>
+
+        // Add footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.getWidth() / 2, 290, { align: 'center' });
+        }
 
         // Save the PDF
         doc.save("monthly-report.pdf");
