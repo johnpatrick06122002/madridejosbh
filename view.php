@@ -307,13 +307,19 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .feature-card {
-            font-size: 1rem; /* Adjust font size for smaller screens */
-            padding: 10px 15px; /* Reduce padding for compact layout */
-        }
+   @media (max-width: 768px) {
+    .feature-card {
+        font-size: 1rem; /* Adjust font size for smaller screens */
+        padding: 10px 15px; /* Reduce padding for compact layout */
+        margin-bottom: 15px; /* Add space between stacked feature cards */
     }
+    
+    /* Optional: If you want to remove bottom margin from the last feature card */
+    .feature-card:last-child {
+        margin-bottom: 5px; /* Removes margin from the last feature card */
+    }
+}
+
 /* Style for the Description Heading */
     h3 {
         font-size: 1.8rem; /* Slightly larger font for emphasis */
@@ -425,7 +431,7 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
             <i class="fa fa-tint" aria-hidden="true"></i> FREE WATER <?php echo $freewater; ?>
         </div>
     </div>
-    <div class="col"><br>
+    <div class="col"> 
         <div class="feature-card">
             <i class="fa fa-lightbulb-o" aria-hidden="true"></i> FREE KURYENTE <?php echo $freekuryente; ?>
         </div>
