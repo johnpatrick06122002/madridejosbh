@@ -66,9 +66,9 @@ if (isset($_POST['submitfeedback'])) {
     }
 }
 ?>
+
 <br><br>
 
- 
 <div class="container">
 <br />
 <br />
@@ -110,13 +110,13 @@ while ($row = $result->fetch_assoc()) {
             echo "No payment policy available";
         }
     ?><br>
+    
     <?php if ($row['downpayment_amount'] > 0): ?>
         Amount: ₱ <?php echo number_format($row['downpayment_amount'], 2); ?>
     <?php elseif ($row['installment_months'] > 0 && $row['installment_amount'] > 0): ?>
         Amount: ₱ <?php echo number_format($row['installment_amount'], 2); ?><br>
         Installment Months: <?php echo htmlspecialchars($row['installment_months']); ?>
     <?php endif; ?>
-   
 </h6>
 
 
@@ -130,12 +130,6 @@ $freewifi = $row['wifi'] == 'yes' ? '<i class="fa fa-check-circle text-success" 
 $freewater = $row['water'] == 'yes' ? '<i class="fa fa-check-circle text-success" aria-hidden="true"></i>' : '<i class="fa fa-times-circle text-danger" aria-hidden="true"></i>';
 $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-success" aria-hidden="true"></i>' : '<i class="fa fa-times-circle text-danger" aria-hidden="true"></i>';
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
 <style>
     /* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
@@ -313,8 +307,7 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
     }
 
-   /* Responsive adjustments */
-@media (max-width: 768px) {
+   @media (max-width: 768px) {
     .feature-card {
         font-size: 1rem; /* Adjust font size for smaller screens */
         padding: 10px 15px; /* Reduce padding for compact layout */
@@ -427,8 +420,6 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Depth on hover */
     }
 </style>
-</head>
-<body>
 <div class="row text-center">
     <div class="col">
         <div class="feature-card">
@@ -440,7 +431,7 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
             <i class="fa fa-tint" aria-hidden="true"></i> FREE WATER <?php echo $freewater; ?>
         </div>
     </div>
-    <div class="col">
+    <div class="col"> 
         <div class="feature-card">
             <i class="fa fa-lightbulb-o" aria-hidden="true"></i> FREE KURYENTE <?php echo $freekuryente; ?>
         </div>
@@ -621,7 +612,7 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
                     </div>
                 </div>
                 <div class="card-body">
-                    <p><?php echo htmlspecialchars($feedback); ?></p>   
+                    <p><?php echo htmlspecialchars($feedback); ?></p>
                 </div>
                 <a href="#" class="stretched-link"></a>
             </div>
@@ -683,7 +674,6 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
         </div>
     </div>
 </div>
-</body>
-   
+
 
 <?php include('footer.php'); ?>
