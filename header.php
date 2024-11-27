@@ -372,7 +372,7 @@ ul.pagination li:last-child {
 
 .navbar-dark .navbar-toggler {
     border-color: rgba(255,255,255,.5);
-    padding: .25rem .75rem;
+ padding: .15rem .55rem;
 }
 
 .navbar-dark .navbar-toggler:focus {
