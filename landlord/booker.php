@@ -379,7 +379,21 @@ h3{
     <div class="main-content"> <br><br><br>
         <h3>Book Information</h3>
         <br />
-
+<?php
+        // Get unique rental IDs
+        $unique_rental_ids = array();
+        if ($result && mysqli_num_rows($result) > 0) {
+            while ($rental_row = mysqli_fetch_assoc($result)) {
+                // Only add rental ID if it's not already in the array
+                if (!in_array($rental_row['bhouse_id'], $unique_rental_ids)) {
+                    $unique_rental_ids[] = $rental_row['bhouse_id'];
+                    echo '<a href="add_walkin.php?rental_id=' . $rental_row['bhouse_id'] . '" class="btn btn-success mb-3 me-2">Add Walk-In ' .  '</a>';
+                }
+            }
+            // Reset the result pointer for the main data display
+            mysqli_data_seek($result, 0);
+        }
+        ?>
         <!-- Responsive Table -->
         <div class="table-responsive d-none d-md-block"> <!-- Hide on small screens -->
             <table class="table table-striped">
