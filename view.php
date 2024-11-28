@@ -473,6 +473,22 @@ html, body {
         transform: scale(1.05); /* Slight zoom on hover */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Depth on hover */
     }
+    .star-display {
+    display: inline-flex;
+    gap: 2px;
+}
+
+.star-display .fa-star.filled {
+    color: #ffd700; /* Gold color for filled stars */
+}
+
+.star-display .fa-star.empty {
+    color: #ddd; /* Light gray for empty stars */
+}
+
+.star-display .fa-star {
+    font-size: 1.2rem;
+}
 </style>
 </head>
 <body>
@@ -657,15 +673,24 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
                             <small><?php echo $date; ?></small>
                         </div>
                     </div>
-                    <div>
-                        <select name="star_rating_option" class="ratings" data-fratings="<?php echo $ratings; ?>" disabled>
-                            <option value="1" <?php if ($ratings == 1) echo 'selected'; ?>>★☆☆☆☆</option>
-                            <option value="2" <?php if ($ratings == 2) echo 'selected'; ?>>★★☆☆☆</option>
-                            <option value="3" <?php if ($ratings == 3) echo 'selected'; ?>>★★★☆☆</option>
-                            <option value="4" <?php if ($ratings == 4) echo 'selected'; ?>>★★★★☆</option>
-                            <option value="5" <?php if ($ratings == 5) echo 'selected'; ?>>★★★★★</option>
-                        </select>
-                    </div>
+                   Star Rating Display
+
+<div class="star-display">
+    <?php
+        $filled_stars = (int)$ratings;
+        $empty_stars = 5 - $filled_stars;
+        
+        // Display filled stars
+        for($i = 0; $i < $filled_stars; $i++) {
+            echo '<i class="fa fa-star filled"></i>';
+        }
+        // Display empty stars
+        for($i = 0; $i < $empty_stars; $i++) {
+            echo '<i class="fa fa-star empty"></i>';
+        }
+    ?>
+</div>
+
                 </div>
                 <div class="card-body">
                     <p><?php echo htmlspecialchars($feedback); ?></p>   
