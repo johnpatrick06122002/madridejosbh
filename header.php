@@ -458,7 +458,7 @@ ul.pagination li:last-child {
                 </li>
                 <?php if(empty($login_session)) { ?>
                 <li class="nav-item">
-                    <a class="nav-link active" href="login.php">
+                    <a class="nav-link active" href="login">
                         <i class="fa fa-sign-in" aria-hidden="true"></i> Sign In
                     </a>
                 </li>
