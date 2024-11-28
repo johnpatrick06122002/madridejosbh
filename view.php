@@ -137,6 +137,24 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
 <style>
+/* Add these rules at the top of your existing CSS */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+    /* Make sure all containers respect viewport width */
+.container, .container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+ 
+ 
     /* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
 
@@ -611,15 +629,13 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
                         </div>
                     </div>
                     <div>
-                       <span class="fs-1 my-0 fw-bolder text-success">
-                        <select name="star_rating_option" class="ratings" data-fratings="<?php echo $ratings; ?>">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
+                        <select name="star_rating_option" class="ratings" data-fratings="<?php echo $ratings; ?>" disabled>
+                            <option value="1" <?php if ($ratings == 1) echo 'selected'; ?>>★☆☆☆☆</option>
+                            <option value="2" <?php if ($ratings == 2) echo 'selected'; ?>>★★☆☆☆</option>
+                            <option value="3" <?php if ($ratings == 3) echo 'selected'; ?>>★★★☆☆</option>
+                            <option value="4" <?php if ($ratings == 4) echo 'selected'; ?>>★★★★☆</option>
+                            <option value="5" <?php if ($ratings == 5) echo 'selected'; ?>>★★★★★</option>
                         </select>
-            </span>
                     </div>
                 </div>
                 <div class="card-body">

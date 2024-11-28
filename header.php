@@ -158,8 +158,8 @@ div#recent {
 }
 button.prev {
     position: absolute;
-    top: 35%;
-    left: 10%;
+    top: 15%;
+    left: 15%;
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
     border-radius: 24px;
@@ -169,8 +169,8 @@ button.prev {
 
 button.next {
     position: absolute;
-    top: 35%;
-    right: 10%;
+    top: 15%;
+    right: 15%;
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
     border-radius: 24px;
