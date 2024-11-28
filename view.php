@@ -137,6 +137,35 @@ $freekuryente = $row['kuryente'] == 'yes' ? '<i class="fa fa-check-circle text-s
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
 <style>
+
+    .star-rating {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: 0.3rem;
+    padding: 1rem 0;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    transition: color 0.2s ease-in-out;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input[type="radio"]:checked ~ label {
+    color: #ffd700;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    transform: scale(1.1);
+}
 /* Add these rules at the top of your existing CSS */
 html, body {
     overflow-x: hidden;
@@ -658,8 +687,6 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
 <?php } ?>
 
 </div>
-
-<!-- The Modal Feedback -->
 <div class="modal" id="feedback">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -677,30 +704,36 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
                     </div>
                     <div class="form-group">
                         <center>
-                            <label for="rate" class="text-muted">Rate us:</label>
-                            <select class="form-control torate" name="rate" id="rate" required>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                            </select>
+                            <label class="text-muted">Rate us:</label>
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="rate" value="5" required />
+                                <label for="star5" title="5 stars"><i class="fa fa-star"></i></label>
+                                <input type="radio" id="star4" name="rate" value="4" />
+                                <label for="star4" title="4 stars"><i class="fa fa-star"></i></label>
+                                <input type="radio" id="star3" name="rate" value="3" />
+                                <label for="star3" title="3 stars"><i class="fa fa-star"></i></label>
+                                <input type="radio" id="star2" name="rate" value="2" />
+                                <label for="star2" title="2 stars"><i class="fa fa-star"></i></label>
+                                <input type="radio" id="star1" name="rate" value="1" />
+                                <label for="star1" title="1 star"><i class="fa fa-star"></i></label>
+                            </div>
                         </center>
                     </div>
                     <div class="form-group">
                         <label class="text-muted">Feedback:</label>
                         <textarea class="form-control" name="feedbackmsg" placeholder="Write your feedback here..." required></textarea>
                     </div>
-            </div>
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <input type="submit" name="submitfeedback" class="btn btn-success" value="Submit Feedback">
-                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times-circle" aria-hidden="true"></i> Close</button>
-            </div>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <input type="submit" name="submitfeedback" class="btn btn-success" value="Submit Feedback">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times-circle" aria-hidden="true"></i> Close</button>
+                </div>
             </form>
         </div>
     </div>
 </div>
+
 </body>
    
 
