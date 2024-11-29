@@ -41,15 +41,35 @@ if(isset($_POST["search"])) {
   <form action="" method="POST">
     <div class="input-group" id="searchbox">
       <input name="query" type="text" class="form-control" placeholder="Search your barangay">
-      <button name="search" class="btn" type="submit">
-        Search <i class="fa fa-search"></i>
-      </button>
+    <button name="search" class="btn" type="submit">
+  Search <i class="fa fa-search rotating-icon"></i>
+</button>
+
     </div>
   </form>
 </center>
 </div>
 <br><br>
 <style>
+.rotating-icon {
+  display: inline-block;
+  animation: sideward-rotate 5s infinite ease-in-out;
+}
+
+@keyframes sideward-rotate {
+  0%, 100% {
+    transform: rotateY(0deg); /* Default position */
+  }
+  25% {
+    transform: rotateY(90deg); /* Midway rotation */
+  }
+  50% {
+    transform: rotateY(180deg); /* Flipped completely */
+  }
+  75% {
+    transform: rotateY(270deg); /* Almost back */
+  }
+}
 
 #searchbox {
     max-width: 600px;
@@ -127,7 +147,7 @@ if(isset($_POST["search"])) {
 
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #f4f5f7;
+    background-color: #eff3ea;
     margin: 0;
     padding: 0;
 }
@@ -282,26 +302,42 @@ body {
                         <i class="fa fa-bed"></i> <?php echo $available_slots; ?> Slots Available
                     </div>
                 </div>
-                <div class="course_card_footer">
-                     <?php
-                        // Sum all ratings for the current rental
-                        $sql_rating = "SELECT SUM(ratings) as totalrating FROM book WHERE bhouse_id='$rent_id' AND ratings IS NOT NULL";
-                        $result_rating = $dbconnection->query($sql_rating);
-                        $totalrating = 0;
-                        $count = 0;
-                        while ($row_rating = $result_rating->fetch_assoc()) {
-                            $totalrating = $row_rating['totalrating'];
-                            $count++;
-                        }
-                        ?>
-                    <span class="ratingshome">
-                        <?php for ($i = 0; $i < 5; $i++) echo ($i < $totalrating ? "★" : "☆"); ?>
-                    </span>
-                    <a class="btn <?php echo $available_slots == 0 ? 'disabled' : ''; ?>" 
-                       href="<?php echo $available_slots > 0 ? 'view.php?bh_id=' . $row['rental_id'] : '#'; ?>">
-                       <?php echo $available_slots == 0 ? 'Fully Booked' : 'Book Now'; ?>
-                    </a>
-                </div>
+               <div class="course_card_footer">
+    <?php
+    // Fetch the sum and count of ratings for the current rental
+    $sql_rating = "SELECT SUM(ratings) AS totalrating, COUNT(ratings) AS ratingcount 
+                   FROM book 
+                   WHERE bhouse_id='$rent_id' AND ratings > 0";
+    $result_rating = $dbconnection->query($sql_rating);
+    
+    $totalrating = 0;
+    $ratingcount = 0;
+
+    if ($result_rating && $row_rating = $result_rating->fetch_assoc()) {
+        $totalrating = (float)$row_rating['totalrating'];
+        $ratingcount = (int)$row_rating['ratingcount'];
+    }
+
+    // Calculate the average rating
+    $averageRating = ($ratingcount > 0) ? $totalrating / $ratingcount : 0;
+    
+    ?>
+    
+    <span class="ratingshome">
+        <?php
+        // Display average rating as stars (rounded to the nearest whole number)
+        $roundedRating = round($averageRating); // Round to the nearest integer
+        for ($i = 1; $i <= 5; $i++) {
+            echo ($i <= $roundedRating ? "★" : "☆");
+        }
+        ?>
+    </span>
+    <a class="btn <?php echo $available_slots == 0 ? 'disabled' : ''; ?>" 
+       href="<?php echo $available_slots > 0 ? 'view.php?bh_id=' . $row['rental_id'] : '#'; ?>">
+       <?php echo $available_slots == 0 ? 'Fully Booked' : 'Book Now'; ?>
+    </a>
+</div>
+
             </div>
         </div>
         <?php } ?>

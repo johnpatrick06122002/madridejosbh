@@ -399,14 +399,15 @@ ul.pagination li:last-child {
         padding: 0.5rem 0;
     }
 }
-   .navbar {
+  .navbar {
       position: fixed;
       width: 100%;
       height: 11%;
       top: 0;
       left: 0;
       z-index: 1030; /* Keeps navbar on top */
-      
+      font-size: 20px;  
+      font-family: "Timew New Roman", Times, serif;
     }
 
     /* Ensure page content is not hidden under the fixed navbar */
