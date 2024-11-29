@@ -357,6 +357,27 @@ h3 {
     color: #5a5c69;
     font-weight: 500;
 }
+  
+/* Table styles */
+.table {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    font-size: 14px;
+}
+
+.table thead th {
+    background: #007bff;
+    color: #fff;
+    text-align: center;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 10px;
+}
     </style>
 </head>
 <body>

@@ -203,7 +203,7 @@ $result = $stmt->get_result();
     .pagination {
     display: -ms-flexbox;
     display: flex;
-    
+   
     list-style: none;
     border-radius: .25rem;
 }
@@ -331,6 +331,27 @@ h3 {
         gap: 3px;
     }
 }
+   
+/* Table styles */
+.table {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    font-size: 14px;
+}
+
+.table thead th {
+    background: #007bff;
+    color: #fff;
+    text-align: center;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 10px;
+}
 
 </style>
 
@@ -419,7 +440,7 @@ h3 {
                         </tr>
                     <?php } ?>
                 </tbody>
-            </table>  <ul class="pagination">
+            </table><ul class="pagination">
             <li><a href="?pageno=1"><i class="fa fa-fast-backward"></i> First</a></li>
             <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
                 <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><i class="fa fa-step-backward"></i> Prev</a>
@@ -436,7 +457,7 @@ h3 {
 
 
         <!-- Pagination -->
-      
+        
     </div>
 </div>
 
