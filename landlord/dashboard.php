@@ -192,7 +192,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 .main-content {
     flex-grow: 1;
     padding: 20px;
-    background: #f8f9fc;
+    background: #f4f6f9;
     overflow-x: hidden;
 }
 
@@ -208,19 +208,52 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
 .card-box {
     flex: 1;
     min-width: 240px;
-    background-color: #ffffff;
-    border: 1px solid #e3e6f0;
-    border-radius: 5px;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    background: linear-gradient(28deg, #bed3e3, #b9cbd1);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Card content */
+.widget-style3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.widget-data {
+    flex-grow: 1;
+}
+
+.widget-icon {
+    font-size: 36px;
+    color: black;
+}
+
+.font-24 {
+    font-size: 24px;
+    font-weight: bold;
+    color:black;
+}
+
+.font-14 {
+    font-size: 14px;
+    color:black;
 }
 
 /* Chart containers */
-.chart-container1, .chart-container2, .chart-container3 {
+.chart-container1, .chart-container2 {
     background: #fff;
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 30px;
 }
 
@@ -243,46 +276,6 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
     .card-box {
         min-width: 100%;
     }
-    
-    .chart-container1, .chart-container2, .chart-container3 {
-        width: 100% !important;
-        height: 300px !important;
-    }
-}
-
-/* Existing styles with improvements */
-.widget-style3 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.widget-data {
-    flex-grow: 1;
-}
-
-.widget-icon {
-    margin-left: 15px;
-}
-
-.font-24 {
-    font-size: 20px !important;
-}
-
-.animated-icon {
-    animation: pulse 1.3s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1.5); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-h3 {
-    margin: 0 0 20px 0;
-    color: #5a5c69;
-    font-weight: 500;
 }
 </style>
 
@@ -291,7 +284,7 @@ h3 {
         <?php include('sidebar.php'); ?>
     </div>
     
-    <div class="main-content"><br><br>
+    <div class="main-content">
         <h3>Dashboard</h3>
         
         <div class="dashboard-cards">
@@ -299,19 +292,16 @@ h3 {
             <div class="card-box">
                 <div class="widget-style3">
                     <div class="widget-data">
-                        <div class="weight-700 font-24 text-dark">
+                        <div class="font-24">
                             <?php
                             $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental WHERE register1_id ='$login_session'");
-                            if ($result) {
-                                $row = mysqli_fetch_array($result);
-                                echo $row[0];
-                            }
+                            echo $result ? mysqli_fetch_array($result)[0] : 0;
                             ?>
                         </div>
-                        <div class="font-14 text-secondary weight-500">Boarding House</div>
+                        <div class="font-14">Boarding House</div>
                     </div>
                     <div class="widget-icon">
-                        <i class="fa fa-home animated-icon" aria-hidden="true"></i>
+                        <i class="fa fa-home"></i>
                     </div>
                 </div>
             </div>
@@ -320,19 +310,16 @@ h3 {
             <div class="card-box">
                 <div class="widget-style3">
                     <div class="widget-data">
-                        <div class="weight-700 font-24 text-dark">
+                        <div class="font-24">
                             <?php
                             $result = mysqli_query($dbconnection, "SELECT count(*) FROM book WHERE register1_id='$login_session' AND status=''");
-                            if ($result) {
-                                $row = mysqli_fetch_array($result);
-                                echo $row[0];
-                            }
+                            echo $result ? mysqli_fetch_array($result)[0] : 0;
                             ?>
                         </div>
-                        <div class="font-14 text-secondary weight-500">Requesting</div>
+                        <div class="font-14">Requesting</div>
                     </div>
                     <div class="widget-icon">
-                        <i class="fa fa-envelope animated-icon" aria-hidden="true"></i>
+                        <i class="fa fa-envelope"></i>
                     </div>
                 </div>
             </div>
@@ -341,19 +328,16 @@ h3 {
             <div class="card-box">
                 <div class="widget-style3">
                     <div class="widget-data">
-                        <div class="weight-700 font-24 text-dark">
+                        <div class="font-24">
                             <?php
                             $result = mysqli_query($dbconnection, "SELECT COUNT(*) FROM book WHERE register1_id='$login_session' AND status='Confirm'");
-                            if ($result) {
-                                $row = mysqli_fetch_array($result);
-                                echo $row[0];
-                            }
+                            echo $result ? mysqli_fetch_array($result)[0] : 0;
                             ?>
                         </div>
-                        <div class="font-14 text-secondary weight-500">Confirmed</div>
+                        <div class="font-14">Confirmed</div>
                     </div>
                     <div class="widget-icon">
-                        <i class="fa fa-thumbs-o-up animated-icon" aria-hidden="true"></i>
+                        <i class="fa fa-thumbs-o-up"></i>
                     </div>
                 </div>
             </div>
@@ -362,55 +346,44 @@ h3 {
             <div class="card-box">
                 <div class="widget-style3">
                     <div class="widget-data">
-                        <div class="weight-700 font-24 text-dark">
+                        <div class="font-24">
                             <?php echo number_format($total_income); ?>
                         </div>
-                        <div class="font-14 text-secondary weight-500">Total Monthly Income</div>
+                        <div class="font-14">Total Monthly Income</div>
                     </div>
                     <div class="widget-icon">
-                        <i class="fa fa-money animated-icon" aria-hidden="true"></i>
+                        <i class="fa fa-money"></i>
                     </div>
                 </div>
             </div>
-        </div> <br />
-
-        <div class="row">
-     <div class="container">
-        <h3>Boarding House Monthly Income</h3>
-        <div class="chart-container1">
-            <canvas id="monthlyIncomeChart" ></canvas></div>
         </div>
-    
-          
-                    
-<div class="container">
-    <h3>Boarding House Ratings</h3>
-    <canvas id="monthlyBookingsChart"></canvas>
-</div>
 
-</div>
+        <div class="chart-container1">
+            <h3>Boarding House Monthly Income</h3>
+            <canvas id="monthlyIncomeChart"></canvas>
+        </div>
 
+        <div class="chart-container2">
+            <h3>Boarding House Ratings</h3>
+            <canvas id="monthlyBookingsChart"></canvas>
+        </div>
     </div>
 </div>
 
-</div>
-
-       
-
-<?php include('footer.php'); ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    var ctx = document.getElementById('monthlyIncomeChart').getContext('2d');
-    var monthlyIncomeChart = new Chart(ctx, {
+    // Chart for Monthly Income
+    var ctxIncome = document.getElementById('monthlyIncomeChart').getContext('2d');
+    var monthlyIncomeChart = new Chart(ctxIncome, {
         type: 'bar',
         data: {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             datasets: [
                 <?php foreach ($monthly_data as $house => $months) { ?>
-                    {
-                        label: '<?php echo $house; ?>',
-                        data: [
+                {
+                    label: '<?php echo $house; ?>',
+                                           data: [
                             <?php 
                             for ($i = 1; $i <= 12; $i++) {
                                 $month_name = date('F', mktime(0, 0, 0, $i, 1));
@@ -419,121 +392,56 @@ document.addEventListener("DOMContentLoaded", function() {
                             }
                             ?>
                         ],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    },
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
                 <?php } ?>
             ]
         },
         options: {
+            responsive: true,
             scales: {
                 y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1000,
-                        callback: function(value) {
-                            return '' + value; // Customize axis labels
-                        }
-                    }
-                }
-            },
-            maintainAspectRatio: false,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
-                        }
-                    }
+                    beginAtZero: true
                 }
             }
         }
     });
 
-    
-     // Line Chart for Monthly Income
-    var ctxLine = document.getElementById('monthlyIncomeLineChart').getContext('2d');
-    var monthlyIncomeLineChart = new Chart(ctxLine, {
-        type: 'line',
-        data: {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            datasets: [{
-                label: 'Monthly Income',
-                data: <?php echo json_encode(array_values($monthly_total_income)); ?>,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
-                fill: false
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1000,
-                        callback: function(value) {
-                            return '' + value;
-                        }
-                    }
-                }
-            },
-            maintainAspectRatio: false,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.dataset.label + ': ' + tooltipItem.raw;
-                        }
-                    }
-                }
+    // Chart for Boarding House Ratings
+   var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d');
+
+// Create a linear gradient for the line chart
+var gradientLine = ctxBookings.createLinearGradient(0, 0, 0, 400);
+gradientLine.addColorStop(0, 'rgba(75, 192, 192, 1)'); // Top color (light blue)
+gradientLine.addColorStop(1, 'rgba(75, 192, 192, 0.2)'); // Bottom color (lighter blue)
+
+var monthlyBookingsChart = new Chart(ctxBookings, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+            label: 'Bookings',
+            data: <?php echo json_encode(array_values($monthly_bookings)); ?>,
+            fill: true, // Fill the area under the line
+            backgroundColor: gradientLine, // Apply the gradient background
+            borderColor: 'rgba(75, 192, 192, 1)', // Line color
+            pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Points color
+            pointHoverBackgroundColor: 'rgba(75, 192, 192, 1)', // Hover point color
+            pointBorderColor: '#fff', // Point border color
+            pointHoverBorderColor: '#fff', // Hover point border color
+            tension: 0.4 // Smooth curve of the line
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
             }
         }
-    });
+    }
 });
-    const ctx = document.getElementById('monthlyBookingsChart').getContext('2d');
-    
-    const monthlyBookings = <?php echo json_encode(array_values($monthly_bookings)); ?>;
-    const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    
-    const monthlyBookingsChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Total Bookings per Month',
-                data: monthlyBookings,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Month'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Total Bookings'
-                    },
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1, // Ensure ticks are whole numbers
-                        callback: function(value) {
-                            if (Number.isInteger(value)) {
-                                return value;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    });
+});
 </script>

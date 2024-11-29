@@ -39,94 +39,114 @@ if (isset($_SESSION['register1_id'])) {
     }
     ?>
     <style>
+    .sidebar {
+        width: 230px;
+        background: linear-gradient(to bottom, #80ffff, #00bfff); /* Subtle gradient */
+        padding-top: 20px;
+        text-align: center;
+        position: fixed;
+        height: 100%;
+        overflow-y: auto;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transform: translateX(0);
+        z-index: 1000;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1); /* Adds shadow for depth */
+        border-top-right-radius: 10px; /* Rounded corners */
+        border-bottom-right-radius: 10px;
+    }
+
+    /* Sidebar for mobile view */
+    @media (max-width: 768px) {
         .sidebar {
-            width: 230px;
-            background-color: #80ffff;
-            padding-top: 20px;
-            text-align: center;
-            position: fixed;
-            height: 100%;
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-            transform: translateX(0); /* Default position for desktop */
-            z-index: 1000; /* Ensure it's on top */
+            transform: translateX(-100%);
         }
 
-        /* Sidebar for mobile view */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%); /* Hide sidebar by default */
-                position: fixed;
-            }
-
-            .sidebar.active {
-                transform: translateX(0); /* Show sidebar when active */
-            }
-
-            /* Ensure the page content shifts when sidebar is active */
-            .page-content.active {
-                transform: translateX(230px); /* Adjust the content */
-            }
+        .sidebar.active {
+            transform: translateX(0);
         }
 
-        .sidebar a {
-            font-family: serif;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 13px;
-            text-decoration: none;
-            font-size: 16px;
-            color: black;
-            
+        .page-content.active {
+            transform: translateX(230px);
         }
+    }
 
-        .sidebar a:hover {
-            background-color: white;
-            color: #000;
-        }
+    .sidebar a {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        text-decoration: none;
+        font-size: 16px;
+        color: black;
+        border-radius: 5px; /* Rounded for links */
+        margin: 5px 10px; /* Spacing between links */
+        transition: background 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+    }
 
-        .profile-photo-container {
-            width: 130px;
-            height: 130px;
-            margin: 0 auto;
-            border-radius: 50%;
-            overflow: hidden;
-        }
+    .sidebar a:hover {
+        background-color: #ffffff;
+        color: #0077cc;
+    }
 
-        .profile-photo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            cursor: pointer;
-        }
+    .sidebar a.active {
+        background-color: #0077cc; /* Active link background */
+        color: white; /* Active link text */
+        font-weight: bold; /* Highlight active link */
+    }
 
-        .profile-name {
-            margin-top: 10px;
-            font-size: 18px;
-            color: black;
-        }
+    .profile-photo-container {
+        width: 130px;
+        height: 130px;
+        margin: 0 auto 15px auto;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow to photo */
+    }
 
-        /* Hamburger icon styling */
+    .profile-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: pointer;
+    }
+
+    .profile-name {
+        margin-top: 10px;
+        font-size: 18px;
+        color: black;
+        font-weight: bold; /* Enhance text weight */
+        text-transform: uppercase; /* Make name uppercase for emphasis */
+    }
+
+    .menu-btn {
+        font-size: 30px;
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+        background: none;
+        border: none;
+        cursor: pointer;
+        display: none;
+        color: #0077cc;
+        transition: color 0.3s ease; /* Smooth hover */
+    }
+
+    .menu-btn:hover {
+        color: #004080;
+    }
+
+    @media (max-width: 768px) {
         .menu-btn {
-            font-size: 30px;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 1001; /* Ensure it's above the sidebar */
-            background: none;
-            border: none;
-            cursor: pointer;
-            display: none; /* Hidden by default for desktop */
+            display: block;
         }
+    }
 
-        @media (max-width: 768px) {
-            .menu-btn {
-                display: block; /* Show menu button in mobile view */
-            }
-        }
-        
-    </style>
+    img {
+        width: 50%;
+    }
+</style>
 
     <!-- Menu button (hamburger icon) -->
     <button class="menu-btn" onclick="toggleSidebar()">
@@ -135,9 +155,9 @@ if (isset($_SESSION['register1_id'])) {
     
     <div class="sidebar" id="sidebar">
         <!-- Profile Photo -->
-        <br><br><a href="edit_owner.php?owner_id=<?php echo htmlspecialchars($profile_data['id']); ?>" class="profile-photo-container">
+        <br><br><center><a href="edit_owner.php?owner_id=<?php echo htmlspecialchars($profile_data['id']); ?>" class="profile-photo-container">
             <img src="../uploads/<?php echo htmlspecialchars($profile_data['profile_photo']); ?>" alt="Profile Photo" class="profile-photo">
-        </a>
+        </a></center>
         <!-- Profile Name -->
         <div class="profile-name"><?php echo htmlspecialchars($profile_data['firstname']); ?></div>
 
@@ -146,7 +166,7 @@ if (isset($_SESSION['register1_id'])) {
             <a href="dashboard.php" onclick="setActive(event)">Dashboard <i class="fa fa-tachometer" aria-hidden="true"></i></a>
             <a href="bhouse.php" onclick="setActive(event)">BHouse List <i class="fa fa-home" aria-hidden="true"></i></a>
             <a href="booker.php" onclick="setActive(event)">Boarder List <i class="fa fa-list-ul" aria-hidden="true"></i></a>
-            <a href="pending.php" onclick="setActive(event)">Pending  <i class="fa fa-home" aria-hidden="true"></i></a>
+            <a href="pending.php" onclick="setActive(event)">Pending  <i class="fa fa-clock" aria-hidden="true"></i></a>
             <a href="report.php" onclick="setActive(event)">Reports <i class="fa fa-file-text" aria-hidden="true"></i></a>
             <a href="logout.php" onclick="setActive(event)">Logout <i class="fa fa-power-off" aria-hidden="true"></i></a>
         </div>
