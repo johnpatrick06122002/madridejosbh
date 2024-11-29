@@ -22,7 +22,7 @@ $is_landlord = isset($_SESSION['login_user']) && !empty($_SESSION['login_user'])
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MADRIE-BH</title>
     <!-- Favicon -->
-    <link rel="shortcut icon" type="x-icon" href="bhh.jpg">
+      <link rel="shortcut icon" type="x-icon" href="b.png">
      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
  
     <!-- Bootstrap CSS -->

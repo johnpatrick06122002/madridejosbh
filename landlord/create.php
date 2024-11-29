@@ -84,6 +84,7 @@ if(isset($_POST["create"])) {
   <!-- SweetAlert2 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <!-- Bootstrap CSS -->
+  <link rel="shortcut icon" type="x-icon" href="../b.png">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
