@@ -60,6 +60,27 @@ $result = mysqli_query($dbconnection, $sql);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
+    
+/* Table styles */
+.table {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    font-size: 14px;
+}
+
+.table thead th {
+    background: #007bff;
+    color: #fff;
+    text-align: center;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 10px;
+}
 /* Main layout container */
 .dashboard-container {
     display: flex;
@@ -181,6 +202,7 @@ h3 {
     <div class="main-content">  
         <br><br>
         <h3>Boarding House List</h3>
+         <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -231,7 +253,7 @@ h3 {
             </li>
             <li><a href="?pageno=<?php echo $total_pages; ?>">Last <i class="fa fa-fast-forward" aria-hidden="true"></i></a></li>
         </ul>
-    </div>
+    </div></div>
 </div>
 
 <form id="delete-form" action="" method="POST" style="display: none;">

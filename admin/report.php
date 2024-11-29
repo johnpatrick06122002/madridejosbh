@@ -23,18 +23,17 @@ $stmt->bind_param("ss", $start_date, $end_date);  // Binding the start and end d
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
-
 <!-- Main content container -->
 <div class="dashboard-container">
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-
+    
     <div class="main-content">
-        <h3>Booking Report</h3>
+        <h3 class="page-title">Report</h3>
         <div class="content">
-            <p>Showing bookings from <strong><?php echo $start_date; ?></strong> to <strong><?php echo $end_date; ?></strong></p>
-            
+            <p class="date-range">Showing bookings from <strong><?php echo $start_date; ?></strong> to <strong><?php echo $end_date; ?></strong></p>
+
             <!-- Report form to select start and end dates -->
             <form method="get" class="report-form">
                 <div class="form-group">
@@ -99,6 +98,7 @@ $dbconnection->close();
     display: flex;
     min-height: 100vh;
     width: 100%;
+    background: #f4f7fc;
 }
 
 /* Sidebar styles */
@@ -107,30 +107,54 @@ $dbconnection->close();
     background: #fff;
     border-right: 1px solid #e3e6f0;
     flex-shrink: 0;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 /* Main content area */
 .main-content {
     flex-grow: 1;
     padding: 20px;
-    background: #f8f9fc;
-    overflow-x: hidden;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    margin-left: 20px;
 }
+
+/* Page Title */
+.page-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Date Range Text */
+.date-range {
+    font-size: 16px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
 /* Form styles */
 .report-form {
     margin-bottom: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
 }
 
 .report-form .form-group {
     margin-bottom: 15px;
+    width: 100%;
 }
 
 .report-form label {
     font-weight: bold;
+    color: #555;
 }
 
 .report-form input {
-    width: 100%;
+    width: 200px;
     padding: 8px;
     margin-top: 5px;
     border: 1px solid #ddd;
@@ -144,6 +168,7 @@ $dbconnection->close();
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .report-form button:hover {
@@ -159,6 +184,7 @@ $dbconnection->close();
     border-radius: 4px;
     margin-bottom: 20px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .btn-info:hover {
@@ -170,6 +196,9 @@ $dbconnection->close();
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .table th, .table td {
@@ -181,10 +210,17 @@ $dbconnection->close();
 .table th {
     background-color: #f2f2f2;
     font-weight: bold;
+    color: #444;
 }
 
 .table tr:hover {
     background-color: #f5f5f5;
+}
+
+/* Table row hover effect */
+.table tr:hover {
+    transform: scale(1.02);
+    transition: all 0.3s ease-in-out;
 }
 
 /* Responsive adjustments */
@@ -201,8 +237,19 @@ $dbconnection->close();
 
     .main-content {
         padding: 15px;
+        margin-left: 0;
+    }
+
+    .report-form {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .report-form button {
+        margin-top: 10px;
     }
 }
+
 </style>
 
 <!-- JavaScript for printing the report -->

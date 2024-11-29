@@ -41,7 +41,7 @@ include('header.php');
 .main-content {
     flex-grow: 1;
     padding: 20px;
-    background: #f8f9fc;
+    background: #f4f6f9;
     overflow-x: hidden;
 }
 
@@ -57,49 +57,18 @@ include('header.php');
 .card-box {
     flex: 1;
     min-width: 240px;
-    background-color: #ffffff;
-    border: 1px solid #e3e6f0;
-    border-radius: 5px;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    background: linear-gradient(145deg, #ffffff, #f4f4f4);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* Chart containers */
-.chart-container1, .chart-container2, .chart-container3 {
-    background: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
-    margin-bottom: 30px;
+.card-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .dashboard-container {
-        flex-direction: column;
-    }
-    
-    .sidebar-container {
-        width: 100%;
-        position: static;
-        height: auto;
-    }
-    
-    .main-content {
-        padding: 15px;
-    }
-    
-    .card-box {
-        min-width: 100%;
-    }
-    
-    .chart-container1, .chart-container2, .chart-container3 {
-        width: 100% !important;
-        height: 300px !important;
-    }
-}
-
-/* Existing styles with improvements */
 .widget-style3 {
     display: flex;
     justify-content: space-between;
@@ -114,128 +83,162 @@ include('header.php');
     margin-left: 15px;
 }
 
+.widget-icon .icon {
+    font-size: 36px;
+    color: #00bccf;
+}
+
 .font-24 {
-    font-size: 20px !important;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
 }
 
-.animated-icon {
-    animation: pulse 1.3s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1.5); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+.font-14 {
+    font-size: 14px;
+    color: #6c757d;
 }
 
 h3 {
-    margin: 0 0 20px 0;
-    color: #5a5c69;
-    font-weight: 500;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 20px;
 }
+
+/* Chart containers */
+.chart-container1, .chart-container2, .chart-container3 {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .sidebar-container {
+        width: 100%;
+        position: static;
+    }
+    
+    .main-content {
+        padding: 15px;
+    }
+    
+    .card-box {
+        min-width: 100%;
+    }
+    
+    canvas {
+        height: 300px !important;
+    }
+}
+
+/* SweetAlert2 Custom Styling */
+.swal2-popup {
+    font-size: 16px !important;
+    border-radius: 10px;
+}
+
 </style>
- 
-   <?php if ($showWelcomeMessage): ?>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    icon: "info",
-                    title: "Welcome back, <?php echo htmlspecialchars($firstname); ?>!",
-                    text: "HAVE A GOOD DAY!",
-                    confirmButtonText: 'Thank you'
-                });
-            });
-        </script>
-    <?php endif; ?>
 
+<!-- Welcome Message -->
+<?php if ($showWelcomeMessage): ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        Swal.fire({
+            icon: "info",
+            title: "Welcome back, <?php echo htmlspecialchars($firstname); ?>!",
+            text: "HAVE A GOOD DAY!",
+            confirmButtonText: 'Thank you'
+        });
+    });
+</script>
+<?php endif; ?>
 
-    <?php include('footer.php'); ?>
- 
-
- 
 <div class="dashboard-container">
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
   
-       <div class="main-content">  <br><br>
+    <div class="main-content">
         <h3>Dashboard</h3>
       
-       
-        
-       <div class="dashboard-cards">
+        <div class="dashboard-cards">
             <!-- Boarding House Card -->
             <div class="card-box">
                 <div class="widget-style3">
                     <div class="widget-data">
-                        <div class="weight-700 font-24 text-dark">
-                    <?php
-                    $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental");
-                    $row = mysqli_fetch_array($result);
-                    $total_boarding_houses = $row[0];
-                    echo $total_boarding_houses;
-                    ?>
-                </div>
-                <div class="font-14 text-secondary weight-500">
-                    Boarding House
+                        <div class="font-24">
+                            <?php
+                            $result = mysqli_query($dbconnection, "SELECT count(1) FROM rental");
+                            $row = mysqli_fetch_array($result);
+                            $total_boarding_houses = $row[0];
+                            echo $total_boarding_houses;
+                            ?>
+                        </div>
+                        <div class="font-14">Boarding House</div>
+                    </div>
+                    <div class="widget-icon">
+                        <div class="icon">
+                            <i class="fa fa-home"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="widget-icon">
-                <div class="icon" data-color="#00eccf">
-                    <i class="fa fa-home animated-icon"></i>
-                </div>
-            </div>
-        </div>
-    </div>
- 
- 
-            <!-- Boarding House Card -->
+
+            <!-- Landlords Card -->
             <div class="card-box">
                 <div class="widget-style3">
                     <div class="widget-data">
-                        <div class="weight-700 font-24 text-dark">
-                    <?php
-                    // Count the number of active subscriptions
-                    $result = mysqli_query($dbconnection, "
-                        SELECT COUNT(DISTINCT register1_id) 
-                        FROM subscriptions 
-                        WHERE status = 'active'
-                    ");
-                    $row = mysqli_fetch_array($result);
-                    $total_active_subscriptions = $row[0];
-                    echo $total_active_subscriptions;
-                    ?>
-                </div>
-                <div class="font-14 text-secondary weight-500">
-                    Number Landlords
+                        <div class="font-24">
+                            <?php
+                            
+                            $result = mysqli_query($dbconnection, "
+                              SELECT COUNT(DISTINCT id) AS total_landlords
+                    FROM register1 
+                    WHERE confirmation = 'approved'
+                            ");
+                            $row = mysqli_fetch_array($result);
+                            $total_active_subscriptions = $row[0];
+                            echo $total_active_subscriptions;
+                            ?>
+                        </div>
+                        <div class="font-14">Number of Landlords</div>
+                    </div>
+                    <div class="widget-icon">
+                        <div class="icon">
+                            <i class="fa fa-thumbs-o-up"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="widget-icon">
-                <div class="icon" data-color="#00eccf">
-                    <i class="fa fa-thumbs-o-up animated-icon"></i>
-                </div>
-            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="chart-container1">
+            <h3>Boarding House Ratings</h3>
+            <canvas id="ratingChart"></canvas>
+        </div>
+        <div class="chart-container2">
+            <h3>Monthly Bookings</h3>
+            <canvas id="monthlyBookingsChart"></canvas>
         </div>
     </div>
 </div>
-<div class="container">
-    <h3>Boarding House Ratings</h3>
-    <canvas id="ratingChart"></canvas>
-</div>
-<div class="container">
-    <h3>Boarding House Ratings</h3>
-    <canvas id="monthlyBookingsChart"></canvas>
-</div>
-             
-        </div>
-        <br />
-        <br />
-        <br/>
-<!-- Include Chart.js library -->
+
+<!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-
- 
 <?php
 
 // Fetch average ratings for each boarding house
@@ -292,10 +295,14 @@ if ($monthlyBookingsResult) {
 $months = array_keys($allMonths);
 $bookings = array_values($allMonths);
 ?>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
+    // Boarding House Ratings Chart
     var ctxRating = document.getElementById('ratingChart').getContext('2d');
+    var gradientBar = ctxRating.createLinearGradient(0, 0, 0, 400);
+    gradientBar.addColorStop(0, 'rgba(54, 162, 235, 1)'); // Top color
+    gradientBar.addColorStop(1, 'rgba(75, 192, 192, 0.8)'); // Bottom color
+
     var ratingChart = new Chart(ctxRating, {
         type: 'bar',
         data: {
@@ -303,61 +310,135 @@ $bookings = array_values($allMonths);
             datasets: [{
                 label: 'Average Rating',
                 data: <?php echo json_encode($rentalRatings); ?>,
-                backgroundColor: 'rgba(64, 191, 64, 0.6)',
-                borderColor: 'rgba(64, 191, 64, 1)',
-                borderWidth: 1
+                backgroundColor: gradientBar, // Gradient fill
+                borderColor: 'rgba(54, 162, 235, 1)', // Border color
+                borderWidth: 2,
+                hoverBackgroundColor: 'rgba(54, 162, 235, 0.8)' // Hover effect
             }]
         },
         options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        color: '#333'
+                    }
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 5, // Set max to 5 for ratings
+                    max: 5,
                     title: {
                         display: true,
-                        text: 'Rating (1 to 5)'
+                        text: 'Rating (1 to 5)',
+                        color: '#333',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        color: '#666'
                     }
                 },
                 x: {
                     title: {
                         display: true,
-                        text: 'Boarding Houses'
+                        text: 'Boarding Houses',
+                        color: '#333',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        color: '#666'
                     }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
                 }
             }
         }
     });
- 
-        var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d');
-        var monthlyBookingsChart = new Chart(ctxBookings, {
-            type: 'line',
-            data: {
-                labels: <?php echo json_encode($months); ?>,
-                datasets: [{
-                    label: 'Monthly Bookings',
-                    data: <?php echo json_encode($bookings); ?>,
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
+
+    // Monthly Bookings Chart
+    var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d');
+    var gradientLine = ctxBookings.createLinearGradient(0, 0, 0, 400);
+    gradientLine.addColorStop(0, 'rgba(255, 99, 132, 1)'); // Top color
+    gradientLine.addColorStop(1, 'rgba(255, 159, 64, 0.8)'); // Bottom color
+
+    var monthlyBookingsChart = new Chart(ctxBookings, {
+        type: 'line',
+        data: {
+            labels: <?php echo json_encode($months); ?>,
+            datasets: [{
+                label: 'Monthly Bookings',
+                data: <?php echo json_encode($bookings); ?>,
+                fill: true,
+                backgroundColor: gradientLine, // Gradient fill
+                borderColor: 'rgba(255, 99, 132, 1)', // Line color
+                pointBackgroundColor: 'rgba(255, 99, 132, 1)', // Points
+                pointHoverBackgroundColor: 'rgba(255, 159, 64, 1)', // Hover points
+                pointBorderColor: '#fff',
+                pointHoverBorderColor: '#fff',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        color: '#333'
+                    }
+                }
             },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Bookings',
+                        color: '#333',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        color: '#666'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months',
+                        color: '#333',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        color: '#666'
                     }
                 }
             }
-        });
+        }
     });
+});
 </script>
-
 
 
     </div>
