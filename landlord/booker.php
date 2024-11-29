@@ -164,7 +164,27 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 <style>
-    
+       
+/* Table styles */
+.table {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    font-size: 14px;
+}
+
+.table thead th {
+    background: #007bff;
+    color: #fff;
+    text-align: center;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 10px;
+}
 /* Main layout container */
 .dashboard-container {
     display: flex;
@@ -485,7 +505,7 @@ h3{
         </div>
     </div>
     <?php } ?>
-</div>
+</div><br>
 
         <div class="pagination">
             <a href="?pageno=1" class="btn btn-info">First</a>

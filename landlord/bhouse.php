@@ -148,6 +148,27 @@ h3 {
         gap: 3px;
     }
 }
+   
+/* Table styles */
+.table {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    font-size: 14px;
+}
+
+.table thead th {
+    background: #007bff;
+    color: #fff;
+    text-align: center;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 10px;
+}
 </style>
 
 <div class="dashboard-container">
@@ -156,7 +177,7 @@ h3 {
     </div>
    
     <div class="main-content"> <br><br><br>
-        <h3>Boarding House List</h3>
+        <h3>My Boarding House </h3>
         
         <div class="table-container">
             <div class="table-responsive">
@@ -231,19 +252,7 @@ h3 {
             </table>
         </div>
 
-        <!-- Pagination -->
-        <ul class="pagination">
-            <li><a href="?pageno=1"><i class="fa fa-fast-backward" aria-hidden="true"></i> First</a></li>
-            <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
-                <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><i class="fa fa-chevron-left" aria-hidden="true"></i> Prev</a>
-            </li>
-            <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
-                <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>">Next <i class="fa fa-chevron-right" aria-hidden="true"></i></a>
-            </li>
-            <li><a href="?pageno=<?php echo $total_pages; ?>">Last <i class="fa fa-fast-forward" aria-hidden="true"></i></a></li>
-        </ul>
-    </div>
-</div>
+       
 
 <?php include('footer.php'); ?>
 
