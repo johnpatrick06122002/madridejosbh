@@ -303,6 +303,12 @@ if (isset($_POST['submit'])) {
             color: var(--text-color);" name="confirm_password" id="confirm_password" required>
                 <i class="fas fa-eye" id="toggleConfirmPassword"></i>
             </div>
+             <div class="input-container">
+                <label>
+                    <input type="checkbox" id="termsCheckbox">
+                    I agree to the <a href="#" id="openModal">Terms and Conditions</a>.
+                </label>
+            </div>
             <div class="g-recaptcha" data-sitekey="6LdEuIEqAAAAAJp33EewtqMHDcVowUNiNrB0P51x"></div>
             <button type="submit" name="submit">Send OTP</button>
             
@@ -317,6 +323,52 @@ if (isset($_POST['submit'])) {
             </div>
         </form>
     </div>
+
+      <!-- Modal -->
+    <div class="modal" id="termsModal">
+        <div class="modal-content">
+            <h1>Terms and Conditions</h1>
+        <p>
+            Welcome to Madridejos Boarding House Finder! By using this platform, you agree to comply with and be bound by the following terms and conditions of use, which together with our privacy policy govern the relationship between you and our application.
+        </p>
+        
+        <h2>1. Acceptance of Terms</h2>
+        <p>
+            By accessing or using our services, you agree to be bound by these terms. If you disagree with any part of these terms, please do not use our services.
+        </p>
+
+        <h2>2. Use of Services</h2>
+        <p>
+            Our platform allows you to search for and register with boarding houses in the Madridejos area. You agree to use the platform responsibly and not to engage in any behavior that could harm the platform, its users, or its reputation.
+        </p>
+
+        <h2>3. Account Registration</h2>
+        <p>
+            When registering an account, you must provide accurate information and maintain the security of your account. We are not responsible for unauthorized access due to your failure to secure your credentials.
+        </p>
+
+        <h2>4. Privacy Policy</h2>
+        <p>
+            Your use of our services is also governed by our Privacy Policy. Please review it to understand how we collect and handle your information.
+        </p>
+
+        <h2>5. Limitations of Liability</h2>
+        <p>
+            We are not responsible for any loss, damage, or inconvenience caused by the use of our platform, including issues arising from third-party boarding house services.
+        </p>
+
+        <h2>6. Changes to Terms</h2>
+        <p>
+            We reserve the right to update these terms at any time. It is your responsibility to review these terms periodically for changes.
+        </p>
+
+        <p>
+            For more information, contact us at <a href="mailto:support@madridejosfinder.com">support@madridejosfinder.com</a>.
+        </p>     
+            <button class="modal-close" id="closeModal">Close</button>
+        </div>
+    </div>
+
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -334,7 +386,19 @@ if (isset($_POST['submit'])) {
             confirmPasswordField.setAttribute('type', type);
             this.classList.toggle('fa-eye-slash');
         });
+    // Terms and Conditions Modal
+        const termsModal = document.getElementById('termsModal');
+        const openModalBtn = document.getElementById('openModal');
+        const closeModalBtn = document.getElementById('closeModal');
 
+        openModalBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            termsModal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', function() {
+            termsModal.style.display = 'none';
+        });
         // Form validation
         document.getElementById('registrationForm').addEventListener('submit', function(e) {
             const email = document.getElementById('email').value;
