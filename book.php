@@ -30,6 +30,19 @@ function sanitizeInput($input, $type) {
     }
 }
 
+// Function to generate a unique random ID
+function generateUniqueId($dbconnection) {
+    do {
+        $randomId = random_int(100000, 999999); // Generate a 6-digit random number
+        $query = "SELECT id FROM book WHERE id = ?";
+        $stmt = $dbconnection->prepare($query);
+        $stmt->bind_param('i', $randomId);
+        $stmt->execute();
+        $stmt->store_result();
+    } while ($stmt->num_rows > 0); // Ensure uniqueness
+    return $randomId;
+}
+
 // Get and validate the rental ID from the URL
 $rental_id = filter_input(INPUT_GET, 'bh_id', FILTER_VALIDATE_INT);
 if ($rental_id === false || $rental_id <= 0) {
@@ -111,12 +124,16 @@ if (isset($_POST["booknow"])) {
     }
 
     if (move_uploaded_file($gcash_picture["tmp_name"], $target_file)) {
+        // Generate a unique random ID for the booking
+        $randomId = generateUniqueId($dbconnection);
+
         $sql_book = "
-            INSERT INTO book (firstname, middlename, lastname, age, gender, contact_number, email, register1_id, bhouse_id, Address, gcash_picture, paid_amount)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO book (id, firstname, middlename, lastname, age, gender, contact_number, email, register1_id, bhouse_id, Address, gcash_picture, paid_amount)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ";
         $stmt_book = $dbconnection->prepare($sql_book);
-        $stmt_book->bind_param('sssisississd', 
+        $stmt_book->bind_param('isssisississd', 
+            $randomId,
             $firstname, 
             $middlename, 
             $lastname, 
