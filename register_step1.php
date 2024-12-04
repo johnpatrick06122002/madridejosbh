@@ -80,7 +80,7 @@ if (isset($_POST['submit'])) {
             $otp = rand(100000, 999999);
             $_SESSION['otp'] = $otp;
             $_SESSION['email'] = $email;
-            $_SESSION['password'] = password_hash($password, PASSWORD_DEFAULT);
+            $_SESSION['password'] = password_hash($password, PASSWORD_ARGON2I);
 
             // Insert into database
             $stmt = $dbconnection->prepare("INSERT INTO register1 (email, password, otp) VALUES (?, ?, ?)");
