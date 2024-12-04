@@ -9,8 +9,7 @@ if (isset($_POST['submit'])) {
     $confirm_password = $_POST['confirm_password'];
    $recaptcha_response = $_POST['g-recaptcha-response'];
 
-    // Verify reCAPTCHA
-    $secret_key = "6LdEuIEqAAAAADNRqBLoTg11Lqx7yes1ieUsEOd4";
+    $secret_key = "6LdTwIEqAAAAABV79BcBNJM8XvD1mjsTyQf7NgIh"; // Replace with your secret key
     $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret_key&response=$recaptcha_response");
     $response_data = json_decode($response);
 
@@ -350,7 +349,7 @@ if (isset($_POST['submit'])) {
                     I agree to the <a href="#" id="openModal">Terms and Conditions</a>.
                 </label>
             </div>
-            <div class="g-recaptcha" data-sitekey="6LdEuIEqAAAAAJp33EewtqMHDcVowUNiNrB0P51x"></div>
+          
             <button type="submit" name="submit">Send OTP</button>
             
             <div class="form">
@@ -410,8 +409,25 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
 
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LdTwIEqAAAAAB9xx4POW_ICfyTSokz_D5VYmoiH"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent the form from submitting until reCAPTCHA is verified
+
+        grecaptcha.execute('6LdTwIEqAAAAAB9xx4POW_ICfyTSokz_D5VYmoiH', { action: 'submit' }).then(function(token) {
+            // Append reCAPTCHA token to the form
+            const recaptchaInput = document.createElement('input');
+            recaptchaInput.setAttribute('type', 'hidden');
+            recaptchaInput.setAttribute('name', 'g-recaptcha-response');
+            recaptchaInput.setAttribute('value', token);
+            document.getElementById('registrationForm').appendChild(recaptchaInput);
+
+            // Submit the form after token is appended
+            document.getElementById('registrationForm').submit();
+        });
+    });
+</script>
     <script>
         // Password visibility toggle
         document.getElementById('togglePassword').addEventListener('click', function() {
