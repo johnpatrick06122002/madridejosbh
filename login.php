@@ -295,7 +295,7 @@ function handle_failed_login() {
 <body>
 <div class="login-page">
     <div class="form">
-        <h2>Login</h2>
+        <h2>Logins</h2>
         <form class="login-form" action="" method="POST">
             <div class="input-container">
                 <i class="fa fa-envelope icon"></i>
