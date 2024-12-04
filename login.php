@@ -1,5 +1,11 @@
 <?php
 session_start();
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+header("X-Frame-Options: SAMEORIGIN");
+header("X-Content-Type-Options: nosniff");
+header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; script-src 'self' https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;");
+header("Referrer-Policy: no-referrer");
+header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
 
 // Initialize login attempts if not set
 if (!isset($_SESSION['login_attempts'])) {
