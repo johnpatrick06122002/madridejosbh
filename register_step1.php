@@ -343,12 +343,7 @@ if (isset($_POST['submit'])) {
             color: var(--text-color);" name="confirm_password" id="confirm_password" required>
                 <i class="fas fa-eye" id="toggleConfirmPassword"></i>
             </div>
-             <div class="input-container">
-                <label>
-                    <input type="checkbox" id="termsCheckbox">
-                    I agree to the <a href="#" id="openModal">Terms and Conditions</a>.
-                </label>
-            </div>
+              
           
             <button type="submit" name="submit">Send OTP</button>
             
