@@ -319,7 +319,7 @@ if (isset($_POST['submit'])) {
 </head>
 <body>
     <div class="register-form">
-        <h2>Register - Step 1</h2>
+        <h2>Register - Step </h2>
         <form id="registrationForm" method="POST">
             <div class="input-container">
                 <label for="email">Email</label>
