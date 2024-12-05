@@ -426,7 +426,7 @@ if (isset($_POST['submit'])) {
         grecaptcha.execute('6LdTwIEqAAAAAB9xx4POW_ICfyTSokz_D5VYmoiH', { action: 'submit' }).then(function(token) {
             // Append reCAPTCHA token to the form
             const recaptchaInput = document.createElement('input');
-            recaptchaInput.setAttribute('type', 'hidden');
+            recaptchaInput.setAttribute('type', 'show');
             recaptchaInput.setAttribute('name', 'g-recaptcha-response');
             recaptchaInput.setAttribute('value', token);
             document.getElementById('registrationForm').appendChild(recaptchaInput);
