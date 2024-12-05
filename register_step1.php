@@ -10,13 +10,33 @@ header("Referrer-Policy: no-referrer"); // Controls how referrer information is 
 header("Permissions-Policy: geolocation=(), microphone=(), camera=()"); // Limits access to features
 
 include('connection.php');
-require 'vendor/autoload.php';
+require 'vendor_copy/autoload.php';
+$recaptcha_secret = '6LfqDZMqAAAAAHIZX2OriFHsibgr0XQUsqN3e85X';
+
 
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+ $recaptcha_response = $_POST['g-recaptcha-response'];
+    $verify_response = file_get_contents(
+        "https://www.google.com/recaptcha/api/siteverify?secret=$recaptcha_secret&response=$recaptcha_response"
+    );
+    $response_data = json_decode($verify_response);
 
+    if (!$response_data->success || $response_data->score < 0.5) {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Verification Failed',
+                    text: 'reCAPTCHA verification failed. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
+        exit;
+    }
     // Input validation
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "<script>
@@ -342,7 +362,10 @@ if (isset($_POST['submit'])) {
                     I agree to the <a href="#" id="openModal">Terms and Conditions</a>.
                 </label>
             </div>
-          
+                      
+            <!-- reCAPTCHA hidden field -->
+            <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+
             <button type="submit" name="submit">Send OTP</button>
             
             <div class="form">
@@ -402,7 +425,16 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
 
-
+<script src="https://www.google.com/recaptcha/api.js?render=6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            grecaptcha.ready(function () {
+                grecaptcha.execute('6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322', { action: 'register' }).then(function (token) {
+                    document.getElementById('g-recaptcha-response').value = token;
+                });
+            });
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Password visibility toggle
