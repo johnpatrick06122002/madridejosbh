@@ -580,52 +580,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 return;
             }
 
-            // Show loading indicator
-            Swal.fire({
-                title: 'Verifying...',
-                text: 'Please wait',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+             Swal.fire({
+        title: 'Verifying...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
-            // Execute reCAPTCHA
-            grecaptcha.execute('6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322', { action: 'submit' })
-                .then(function(token) {
-            console.log("reCAPTCHA token obtained"); // Debug log
-            
-            // Close loading indicator
-            Swal.close();
-            
+    // Execute reCAPTCHA
+    grecaptcha.enterprise.ready(function() {
+        grecaptcha.enterprise.execute('6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322', {action: 'submit'})
+        .then(function(token) {
             // Add the token to form
             const form = document.getElementById('registrationForm');
+            let recaptchaInput = form.querySelector('input[name="g-recaptcha-response"]');
             
-            // Remove any existing reCAPTCHA input to avoid duplicates
-            const existingInput = form.querySelector('input[name="g-recaptcha-response"]');
-            if (existingInput) {
-                existingInput.remove();
+            if (!recaptchaInput) {
+                recaptchaInput = document.createElement('input');
+                recaptchaInput.type = 'hidden';
+                recaptchaInput.name = 'g-recaptcha-response';
+                form.appendChild(recaptchaInput);
             }
             
-            const recaptchaInput = document.createElement('input');
-            recaptchaInput.type = 'hidden';
-            recaptchaInput.name = 'g-recaptcha-response';
             recaptchaInput.value = token;
-            form.appendChild(recaptchaInput);
             
             // Submit the form
             form.submit();
         })
         .catch(function(error) {
-            console.error('reCAPTCHA error details:', error); // Debug log
+            console.error('reCAPTCHA error:', error);
             Swal.fire({
-                title: 'reCAPTCHA Error',
-                text: 'Verification failed. Please refresh the page and try again.',
+                title: 'Verification Failed',
+                text: 'Could not complete the verification. Please try again.',
                 icon: 'error',
                 confirmButtonColor: '#3085d6'
             });
+        })
+        .finally(function() {
+            // Ensure loading indicator is closed
+            Swal.close();
         });
+    });
 });
     </script>
 </body>
