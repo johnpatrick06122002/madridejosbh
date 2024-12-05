@@ -1,5 +1,13 @@
 <?php
 session_start();
+// Security Headers
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload"); // Enforces HTTPS
+header("X-Frame-Options: SAMEORIGIN"); // Protects against clickjacking
+header("X-Content-Type-Options: nosniff"); // Prevents MIME type sniffing
+
+header("Referrer-Policy: no-referrer"); // Controls how referrer information is shared
+header("Permissions-Policy: geolocation=(), microphone=(), camera=()"); // Limits access to features
+
 include('connection.php');
 require 'vendor_copy/autoload.php';
 
