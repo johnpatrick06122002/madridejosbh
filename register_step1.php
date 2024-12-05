@@ -205,21 +205,13 @@ if (isset($_POST['submit']))  {
             $mail->Body = "Your OTP code is <b>$otp</b>";
 
             if ($mail->send()) {
-                echo "<script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'OTP has been sent to your email address',
-                            icon: 'success',
-                            confirmButtonColor: '#3085d6'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = 'register_otp.php';
-                            }
-                        });
-                    });
-                </script>";
-            }
+    // Just send a success response that the JavaScript can handle
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.dispatchEvent(new CustomEvent('registrationSuccess'));
+        });
+    </script>";
+}
         } catch (Exception $e) {
             error_log("Mailer error: " . $mail->ErrorInfo);
             echo "<script>
@@ -543,58 +535,58 @@ if (isset($_POST['submit']))  {
         });
 
         // Form submission and validation
-        document.getElementById('registrationForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Check terms acceptance
-            if (!document.getElementById('termsCheckbox').checked) {
-                Swal.fire({
-                    title: 'Terms Required',
-                    text: 'Please accept the terms and conditions to continue.',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6'
-                });
-                return;
-            }
+       document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Check terms acceptance
+    if (!document.getElementById('termsCheckbox').checked) {
+        Swal.fire({
+            title: 'Terms Required',
+            text: 'Please accept the terms and conditions to continue.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
 
-            // Get form values
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm_password').value;
-            
-            // Email validation
-            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-                Swal.fire({
-                    title: 'Invalid Email',
-                    text: 'Please enter a valid email address.',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6'
-                });
-                return;
-            }
+    // Get form values
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    // Client-side validations
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        Swal.fire({
+            title: 'Invalid Email',
+            text: 'Please enter a valid email address.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
 
-            // Password validation
-            if (password !== confirmPassword) {
-                Swal.fire({
-                    title: 'Password Mismatch',
-                    text: 'Passwords do not match. Please try again.',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6'
-                });
-                return;
-            }
+    if (password !== confirmPassword) {
+        Swal.fire({
+            title: 'Password Mismatch',
+            text: 'Passwords do not match. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
 
-            if (!password.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/)) {
-                Swal.fire({
-                    title: 'Weak Password',
-                    text: 'Password must be at least 8 characters long, include numbers, letters, and at least one capital letter.',
-                    icon: 'error',
-                    confirmButtonColor: '#3085d6'
-                });
-                return;
-            }
+    if (!password.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/)) {
+        Swal.fire({
+            title: 'Weak Password',
+            text: 'Password must be at least 8 characters long, include numbers, letters, and at least one capital letter.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6'
+        });
+        return;
+    }
 
-           Swal.fire({
+    // Show loading indicator
+    Swal.fire({
         title: 'Verifying...',
         text: 'Please wait',
         allowOutsideClick: false,
@@ -604,59 +596,53 @@ if (isset($_POST['submit']))  {
         }
     });
 
-    // Execute reCAPTCHA with debug logging
+    // Execute reCAPTCHA
     grecaptcha.enterprise.ready(() => {
-        console.log('reCAPTCHA is ready');
-        
         grecaptcha.enterprise.execute('6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322', {
-            action: 'REGISTER'  // More specific action name
+            action: 'REGISTER'
         }).then(token => {
-            console.log('Token generated:', token.substring(0, 10) + '...');  // Log first 10 chars of token
-            
-            // Create FormData object
-            const formData = new FormData(document.getElementById('registrationForm'));
+            // Create FormData and append all necessary data
+            const formData = new FormData(this);
             formData.append('g-recaptcha-response', token);
-            
-            // Use fetch to submit the form
+            formData.append('submit', '1'); // Add this to trigger PHP submission logic
+
+            // Submit the form with fetch
             fetch(window.location.href, {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text();
-            })
+            .then(response => response.text())
             .then(html => {
-                // Close loading indicator
-                Swal.close();
-                
-                // Check if the response contains success message
-                if (html.includes('Success!')) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Registration successful! Please check your email for OTP.',
-                        icon: 'success',
-                        confirmButtonColor: '#3085d6'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = 'register_otp.php';
-                        }
-                    });
-                } else {
-                    // Extract error message if present
-                    const errorMatch = html.match(/text: '([^']*)'.*icon: 'error'/);
-                    const errorMessage = errorMatch ? errorMatch[1] : 'Registration failed. Please try again.';
-                    
-                    Swal.fire({
-                        title: 'Error',
-                        text: errorMessage,
-                        icon: 'error',
-                        confirmButtonColor: '#3085d6'
-                    });
-                }
-            })
+    // Parse the response
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const scriptContent = doc.querySelector('script:not([src])');
+    
+    if (scriptContent && (scriptContent.textContent.includes('Success!') || 
+        scriptContent.textContent.includes('registrationSuccess'))) {
+        // Success case - single handling of the success scenario
+        Swal.fire({
+            title: 'Success!',
+            text: 'OTP has been sent to your email address',
+            icon: 'success',
+            confirmButtonColor: '#3085d6'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'register_otp.php';
+            }
+        });
+    } else {
+        // Error case - try to extract error message
+        const errorMatch = scriptContent ? 
+            scriptContent.textContent.match(/text: '([^']*)'/) : null;
+        Swal.fire({
+            title: 'Error',
+            text: errorMatch ? errorMatch[1] : 'Registration failed. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#3085d6'
+        });
+    }
+})
             .catch(error => {
                 console.error('Submission error:', error);
                 Swal.fire({
@@ -665,11 +651,13 @@ if (isset($_POST['submit']))  {
                     icon: 'error',
                     confirmButtonColor: '#3085d6'
                 });
+            })
+            .finally(() => {
+                Swal.close();
             });
         })
         .catch(error => {
             console.error('reCAPTCHA error:', error);
-            Swal.close();
             Swal.fire({
                 title: 'reCAPTCHA Error',
                 text: 'Verification failed. Please refresh and try again.',
