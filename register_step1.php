@@ -20,13 +20,62 @@ if (isset($_POST['submit'])) {
     $secret_key = "6LfqDZMqAAAAAHIZX2OriFHsibgr0XQUsqN3e85X"; // Replace with your secret key
     $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret_key&response=$recaptcha_response");
     $response_data = json_decode($response);
-
-   if (!$response_data->success) {
+ 
+    if (!$recaptcha_response) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
-                    title: 'reCAPTCHA Failed',
-                    text: 'Please complete the reCAPTCHA.',
+                    title: 'reCAPTCHA Error',
+                    text: 'No reCAPTCHA response received. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
+        exit;
+    }
+    
+    $verify_url = "https://www.google.com/recaptcha/api/siteverify";
+    $data = [
+        'secret' => "6LdTwIEqAAAAABV79BcBNJM8XvD1mjsTyQf7NgIh",
+        'response' => $recaptcha_response
+    ];
+    
+    $options = [
+        'http' => [
+            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method' => 'POST',
+            'content' => http_build_query($data)
+        ]
+    ];
+    
+    $context = stream_context_create($options);
+    $response = file_get_contents($verify_url, false, $context);
+    
+    if ($response === FALSE) {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Server Error',
+                    text: 'Failed to verify reCAPTCHA. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
+        exit;
+    }
+    
+    $response_data = json_decode($response);
+    
+    if (!$response_data->success) {
+        $error_codes = isset($response_data->{'error-codes'}) ? implode(', ', $response_data->{'error-codes'}) : 'unknown error';
+        echo "<script>
+            console.error('reCAPTCHA verification failed. Error codes: " . $error_codes . "');
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Verification Failed',
+                    text: 'reCAPTCHA verification failed. Please try again.',
                     icon: 'error',
                     confirmButtonColor: '#3085d6'
                 });
@@ -416,7 +465,8 @@ if (isset($_POST['submit'])) {
             <button class="modal-close" id="closeModal">Close</button>
         </div>
     </div>
-<script src="https://www.google.com/recaptcha/enterprise.js?render=6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322"></script>
+
+<script src="https://www.google.com/recaptcha/api.js?render=6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
         // Password visibility toggle
@@ -514,30 +564,39 @@ if (isset($_POST['submit'])) {
             // Execute reCAPTCHA
             grecaptcha.execute('6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322', { action: 'submit' })
                 .then(function(token) {
-                    // Close loading indicator
-                    Swal.close();
-                    
-                    // Add the token to form
-                    const form = document.getElementById('registrationForm');
-                    const recaptchaInput = document.createElement('input');
-                    recaptchaInput.type = 'hidden';
-                    recaptchaInput.name = 'g-recaptcha-response';
-                    recaptchaInput.value = token;
-                    form.appendChild(recaptchaInput);
-                    
-                    // Submit the form
-                    form.submit();
-                })
-                .catch(function(error) {
-                    console.error('reCAPTCHA error:', error);
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'There was a problem verifying reCAPTCHA. Please try again.',
-                        icon: 'error',
-                        confirmButtonColor: '#3085d6'
-                    });
-                });
+            console.log("reCAPTCHA token obtained"); // Debug log
+            
+            // Close loading indicator
+            Swal.close();
+            
+            // Add the token to form
+            const form = document.getElementById('registrationForm');
+            
+            // Remove any existing reCAPTCHA input to avoid duplicates
+            const existingInput = form.querySelector('input[name="g-recaptcha-response"]');
+            if (existingInput) {
+                existingInput.remove();
+            }
+            
+            const recaptchaInput = document.createElement('input');
+            recaptchaInput.type = 'hidden';
+            recaptchaInput.name = 'g-recaptcha-response';
+            recaptchaInput.value = token;
+            form.appendChild(recaptchaInput);
+            
+            // Submit the form
+            form.submit();
+        })
+        .catch(function(error) {
+            console.error('reCAPTCHA error details:', error); // Debug log
+            Swal.fire({
+                title: 'reCAPTCHA Error',
+                text: 'Verification failed. Please refresh the page and try again.',
+                icon: 'error',
+                confirmButtonColor: '#3085d6'
+            });
         });
+});
     </script>
 </body>
 </html>
