@@ -10,7 +10,7 @@ header("Referrer-Policy: no-referrer"); // Controls how referrer information is 
 header("Permissions-Policy: geolocation=(), microphone=(), camera=()"); // Limits access to features
 
 include('connection.php');
-require 'vendor/autoload.php';
+require 'vendor_copy/autoload.php';
 $recaptcha_secret = '6LfqDZMqAAAAAHIZX2OriFHsibgr0XQUsqN3e85X';
 
 
