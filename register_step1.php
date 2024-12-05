@@ -10,7 +10,7 @@ header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
 include('connection.php');
 require 'vendor_copy/autoload.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+if (isset($_POST['submit']))  {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
