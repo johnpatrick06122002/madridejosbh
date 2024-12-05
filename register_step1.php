@@ -17,7 +17,7 @@ if (isset($_POST['submit'])) {
     $confirm_password = $_POST['confirm_password'];
    $recaptcha_response = $_POST['g-recaptcha-response'];
 
-    $secret_key = "6LdTwIEqAAAAABV79BcBNJM8XvD1mjsTyQf7NgIh"; // Replace with your secret key
+    $secret_key = "6LfqDZMqAAAAAHIZX2OriFHsibgr0XQUsqN3e85X"; // Replace with your secret key
     $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret_key&response=$recaptcha_response");
     $response_data = json_decode($response);
 
@@ -417,7 +417,7 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
 
-<script src="https://www.google.com/recaptcha/api.js?render=6LdTwIEqAAAAAB9xx4POW_ICfyTSokz_D5VYmoiH"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
         // Password visibility toggle
@@ -513,7 +513,7 @@ if (isset($_POST['submit'])) {
             });
 
             // Execute reCAPTCHA
-            grecaptcha.execute('6LdTwIEqAAAAAB9xx4POW_ICfyTSokz_D5VYmoiH', { action: 'submit' })
+            grecaptcha.execute('6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322', { action: 'submit' })
                 .then(function(token) {
                     // Close loading indicator
                     Swal.close();
