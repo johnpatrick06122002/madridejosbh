@@ -419,24 +419,7 @@ if (isset($_POST['submit'])) {
 
 <script src="https://www.google.com/recaptcha/api.js?render=6LdTwIEqAAAAAB9xx4POW_ICfyTSokz_D5VYmoiH"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-    document.getElementById('registrationForm').addEventListener('submit', function(e) {
-        e.preventDefault(); // Prevent the form from submitting until reCAPTCHA is verified
-
-        grecaptcha.execute('6LdTwIEqAAAAAB9xx4POW_ICfyTSokz_D5VYmoiH', { action: 'submit' }).then(function(token) {
-            // Append reCAPTCHA token to the form
-            const recaptchaInput = document.createElement('input');
-            recaptchaInput.setAttribute('type', 'show');
-            recaptchaInput.setAttribute('name', 'g-recaptcha-response');
-            recaptchaInput.setAttribute('value', token);
-            document.getElementById('registrationForm').appendChild(recaptchaInput);
-
-            // Submit the form after token is appended
-            document.getElementById('registrationForm').submit();
-        });
-    });
-</script>
-    <script>
+  <script>
         // Password visibility toggle
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordField = document.getElementById('password');
@@ -451,7 +434,8 @@ if (isset($_POST['submit'])) {
             confirmPasswordField.setAttribute('type', type);
             this.classList.toggle('fa-eye-slash');
         });
-    // Terms and Conditions Modal
+
+        // Terms and Conditions Modal
         const termsModal = document.getElementById('termsModal');
         const openModalBtn = document.getElementById('openModal');
         const closeModalBtn = document.getElementById('closeModal');
@@ -464,15 +448,29 @@ if (isset($_POST['submit'])) {
         closeModalBtn.addEventListener('click', function() {
             termsModal.style.display = 'none';
         });
-        // Form validation
+
+        // Form submission and validation
         document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Check terms acceptance
+            if (!document.getElementById('termsCheckbox').checked) {
+                Swal.fire({
+                    title: 'Terms Required',
+                    text: 'Please accept the terms and conditions to continue.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+
+            // Get form values
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm_password').value;
             
             // Email validation
             if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-                e.preventDefault();
                 Swal.fire({
                     title: 'Invalid Email',
                     text: 'Please enter a valid email address.',
@@ -484,7 +482,6 @@ if (isset($_POST['submit'])) {
 
             // Password validation
             if (password !== confirmPassword) {
-                e.preventDefault();
                 Swal.fire({
                     title: 'Password Mismatch',
                     text: 'Passwords do not match. Please try again.',
@@ -494,9 +491,7 @@ if (isset($_POST['submit'])) {
                 return;
             }
 
-            // Password strength validation
             if (!password.match(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/)) {
-                e.preventDefault();
                 Swal.fire({
                     title: 'Weak Password',
                     text: 'Password must be at least 8 characters long, include numbers, letters, and at least one capital letter.',
@@ -506,7 +501,43 @@ if (isset($_POST['submit'])) {
                 return;
             }
 
-            // If all validations pass, form will submit normally
+            // Show loading indicator
+            Swal.fire({
+                title: 'Verifying...',
+                text: 'Please wait',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Execute reCAPTCHA
+            grecaptcha.execute('6LdTwIEqAAAAAB9xx4POW_ICfyTSokz_D5VYmoiH', { action: 'submit' })
+                .then(function(token) {
+                    // Close loading indicator
+                    Swal.close();
+                    
+                    // Add the token to form
+                    const form = document.getElementById('registrationForm');
+                    const recaptchaInput = document.createElement('input');
+                    recaptchaInput.type = 'hidden';
+                    recaptchaInput.name = 'g-recaptcha-response';
+                    recaptchaInput.value = token;
+                    form.appendChild(recaptchaInput);
+                    
+                    // Submit the form
+                    form.submit();
+                })
+                .catch(function(error) {
+                    console.error('reCAPTCHA error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'There was a problem verifying reCAPTCHA. Please try again.',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+                });
         });
     </script>
 </body>
