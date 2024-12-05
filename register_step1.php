@@ -16,10 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $confirm_password = $_POST['confirm_password'];
     $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
 
-    $secret_key = "6LfqDZMqAAAAAHIZX2OriFHsibgr0XQUsqN3e85X"; // Replace with your secret key
-    $verify_url = "https://www.google.com/recaptcha/api/siteverify";
-
-    // Validate reCAPTCHA response
+    // Validate reCAPTCHA token
     if (empty($recaptcha_response)) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -34,24 +31,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         exit;
     }
 
-    $data = [
-        'secret' => $secret_key,
-        'response' => $recaptcha_response
+    // Verify reCAPTCHA response using Enterprise API
+    $api_url = 'https://recaptchaenterprise.googleapis.com/v1/projects/madrirecaptcha-1733389714065/assessments?key=AIzaSyBJc66SiqImozqdlY2Oe4QnKPjKLNxvRxw';
+    $site_key = '6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322';
+
+    $recaptcha_request = [
+        'event' => [
+            'token' => $recaptcha_response,
+            'siteKey' => $site_key,
+            'expectedAction' => 'submit'
+        ]
     ];
 
     $options = [
         'http' => [
-            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+            'header' => "Content-type: application/json\r\n",
             'method' => 'POST',
-            'content' => http_build_query($data)
+            'content' => json_encode($recaptcha_request)
         ]
     ];
 
     $context = stream_context_create($options);
-    $response = file_get_contents($verify_url, false, $context);
+    $recaptcha_response = file_get_contents($api_url, false, $context);
 
-    if ($response === FALSE) {
-        error_log("reCAPTCHA request failed.");
+    if ($recaptcha_response === FALSE) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -65,17 +68,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         exit;
     }
 
-    $response_data = json_decode($response);
+    $response_data = json_decode($recaptcha_response, true);
 
-    if (!$response_data->success) {
-        $error_codes = isset($response_data->{'error-codes'}) ? implode(', ', $response_data->{'error-codes'}) : 'unknown error';
-        error_log("reCAPTCHA verification failed: $error_codes");
+    if (!$response_data['event']['token'] || $response_data['event']['expectedAction'] !== 'submit') {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     title: 'Verification Failed',
                     text: 'reCAPTCHA verification failed. Please try again.',
                     icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
+        exit;
+    }
+
+    if ($response_data['event']['score'] < 0.5) {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Suspicious Activity',
+                    text: 'Low reCAPTCHA score detected. Please try again.',
+                    icon: 'warning',
                     confirmButtonColor: '#3085d6'
                 });
             });
