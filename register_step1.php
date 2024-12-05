@@ -37,7 +37,7 @@ if (isset($_POST['submit'])) {
     
     $verify_url = "https://www.google.com/recaptcha/api/siteverify";
     $data = [
-        'secret' => "6LdTwIEqAAAAABV79BcBNJM8XvD1mjsTyQf7NgIh",
+        'secret' => "6LfqDZMqAAAAAHIZX2OriFHsibgr0XQUsqN3e85X",
         'response' => $recaptcha_response
     ];
     
