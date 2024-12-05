@@ -496,7 +496,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         </div>
     </div>
 
-<script src="https://www.google.com/recaptcha/api.js?render=6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322"></script>
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
         // Password visibility toggle
