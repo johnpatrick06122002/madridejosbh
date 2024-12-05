@@ -17,12 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
 
     // Validate reCAPTCHA token
-    if (empty($recaptcha_response)) {
+     if (empty($recaptcha_response)) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     title: 'reCAPTCHA Error',
-                    text: 'No reCAPTCHA response received. Please try again.',
+                    text: 'Please complete the reCAPTCHA verification.',
                     icon: 'error',
                     confirmButtonColor: '#3085d6'
                 });
@@ -31,35 +31,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         exit;
     }
 
-    // Verify reCAPTCHA response using Enterprise API
-    $api_url = 'https://recaptchaenterprise.googleapis.com/v1/projects/madrirecaptcha-1733389714065/assessments?key=AIzaSyBJc66SiqImozqdlY2Oe4QnKPjKLNxvRxw';
-    $site_key = '6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322';
-
-    $recaptcha_request = [
+    // Your project ID and API key
+    $project_id = 'madrirecaptcha-1733389714065';
+    $api_key = 'AIzaSyBJc66SiqImozqdlY2Oe4QnKPjKLNxvRxw';
+    
+    // Create assessment request
+    $data = [
         'event' => [
             'token' => $recaptcha_response,
-            'siteKey' => $site_key,
-            'expectedAction' => 'submit'
+            'siteKey' => '6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322',
+            'expectedAction' => 'REGISTER'
         ]
     ];
 
     $options = [
         'http' => [
-            'header' => "Content-type: application/json\r\n",
+            'header' => [
+                'Content-Type: application/json',
+                'Accept: application/json'
+            ],
             'method' => 'POST',
-            'content' => json_encode($recaptcha_request)
+            'content' => json_encode($data),
+            'ignore_errors' => true
         ]
     ];
 
     $context = stream_context_create($options);
-    $recaptcha_response = file_get_contents($api_url, false, $context);
-
-    if ($recaptcha_response === FALSE) {
+    $url = "https://recaptchaenterprise.googleapis.com/v1/projects/{$project_id}/assessments?key={$api_key}";
+    
+    // Make the API request
+    $response = file_get_contents($url, false, $context);
+    
+    if ($response === FALSE) {
+        error_log("reCAPTCHA API request failed");
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
-                    title: 'Server Error',
-                    text: 'Failed to verify reCAPTCHA. Please try again.',
+                    title: 'Verification Error',
+                    text: 'Could not verify reCAPTCHA response.',
                     icon: 'error',
                     confirmButtonColor: '#3085d6'
                 });
@@ -68,13 +77,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         exit;
     }
 
-    $response_data = json_decode($recaptcha_response, true);
-
-    if (!$response_data['event']['token'] || $response_data['event']['expectedAction'] !== 'submit') {
+    $result = json_decode($response, true);
+    
+    // Log the full response for debugging
+    error_log("reCAPTCHA response: " . print_r($result, true));
+    
+    // Check if the assessment was successful
+    if (!isset($result['tokenProperties']['valid']) || !$result['tokenProperties']['valid']) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
-                    title: 'Verification Failed',
+                    title: 'Invalid Verification',
                     text: 'reCAPTCHA verification failed. Please try again.',
                     icon: 'error',
                     confirmButtonColor: '#3085d6'
@@ -84,13 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         exit;
     }
 
-    if ($response_data['event']['score'] < 0.5) {
+    // Check the risk score (0.0 is most risky, 1.0 is least risky)
+    if (isset($result['riskAnalysis']['score']) && $result['riskAnalysis']['score'] < 0.5) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
-                    title: 'Suspicious Activity',
-                    text: 'Low reCAPTCHA score detected. Please try again.',
-                    icon: 'warning',
+                    title: 'Security Check Failed',
+                    text: 'This request appears to be suspicious. Please try again.',
+                    icon: 'error',
                     confirmButtonColor: '#3085d6'
                 });
             });
@@ -580,7 +594,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 return;
             }
 
-             Swal.fire({
+           Swal.fire({
         title: 'Verifying...',
         text: 'Please wait',
         allowOutsideClick: false,
@@ -590,38 +604,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         }
     });
 
-    // Execute reCAPTCHA
-    grecaptcha.enterprise.ready(function() {
-        grecaptcha.enterprise.execute('6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322', {action: 'submit'})
-        .then(function(token) {
-            // Add the token to form
-            const form = document.getElementById('registrationForm');
-            let recaptchaInput = form.querySelector('input[name="g-recaptcha-response"]');
+    // Execute reCAPTCHA with debug logging
+    grecaptcha.enterprise.ready(() => {
+        console.log('reCAPTCHA is ready');
+        
+        grecaptcha.enterprise.execute('6LfqDZMqAAAAAKD9P-4OFpmmraeL52jsWoIFs322', {
+            action: 'REGISTER'  // More specific action name
+        }).then(token => {
+            console.log('Token generated:', token.substring(0, 10) + '...');  // Log first 10 chars of token
             
-            if (!recaptchaInput) {
-                recaptchaInput = document.createElement('input');
-                recaptchaInput.type = 'hidden';
-                recaptchaInput.name = 'g-recaptcha-response';
-                form.appendChild(recaptchaInput);
-            }
+            // Create FormData object
+            const formData = new FormData(document.getElementById('registrationForm'));
+            formData.append('g-recaptcha-response', token);
             
-            recaptchaInput.value = token;
-            
-            // Submit the form
-            form.submit();
+            // Use fetch to submit the form
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Close loading indicator
+                Swal.close();
+                
+                // Check if the response contains success message
+                if (html.includes('Success!')) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Registration successful! Please check your email for OTP.',
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = 'register_otp.php';
+                        }
+                    });
+                } else {
+                    // Extract error message if present
+                    const errorMatch = html.match(/text: '([^']*)'.*icon: 'error'/);
+                    const errorMessage = errorMatch ? errorMatch[1] : 'Registration failed. Please try again.';
+                    
+                    Swal.fire({
+                        title: 'Error',
+                        text: errorMessage,
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Submission error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to submit form. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
         })
-        .catch(function(error) {
+        .catch(error => {
             console.error('reCAPTCHA error:', error);
+            Swal.close();
             Swal.fire({
-                title: 'Verification Failed',
-                text: 'Could not complete the verification. Please try again.',
+                title: 'reCAPTCHA Error',
+                text: 'Verification failed. Please refresh and try again.',
                 icon: 'error',
                 confirmButtonColor: '#3085d6'
             });
-        })
-        .finally(function() {
-            // Ensure loading indicator is closed
-            Swal.close();
         });
     });
 });
