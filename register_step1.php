@@ -1,21 +1,26 @@
 <?php
 session_start();
 // Security Headers
- 
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+header("X-Frame-Options: SAMEORIGIN");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: no-referrer");
+header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
+
 include('connection.php');
 require 'vendor_copy/autoload.php';
 
-if (isset($_POST['submit'])) {
-    $email = $_POST['email'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+    $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-   $recaptcha_response = $_POST['g-recaptcha-response'];
+    $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
 
     $secret_key = "6LfqDZMqAAAAAHIZX2OriFHsibgr0XQUsqN3e85X"; // Replace with your secret key
-    $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret_key&response=$recaptcha_response");
-    $response_data = json_decode($response);
- 
-    if (!$recaptcha_response) {
+    $verify_url = "https://www.google.com/recaptcha/api/siteverify";
+
+    // Validate reCAPTCHA response
+    if (empty($recaptcha_response)) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -28,13 +33,12 @@ if (isset($_POST['submit'])) {
         </script>";
         exit;
     }
-    
-    $verify_url = "https://www.google.com/recaptcha/api/siteverify";
+
     $data = [
-        'secret' => "6LfqDZMqAAAAAHIZX2OriFHsibgr0XQUsqN3e85X",
+        'secret' => $secret_key,
         'response' => $recaptcha_response
     ];
-    
+
     $options = [
         'http' => [
             'header' => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -42,11 +46,12 @@ if (isset($_POST['submit'])) {
             'content' => http_build_query($data)
         ]
     ];
-    
+
     $context = stream_context_create($options);
     $response = file_get_contents($verify_url, false, $context);
-    
+
     if ($response === FALSE) {
+        error_log("reCAPTCHA request failed.");
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -59,13 +64,13 @@ if (isset($_POST['submit'])) {
         </script>";
         exit;
     }
-    
+
     $response_data = json_decode($response);
-    
+
     if (!$response_data->success) {
         $error_codes = isset($response_data->{'error-codes'}) ? implode(', ', $response_data->{'error-codes'}) : 'unknown error';
+        error_log("reCAPTCHA verification failed: $error_codes");
         echo "<script>
-            console.error('reCAPTCHA verification failed. Error codes: " . $error_codes . "');
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     title: 'Verification Failed',
@@ -75,7 +80,11 @@ if (isset($_POST['submit'])) {
                 });
             });
         </script>";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        exit;
+    }
+
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -86,7 +95,11 @@ if (isset($_POST['submit'])) {
                 });
             });
         </script>";
-    } elseif ($password !== $confirm_password) {
+        exit;
+    }
+
+    // Validate password match and strength
+    if ($password !== $confirm_password) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -97,7 +110,10 @@ if (isset($_POST['submit'])) {
                 });
             });
         </script>";
-    } elseif (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/', $password)) {
+        exit;
+    }
+
+    if (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/', $password)) {
         echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
@@ -108,97 +124,102 @@ if (isset($_POST['submit'])) {
                 });
             });
         </script>";
-    } else {
-        // Check if email exists
-        $stmt = $dbconnection->prepare("SELECT * FROM register1 WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        exit;
+    }
 
-        if ($result->num_rows > 0) {
+    // Check if email exists
+    $stmt = $dbconnection->prepare("SELECT * FROM register1 WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Email Exists',
+                    text: 'This email is already registered.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
+        exit;
+    }
+
+    // Generate OTP and hash password
+    $otp = rand(100000, 999999);
+    $_SESSION['otp'] = $otp;
+    $_SESSION['email'] = $email;
+    $_SESSION['password'] = password_hash($password, PASSWORD_ARGON2I);
+
+    // Insert into database
+    $stmt = $dbconnection->prepare("INSERT INTO register1 (email, password, otp) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $email, $_SESSION['password'], $otp);
+
+    if ($stmt->execute()) {
+        // Send OTP Email
+        $mail = new PHPMailer\PHPMailer\PHPMailer();
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'lucklucky2100@gmail.com';
+            $mail->Password = 'kjxf ptjv erqn yygv'; // Replace with actual app password
+            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
+            $mail->addAddress($email);
+            $mail->isHTML(true);
+            $mail->Subject = 'Your OTP Code';
+            $mail->Body = "Your OTP code is <b>$otp</b>";
+
+            if ($mail->send()) {
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'OTP has been sent to your email address',
+                            icon: 'success',
+                            confirmButtonColor: '#3085d6'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = 'register_otp.php';
+                            }
+                        });
+                    });
+                </script>";
+            }
+        } catch (Exception $e) {
+            error_log("Mailer error: " . $mail->ErrorInfo);
             echo "<script>
                 document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
-                        title: 'Email Exists',
-                        text: 'This email is already registered.',
+                        title: 'OTP Failed',
+                        text: 'Error sending OTP. Please try again.',
                         icon: 'error',
                         confirmButtonColor: '#3085d6'
                     });
                 });
             </script>";
-        } else {
-            // Generate OTP
-            $otp = rand(100000, 999999);
-            $_SESSION['otp'] = $otp;
-            $_SESSION['email'] = $email;
-            $_SESSION['password'] = password_hash($password, PASSWORD_ARGON2I);
-
-            // Insert into database
-            $stmt = $dbconnection->prepare("INSERT INTO register1 (email, password, otp) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $email, $_SESSION['password'], $otp);
-
-            if ($stmt->execute()) {
-                $mail = new PHPMailer\PHPMailer\PHPMailer();
-                try {
-                    $mail->isSMTP();
-                    $mail->Host = 'smtp.gmail.com';
-                    $mail->SMTPAuth = true;
-                    $mail->Username = 'lucklucky2100@gmail.com';
-                    $mail->Password = 'kjxf ptjv erqn yygv';
-                    $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-                    $mail->Port = 587;
-
-                    $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
-                    $mail->addAddress($email);
-                    $mail->isHTML(true);
-                    $mail->Subject = 'Your OTP Code';
-                    $mail->Body = "Your OTP code is <b>$otp</b>";
-
-                    if($mail->send()) {
-                        // Use JavaScript for redirect after showing alert
-                        echo "<script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                Swal.fire({
-                                    title: 'Success!',
-                                    text: 'OTP has been sent to your email address',
-                                    icon: 'success',
-                                    confirmButtonColor: '#3085d6'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        window.location.href = 'register_otp.php';
-                                    }
-                                });
-                            });
-                        </script>";
-                    }
-                } catch (Exception $e) {
-                    echo "<script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            Swal.fire({
-                                title: 'OTP Failed',
-                                text: 'Error sending OTP. Please try again.',
-                                icon: 'error',
-                                confirmButtonColor: '#3085d6'
-                            });
-                        });
-                    </script>";
-                }
-            } else {
-                echo "<script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        Swal.fire({
-                            title: 'Database Error',
-                            text: 'Failed to register. Please try again.',
-                            icon: 'error',
-                            confirmButtonColor: '#3085d6'
-                        });
-                    });
-                </script>";
-            }
         }
+    } else {
+        error_log("Database error: " . $stmt->error);
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Database Error',
+                    text: 'Failed to register. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
+        </script>";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
