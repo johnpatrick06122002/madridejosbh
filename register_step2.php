@@ -169,7 +169,7 @@ if (isset($_POST['submit'])) {
     <div class="register-container">
         <div class="register-form">
             <h2>Complete Your Registration</h2>
-            <form id="registrationForm" action="register_step2.php" method="POST" enctype="multipart/form-data">
+            <form id="registrationForm" action="register_step2" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="firstname">First Name</label>
                     <input type="text" name="firstname" id="firstname" required>

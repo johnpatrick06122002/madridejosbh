@@ -1,17 +1,15 @@
-# HTID:23422420: DO NOT REMOVE OR MODIFY THIS LINE AND THE LINES BELOW
-php_value display_errors 1
-# DO NOT REMOVE OR MODIFY THIS LINE AND THE LINES ABOVE HTID:23422420:
-
 RewriteEngine On
 
-# Your existing index.php redirect
+# Redirect `index.php` to homepage
 RewriteRule ^index\.php$ https://madridejosbh2.com/ [R=301,L]
 
-# Remove .php extension from URLs
+# Remove .php extension from URLs (only for browser navigation)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteCond %{REQUEST_URI} !^/register_step2\.php$ [NC]
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
 
-# Redirect from .php to non-php URLs
+# Redirect .php URLs to non-extension versions (except for form actions)
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
+RewriteCond %{REQUEST_URI} !^/register_step2\.php$ [NC]
 RewriteRule ^ %1 [R=301,L]
