@@ -161,7 +161,7 @@ if (isset($_POST['subscribe'])) {
 <body>
     <div class="container">
         <h2>Select Your Subscription Plan</h2>
-        <form action="subscription.php" method="POST">
+        <form action="subscription" method="POST">
             <div class="plans">
                 <!-- Free Trial Plan -->
                 <div class="plan-card free-trial">
