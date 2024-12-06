@@ -3,6 +3,7 @@ session_start();
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 header("X-Frame-Options: SAMEORIGIN");
 header("X-Content-Type-Options: nosniff");
+header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; script-src 'self' https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;");
 header("Referrer-Policy: no-referrer");
 header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
 
@@ -32,7 +33,7 @@ if (isset($_POST["login"])) {
     $myusername = mysqli_real_escape_string($dbconnection, $_POST['myemail']);
     $mypassword = mysqli_real_escape_string($dbconnection, $_POST['mypassword']);
 
-    $sql = "SELECT id, password, confirmation, verification, session_token FROM register1 WHERE email = '$myusername'";
+    $sql = "SELECT id, password, confirmation, verification FROM register1 WHERE email = '$myusername'";
     $result = mysqli_query($dbconnection, $sql);
 
     if ($result) {
@@ -58,23 +59,14 @@ if (isset($_POST["login"])) {
             elseif (password_verify($mypassword, $row['password'])) {
                 $_SESSION['login_attempts'] = 0;
                 $_SESSION['lock_time'] = null;
-                
-                // Generate a new session token
-                $new_session_token = bin2hex(random_bytes(32));
-                $_SESSION['session_token'] = $new_session_token;
                 $_SESSION['login_user'] = $myusername;
                 $_SESSION['register1_id'] = $row['id'];
 
-                // Update the session token in the database
-                $update_sql = "UPDATE register1 SET session_token = '$new_session_token' WHERE id = '{$row['id']}'";
-                mysqli_query($dbconnection, $update_sql);
-
-                // Check for associated rental data
                 $register1_id = $row['id'];
-                $rental_check_sql = "SELECT id FROM rental WHERE register1_id = '$register1_id'";
-                $rental_check_result = mysqli_query($dbconnection, $rental_check_sql);
+    $rental_check_sql = "SELECT id FROM rental WHERE register1_id = '$register1_id'";
+    $rental_check_result = mysqli_query($dbconnection, $rental_check_sql);
 
-                if (mysqli_num_rows($rental_check_result) > 0) {
+    if (mysqli_num_rows($rental_check_result) > 0) {
                     $alert_message = [
                         'icon' => 'success',
                         'title' => 'Login Successful',
@@ -82,14 +74,14 @@ if (isset($_POST["login"])) {
                     ];
                     echo '<script>setTimeout(function(){ window.location.href = "landlord/dashboard.php"; }, 1500);</script>';
                 } else {
-                    $alert_message = [
+                     $alert_message = [
                         'icon' => 'success',
                         'title' => 'Login Successful',
                         'text' => 'Please create your boarding house.'
                     ];
                     echo '<script>setTimeout(function(){ window.location.href = "landlord/create.php"; }, 1500);</script>';
                 }
-            } else {
+} else {
                 handle_failed_login();
             }
         } else {
@@ -130,7 +122,6 @@ function handle_failed_login() {
     ];
 }
 ?>
-
 
 <!DOCTYPE html>
 <html>
