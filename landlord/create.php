@@ -3,6 +3,10 @@
 
 
 <?php 
+if(!isset($_SESSION['login_user'])){
+       header("location:../login.php");
+       die();
+     }
 if(isset($_POST["create"])) {
   // Escape all input values
   $rental_id = mysqli_real_escape_string($dbconnection, $_POST['rental_id']);

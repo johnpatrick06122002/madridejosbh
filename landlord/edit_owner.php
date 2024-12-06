@@ -3,6 +3,11 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <?php
+
+if(!isset($_SESSION['login_user'])){
+       header("location:../login.php");
+       die();
+     }
 // Fetch owner details
 $owner_id = $_GET['owner_id'];
 $sql_edit = "SELECT * FROM register2 WHERE id='$owner_id'";

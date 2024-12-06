@@ -1,6 +1,9 @@
 <?php
 include('header.php');
-
+if(!isset($_SESSION['login_user'])){
+       header("location:../login.php");
+       die();
+     } 
 $rental_id = $_GET['bh_id'];
 $sql_edit = "SELECT * FROM rental WHERE rental_id='$rental_id'";
 $result_edit = mysqli_query($dbconnection, $sql_edit);

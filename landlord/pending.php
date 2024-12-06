@@ -9,7 +9,7 @@ require '../vendor_copy/autoload.php'; // Adjust the path according to your stru
 // Check if landlord is logged in and get their ID
 session_start();
 if (!isset($_SESSION['register1_id'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit();
 }
 $landlord_id = $_SESSION['register1_id'];

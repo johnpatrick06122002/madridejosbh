@@ -1,6 +1,11 @@
 <?php include('header.php'); ?>
 
 <?php
+if(!isset($_SESSION['login_user'])){
+       header("location:../login.php");
+       die();
+     }
+
 if (isset($_POST["delete"])) {
     $id = $_POST['rowid'];
 

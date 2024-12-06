@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Check if user is logged in
 if (!isset($_SESSION['register1_id'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit();
 }
 

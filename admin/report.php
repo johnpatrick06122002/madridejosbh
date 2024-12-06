@@ -1,6 +1,10 @@
 <?php
 include('../connection.php');
-
+if (!isset($_SESSION['admin_loggedin']) || $_SESSION['admin_loggedin'] !== true) {
+    // Redirect to login page if not logged in
+    header("Location: index.php");
+    exit; // Stop further execution
+}
 // Get the start and end date for the selected interval (defaults to this month)
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] . '-01' : date('Y-m-01');  // Default to first day of the current month
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] . '-31' : date('Y-m-t');  // Default to last day of the current month

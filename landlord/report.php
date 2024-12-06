@@ -1,6 +1,11 @@
 <?php include('header.php'); ?>
 
 <?php
+
+if(!isset($_SESSION['login_user'])){
+       header("location:../login.php");
+       die();
+     }
 // Initialize variables
 $total_income = 0;
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01'); // Default to the first day of the current month
