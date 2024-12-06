@@ -2,9 +2,4 @@
 php_value display_errors 1
 # DO NOT REMOVE OR MODIFY THIS LINE AND THE LINES ABOVE HTID:23422420:
 
-RewriteEngine On
-
-# Your existing index.php redirect
-RewriteRule ^index\.php$ https://madridejosbh2.com/ [R=301,L]
-
  
