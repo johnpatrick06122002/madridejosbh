@@ -7,11 +7,4 @@ RewriteEngine On
 # Your existing index.php redirect
 RewriteRule ^index\.php$ https://madridejosbh2.com/ [R=301,L]
 
-# Commented out rules for removing .php extension
-# RewriteCond %{REQUEST_FILENAME} !-d
-# RewriteCond %{REQUEST_FILENAME}.php -f
-# RewriteRule ^([^\.]+)$ $1.php [NC,L]
-
-# Commented out rules for redirecting .php to non-php URLs
-# RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
-# RewriteRule ^ %1 [R=301,L]
+# No other rewrite rules to interfere with .php extensions
