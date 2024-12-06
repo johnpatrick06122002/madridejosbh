@@ -385,7 +385,7 @@ if (isset($_POST["booknow"])) {
                 </select>
             </div>
             <div class="form-group">
-                <label for="gcash_number">GCash Number:</label>
+                <label for="gcash_number">Contact Number:</label>
                 <input type="text" class="form-control" id="gcash_number" name="gcash_number" required>
             </div>
             <div class="form-group">

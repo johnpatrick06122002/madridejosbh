@@ -1,7 +1,18 @@
 <?php
 session_start();
+include('../connection.php');
+
+// Clear session token in the database (optional)
+$login_user = $_SESSION['login_user'] ?? null;
+
+if ($login_user) {
+    $stmt = $dbconnection->prepare("UPDATE register1 SET session_token = NULL WHERE email = ?");
+    $stmt->bind_param("s", $login_user);
+    $stmt->execute();
+}
 
 // Destroy the session
+$_SESSION = [];
 session_destroy();
 ?>
 
@@ -11,7 +22,6 @@ session_destroy();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logout</title>
-    <link rel="shortcut icon" type="x-icon" href="../b.png">
     <!-- Include SweetAlert CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
@@ -30,6 +40,10 @@ session_destroy();
         window.location.href = '../index.php';
     });
 </script>
+
+<noscript>
+    <p>JavaScript is required to use this page. You have been logged out. Please <a href="../index.php">click here</a> to go back to the home page.</p>
+</noscript>
 
 </body>
 </html>

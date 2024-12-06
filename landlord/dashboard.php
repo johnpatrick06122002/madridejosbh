@@ -1,5 +1,30 @@
 <?php include('header.php'); ?>
 <?php 
+
+
+
+// Check if the session exists
+if (!isset($_SESSION['login_user'], $_SESSION['session_token'])) {
+    header("Location: ../login.php");
+    exit;
+}
+
+// Validate session token in the database
+$login_user = $_SESSION['login_user'];
+$session_token = $_SESSION['session_token'];
+
+$stmt = $dbconnection->prepare("SELECT session_token FROM register1 WHERE email = ?");
+$stmt->bind_param("s", $login_user);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+if (!$row || $row['session_token'] !== $session_token) {
+    // Session is invalid or logged out
+    session_destroy();
+    header("Location: ../login.php");
+    exit;
+}
 $query = "
     SELECT r.title AS boarding_house, 
            MONTH(b.last_payment_date) AS month, 
