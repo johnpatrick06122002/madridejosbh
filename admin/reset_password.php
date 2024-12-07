@@ -108,7 +108,7 @@ if (isset($_POST['reset'])) {
 <body>
     <div class="reset-form">
         <h2>Reset Password</h2>
-        <form action="reset_password.php" method="POST">
+        <form action="reset_password" method="POST">
             <div class="input-field">
                 <input type="password" name="password" placeholder="Enter new password" required id="password">
                 <i class="toggle-password fas fa-eye" id="togglePassword1"></i>
