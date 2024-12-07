@@ -1,6 +1,6 @@
 <?php
 include('../connection.php');
-include('../connection.php');
+session_start(); // Start session at the beginning of the script
 if (!isset($_SESSION['admin_loggedin']) || $_SESSION['admin_loggedin'] !== true) {
     // Redirect to login page if not logged in
     header("Location: index.php");
