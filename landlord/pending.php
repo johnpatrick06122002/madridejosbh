@@ -32,11 +32,11 @@ function sendEmail($recipients, $subject, $body) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'lucklucky2100@gmail.com';
-        $mail->Password   = 'kjxf ptjv erqn yygv';
+        $mail->Username   = 'madridejosbh2@gmail.com';
+        $mail->Password   = 'ougf gwaw ezwh jmng';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
-        $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
+        $mail->setFrom('madridejosbh2@gmail.com', 'Madridejos Bh finder');
         foreach ($recipients as $email) {
             $mail->addAddress($email);
         }
@@ -419,24 +419,26 @@ h3 {
                                 }
                                 ?>
                             </td>
-                            <td>
-                                <form method="POST" action="">
-                                    <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                    <select name="new_status">
-                                        <option value="Confirm">Confirm</option>
-                                        <option value="Reject">Reject</option>
-                                    </select>
-                                    <button type="submit" class="btn btn-primary">Update</button>
-                                </form>
+                          <td>
+    <?php if ($row['status'] === 'Reject') { ?>
+        <!-- Delete form for rejected status -->
+        <form method="POST" action="" style="margin-top: 5px;">
+            <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
+            <button type="submit" class="btn btn-danger delete-button" data-id="<?php echo $row['id']; ?>">Delete</button>
+        </form>
+    <?php } else { ?>
+        <!-- Update status form -->
+        <form method="POST" action="">
+            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+            <select name="new_status">
+                <option value="Confirm" <?php echo ($row['status'] === 'Confirm' ? 'selected' : ''); ?>>Confirm</option>
+                <option value="Reject" <?php echo ($row['status'] === 'Reject' ? 'selected' : ''); ?>>Reject</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    <?php } ?>
+</td>
 
-                                <!-- Delete form -->
-                                <!-- Delete form -->
-<form method="POST" action="" style="margin-top: 5px;">
-    <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
-    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this record?');">Delete</button>
-</form>
-
-                            </td>
                         </tr>
                     <?php } ?>
                 </tbody>
@@ -460,5 +462,29 @@ h3 {
         
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+            const form = this.closest('form'); // Get the parent form
+            const bookingId = this.getAttribute('data-id');
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Submit the form if confirmed
+                }
+            });
+        });
+    });
+</script>
 
 <?php include('footer.php'); ?>
