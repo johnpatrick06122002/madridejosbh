@@ -2,7 +2,46 @@
 <?php 
 
 
- 
+// Check if the session exists
+if (!isset($_SESSION['login_user'], $_SESSION['session_token'])) {
+    header("Location: ../login.php");
+    exit;
+}
+
+// Validate session token in the database
+$login_user = $_SESSION['login_user'];
+$session_token = $_SESSION['session_token'];
+
+$stmt = $dbconnection->prepare("SELECT session_token FROM register1 WHERE email = ?");
+$stmt->bind_param("s", $login_user);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+if (!$row || $row['session_token'] !== $session_token) {
+    // Destroy the session
+    session_destroy();
+
+    // Output SweetAlert and redirect
+    echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: 'Logged Out',
+            text: 'You\'ve been logged out. Kindly login again.',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '../login.php';
+            } else {
+                window.location.href = '../login.php';
+            }
+        });
+    </script>";
+    exit;
+}
+
+
 $query = "
     SELECT r.title AS boarding_house, 
            MONTH(b.last_payment_date) AS month, 
