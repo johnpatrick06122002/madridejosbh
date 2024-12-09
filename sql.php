@@ -24,7 +24,7 @@ if ($dbconnection === false) {
 }
 
 // Query to get all columns of register1
-$query = "DESCRIBE register1";
+$query = "DESCRIBE admins";
 
 $result = mysqli_query($dbconnection, $query);
 
