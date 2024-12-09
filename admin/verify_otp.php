@@ -1,290 +1,303 @@
 <?php
 session_start();
-include('../connection.php');
+include('../connection.php'); // Database connection
 require '../vendor_copy/autoload.php'; // PHPMailer autoload
-$msg = "";
 
-// Check if the session variable 'email' is set
 if (!isset($_SESSION['email'])) {
-    header('Location: forgot_pass.php'); // Redirect if no email is found in session
+    header('Location: forgot_password.php');
     exit();
 }
 
+$msg = "";
+
 // Handle OTP verification
 if (isset($_POST['verify'])) {
-    $otp_input = mysqli_real_escape_string($dbconnection, $_POST['otp']);
+    $otp_input = $_POST['otp'];
     $email = $_SESSION['email'];
 
-    // Query to verify OTP
-    $result = mysqli_query($dbconnection, "SELECT * FROM admins WHERE email='$email' AND otp='$otp_input'");
-    
-   
-    if (mysqli_num_rows($result) > 0) {
-        // OTP is correct, fetch user ID and store it in the session
-        $row = mysqli_fetch_assoc($result);
-        $_SESSION['user_id'] = $row['ID']; // Store the user ID in session
+    $stmt = $dbconnection->prepare("SELECT otp, otp_expiry FROM admins WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
 
-        // Set a session variable to trigger the SweetAlert
-        $_SESSION['otp_verified'] = true;
+    if ($row) {
+        $hashed_otp = $row['otp'];
+        $otp_expiry = $row['otp_expiry'];
 
-        // Redirect to the same page
-        header("Location: reset_password.php");
-        exit();
+        if (new DateTime() > new DateTime($otp_expiry)) {
+            $msg = "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'OTP Expired',
+                    text: 'The OTP has expired. Please request a new one.'
+                });
+            </script>";
+        } elseif (password_verify($otp_input, $hashed_otp)) {
+            $_SESSION['otp_verified'] = true;
+            header("Location: reset_password.php");
+            exit();
+        } else {
+            $msg = "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid OTP',
+                    text: 'The OTP you entered is incorrect. Please try again.'
+                });
+            </script>";
+        }
     } else {
-        // Display an error using SweetAlert
         $msg = "<script>
             Swal.fire({
                 icon: 'error',
-                title: 'Invalid OTP',
-                text: 'The OTP you entered is incorrect. Please try again.'
+                title: 'Error',
+                text: 'No OTP record found. Please try again.'
             });
         </script>";
     }
+    $stmt->close();
 }
-
 // Handle OTP resend
 if (isset($_POST['resend_otp'])) {
     $email = $_SESSION['email'];
-    $new_otp = rand(100000, 999999); // Generate a new OTP
+    $new_otp = random_int(100000, 999999);
+    $otp_hash = password_hash($new_otp, PASSWORD_DEFAULT);
+    $otp_expiry = date("Y-m-d H:i:s", strtotime("+15 minutes"));
 
-    // Update the new OTP in the database
-    $update_otp = mysqli_query($dbconnection, "UPDATE register1 SET otp = '$new_otp' WHERE email = '$email'");
+    $stmt = $dbconnection->prepare("UPDATE admins SET otp = ?, otp_expiry = ? WHERE email = ?");
+    $stmt->bind_param("sss", $otp_hash, $otp_expiry, $email);
 
-    // Create a new PHPMailer instance
-    $mail = new PHPMailer\PHPMailer\PHPMailer();
+    if ($stmt->execute()) {
+        $mail = new PHPMailer\PHPMailer\PHPMailer();
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'madridejosbh2@gmail.com'; // Your SMTP username
+            $mail->Password = 'ougf gwaw ezwh jmng'; // Your SMTP password
+            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
 
-    try {
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';  // Set the SMTP server to send through
-        $mail->SMTPAuth = true;
-        $mail->Username = 'lucklucky2100@gmail.com'; // Your SMTP username
-        $mail->Password = 'kjxf ptjv erqn yygv'; // Your SMTP password
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
+            $mail->setFrom('madridejosbh2@gmail.com', 'Madridejos Bh finder');
+            $mail->addAddress($email);
+            $mail->Subject = 'Your OTP Code';
+            $mail->Body = "Your new OTP code is: $new_otp";
 
-        // Recipients
-        $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
-        $mail->addAddress($email);
-        $mail->Subject = 'Your OTP Code';
-        $mail->Body = "Your new OTP code is: $new_otp";
-
-        if ($mail->send()) {
-            echo "<script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'OTP Sent',
-                    text: 'A new OTP has been sent to your email!'
-                });
-            </script>";
-        } else {
-            echo "<script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to send OTP. Please try again later.'
-                });
-            </script>";
+            if ($mail->send()) {
+                echo json_encode(["status" => "success", "message" => "OTP sent successfully."]);
+            } else {
+                echo json_encode(["status" => "error", "message" => "Failed to send OTP."]);
+            }
+        } catch (Exception $e) {
+            echo json_encode(["status" => "error", "message" => "Mailer Error: {$mail->ErrorInfo}"]);
         }
-    } catch (Exception $e) {
-        echo "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Mailer Error: {$mail->ErrorInfo}'
-            });
-        </script>";
+    } else {
+        echo json_encode(["status" => "error", "message" => "Failed to update OTP."]);
     }
+    $stmt->close();
+    exit();
 }
+
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" type="x-icon" href="../b.png">
+    <title>Verify OTP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <title>Verify OTP</title>
     <style>
-        /* General Styles */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Inter', sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 0;
         }
-
-        h2 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: #333;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 5px;
-            color: white;
-            margin: 1rem 0;
-            font-weight: 500;
-            width: 65%;
+        .verify-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
             text-align: center;
+            backdrop-filter: blur(10px);
         }
-
-        .alert-success {
-            background-color: #42ba96;
-        }
-
-        .alert-danger {
-            background-color: #fc5555;
-        }
-
-        /* OTP Boxes */
-        .otp-container {
+        .otp-input-container {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-bottom: 20px;
         }
-
-        .otp-container input {
+        .otp-input {
             width: 45px;
             height: 45px;
+            text-align: center;
             font-size: 18px;
-            text-align: center;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            color: #333;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
-
-        /* Verify Button */
+        .otp-input:focus {
+            border-color: #2575fc;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.1);
+        }
         .btn {
-            background-color: #007bff;
-            color: #fff;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: white;
             border: none;
-            border-radius: 4px;
-            padding: 12px 20px;
-            cursor: pointer;
+            border-radius: 8px;
             font-size: 16px;
-            margin-bottom: 10px;
-            width: 200px;
-            text-align: center;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        /* Resend Button */
-        .resend-btn {
-            font-size: 14px;
-            color: #007bff;
             cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
         }
-
-        #resendOtpButton:disabled {
-            color: #ccc;
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .btn:disabled {
+            background: #ccc;
             cursor: not-allowed;
+        }
+        #countdown {
+            color: #666;
+            font-size: 14px;
         }
     </style>
 </head>
-
 <body>
-    <h2>Verify OTP</h2>
-    <?php echo $msg; ?>
+    <div class="verify-container">
+        <h2>Verify OTP</h2>
+        <?php echo $msg; ?>
 
-    <!-- OTP Input Boxes -->
-    <div class="otp-container">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp2')" id="otp1">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp3')" id="otp2">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp4')" id="otp3">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp5')" id="otp4">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, 'otp6')" id="otp5">
-        <input type="text" maxlength="1" class="otp-box" oninput="moveToNext(this, '')" id="otp6">
+        <form action="" method="POST" id="otpForm">
+            <div class="otp-input-container">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric">
+                <input type="hidden" name="otp" id="hiddenOtpInput">
+            </div>
+            <button type="submit" name="verify" class="btn">Verify</button>
+        </form>
+
+        <form action="" method="POST">
+            <button type="submit" name="resend_otp" id="resendOtpButton" class="btn">Resend OTP</button>
+            <span id="countdown"></span>
+        </form>
     </div>
 
-    <!-- Hidden field to hold full OTP -->
-    <form action="" method="POST" onsubmit="return combineOtp();">
-        <input type="hidden" name="otp" id="otp" />
-        <input type="submit" name="verify" value="Verify" class="btn" />
-    </form>
+   <script>
+   document.addEventListener('DOMContentLoaded', () => {
+    const resendButton = document.getElementById('resendOtpButton');
+    const countdownDisplay = document.getElementById('countdown');
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const hiddenOtpInput = document.getElementById('hiddenOtpInput');
+    let countdown = 60;
 
-    <!-- Resend OTP Button -->
-    <div class="resend-btn">
-        <button type="button" id="resendOtpButton" onclick="resendOtp()">Resend OTP</button>
-        <span id="countdown" style="display:none;"> (60)</span>
-    </div>
+    // Resend OTP functionality
+    resendButton.addEventListener('click', function (e) {
+        e.preventDefault();
 
-    <script>
-        // Move focus to the next input field
-        function moveToNext(current, nextFieldID) {
-            if (current.value.length === 1 && nextFieldID) {
-                document.getElementById(nextFieldID).focus();
+        resendButton.disabled = true; // Disable button to avoid multiple clicks
+
+        fetch('', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'resend_otp=1',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'OTP Sent',
+                    text: data.message,
+                });
+
+                // Start countdown after a successful OTP send
+                countdownDisplay.style.display = "inline";
+                countdownDisplay.innerText = ` (${countdown}s)`;
+
+                let interval = setInterval(function () {
+                    countdown--;
+                    countdownDisplay.innerText = ` (${countdown}s)`;
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        resendButton.disabled = false;
+                        countdownDisplay.style.display = "none";
+                        countdown = 60; // Reset countdown
+                    }
+                }, 1000);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message,
+                });
+                resendButton.disabled = false; // Re-enable button on failure
             }
-        }
-
-        // Combine OTP boxes into one value for submission
-        function combineOtp() {
-            const otp = Array.from(document.querySelectorAll('.otp-box'))
-                            .map(input => input.value)
-                            .join('');
-            document.getElementById('otp').value = otp;
-            return otp.length === 6; // Only allow form submission if OTP is complete
-        }
-
-        // Resend OTP countdown timer
-        let countdown = 60;
-        let resendButton = document.getElementById('resendOtpButton');
-        let countdownDisplay = document.getElementById('countdown');
-
-        function resendOtp() {
-            resendButton.disabled = true;
-            countdownDisplay.style.display = "inline";
-            countdownDisplay.innerText = ` (${countdown})`;
-
-            let interval = setInterval(function () {
-                countdown--;
-                countdownDisplay.innerText = ` (${countdown})`;
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    resendButton.disabled = false;
-                    countdownDisplay.style.display = "none";
-                    countdown = 60;
-                }
-            }, 1000);
-
-            // AJAX request to resend OTP
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'OTP Sent',
-                        text: 'A new OTP has been sent to your email!'
-                    });
-                }
-            };
-            xhr.send("resend_otp=1");
-        }
-
-        // Trigger SweetAlert if OTP is verified
-        <?php if (isset($_SESSION['otp_verified']) && $_SESSION['otp_verified']): ?>
-        Swal.fire({
-            icon: 'success',
-            title: 'Verification Successful',
-            text: 'Your OTP has been verified. Redirecting...'
-        }).then(() => {
-            window.location.href = "../reset_password.php";
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An unexpected error occurred. Please try again later.',
+            });
+            resendButton.disabled = false; // Re-enable button on failure
         });
-        <?php unset($_SESSION['otp_verified']); endif; ?>
-    </script>
-</body>
+    });
 
+    // OTP Input Handling
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
+            // Ensure only numeric input
+            input.value = input.value.replace(/[^0-9]/g, '');
+
+            // Move focus to the next input if valid
+            if (input.value.length === 1 && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+
+            // Update hidden input with concatenated OTP
+            hiddenOtpInput.value = Array.from(otpInputs).map(inp => inp.value).join('');
+        });
+
+        input.addEventListener('keydown', (e) => {
+            // Handle Backspace to move to the previous input
+            if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+        });
+
+        input.addEventListener('paste', (e) => {
+            // Handle paste events to allow for quick input
+            e.preventDefault();
+            const pasteData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, otpInputs.length);
+            pasteData.split('').forEach((char, i) => {
+                otpInputs[i].value = char;
+            });
+            hiddenOtpInput.value = pasteData; // Update hidden input
+            otpInputs[Math.min(pasteData.length, otpInputs.length - 1)].focus(); // Focus next input
+        });
+    });
+});
+
+</script>
+
+</body>
 </html>

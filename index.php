@@ -279,16 +279,23 @@ body {
 <div class="container">
     <div class="row mx-auto" id="recent">
         <?php
+
+        include('encryption_helper.php'); // Include encryption helper file
+$encryption_key = 'YourSecureKeyHere';
         $sql = $sql_show;
         $result = mysqli_query($dbconnection, $sql);
-        while ($row = $result->fetch_assoc()) {
-            $rent_id = $row['rental_id'];
+      while ($row = $result->fetch_assoc()) {
+    $rent_id = $row['rental_id'];
 
-            $result_book = mysqli_query($dbconnection, "SELECT COUNT(1) FROM book WHERE bhouse_id='$rent_id' AND status='Confirm'");
-            $row_book = mysqli_fetch_array($result_book);
-            $reserved = $row_book[0];
-            $available_slots = $row['slots'] - $reserved;
-        ?>
+    // Calculate available slots
+    $result_book = mysqli_query($dbconnection, "SELECT COUNT(1) FROM book WHERE bhouse_id='$rent_id' AND status='Confirm'");
+    $row_book = mysqli_fetch_array($result_book);
+    $reserved = $row_book[0];
+    $available_slots = $row['slots'] - $reserved;
+
+    // Encrypt the rental_id for the link
+    $encrypted_rental_id = encrypt($rent_id, $encryption_key);
+?>
         <div class="col-lg-4 col-md-6 col-sm-12">
             <div class="course_card">
                 <div class="course_card_img">
@@ -333,7 +340,7 @@ body {
         ?>
     </span>
     <a class="btn <?php echo $available_slots == 0 ? 'disabled' : ''; ?>" 
-       href="<?php echo $available_slots > 0 ? 'view.php?bh_id=' . $row['rental_id'] : '#'; ?>">
+       href="<?php echo $available_slots > 0 ? 'view.php?bh_id=' . urlencode($encrypted_rental_id) : '#'; ?>">
        <?php echo $available_slots == 0 ? 'Fully Booked' : 'Book Now'; ?>
     </a>
 </div>

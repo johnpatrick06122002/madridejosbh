@@ -1,10 +1,9 @@
 <?php
-// Set Content Security Policy
-
-
-// Include database connection
+// Include database connection and encryption helper
 include('connection.php');
-
+include('encryption_helper.php');
+// Define the encryption key
+$encryption_key = 'YourSecureKeyHere';
 // PHPMailer dependencies
 require 'vendor_copy/autoload.php';
 
@@ -43,9 +42,26 @@ function generateUniqueId($dbconnection) {
     return $randomId;
 }
 
-// Get and validate the rental ID from the URL
-$rental_id = filter_input(INPUT_GET, 'bh_id', FILTER_VALIDATE_INT);
-if ($rental_id === false || $rental_id <= 0) {
+// Get and validate the encrypted rental ID from the URL
+$encrypted_rental_id = filter_input(INPUT_GET, 'bh_id', FILTER_SANITIZE_STRING);
+
+if (!$encrypted_rental_id) {
+    echo '<script>Swal.fire("Error", "Missing rental ID.", "error");</script>';
+    exit();
+}
+
+// Decrypt the `bh_id`
+try {
+    $rental_id = decrypt($encrypted_rental_id, $encryption_key);
+    if (!$rental_id) {
+        throw new Exception('Decryption failed');
+    }
+} catch (Exception $e) {
+    // If decryption fails, try using the encrypted value directly
+    $rental_id = $encrypted_rental_id;
+}
+
+if (!$rental_id) {
     echo '<script>Swal.fire("Error", "Invalid rental ID.", "error");</script>';
     exit();
 }
@@ -58,7 +74,7 @@ $sql = "
     WHERE rental.rental_id = ?
 ";
 $stmt = $dbconnection->prepare($sql);
-$stmt->bind_param('i', $rental_id);
+$stmt->bind_param('s', $rental_id); // Changed to string parameter
 $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
@@ -88,6 +104,8 @@ if (!is_null($row['downpayment_amount']) && $row['downpayment_amount'] > 0) {
 $landlord_email = $row['email'];
 
 if (isset($_POST["booknow"])) {
+
+ 
     $firstname = sanitizeInput($_POST['firstname'], 'name');
     $middlename = sanitizeInput($_POST['middlename'], 'name');
     $lastname = sanitizeInput($_POST['lastname'], 'name');
@@ -142,50 +160,111 @@ if (isset($_POST["booknow"])) {
             $gcash_number, 
             $email, 
             $row['register1_id'], 
-            $rental_id, 
+            $rental_id,  // This will now contain either the decrypted ID or the original encrypted ID
             $address, 
             $target_file, 
             $paid_amount_value
         );
 
-        if ($stmt_book->execute()) {
-            echo '<script>Swal.fire("Success", "Successfully Booked. Please complete your payment.", "success");</script>';
+      if ($stmt_book->execute()) {
+    
 
-            $mail = new PHPMailer(true);
-            try {
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = 'lucklucky2100@gmail.com';
-                $mail->Password = 'kjxf ptjv erqn yygv';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'madridejosbh2@gmail.com';
+        $mail->Password = 'ougf gwaw ezwh jmng';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
 
-                $mail->setFrom('lucklucky2100@gmail.com', 'Your Site Name');
-                $mail->addAddress($landlord_email);
+        $mail->setFrom('madridejosbh2@gmail.com', 'Madridejos Bh finder');
+        $mail->addAddress($landlord_email);
 
-                $mail->isHTML(true);
-                $mail->Subject = 'New Booking Alert';
-                $mail->Body = "
-                    <h3>New Booking for Your Rental Property</h3>
-                    <p><strong>First Name:</strong> " . htmlspecialchars($firstname, ENT_QUOTES, 'UTF-8') . "</p>
-                    <p><strong>Last Name:</strong> " . htmlspecialchars($lastname, ENT_QUOTES, 'UTF-8') . "</p>
-                    <p><strong>Email:</strong> " . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "</p>
-                    <p><strong>Paid Amount:</strong> " . htmlspecialchars($paid_amount_value, ENT_QUOTES, 'UTF-8') . "</p>
-                    <p><strong>GCash Picture:</strong> <img src='" . htmlspecialchars($target_file, ENT_QUOTES, 'UTF-8') . "' alt='GCash Payment' width='150'></p>
-                    <p>Kindly log in to your account to view more details.</p>
-                ";
+        $mail->isHTML(true);
+        $mail->Subject = 'New Booking Alert';
+        $mail->Body = "
+            <h3>New Booking for Your Rental Property</h3>
+            <p><strong>First Name:</strong> " . htmlspecialchars($firstname, ENT_QUOTES, 'UTF-8') . "</p>
+            <p><strong>Last Name:</strong> " . htmlspecialchars($lastname, ENT_QUOTES, 'UTF-8') . "</p>
+            <p><strong>Email:</strong> " . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "</p>
+            <p><strong>Paid Amount:</strong> " . htmlspecialchars($paid_amount_value, ENT_QUOTES, 'UTF-8') . "</p>
+            <p><strong>GCash Picture:</strong> <img src='" . htmlspecialchars($target_file, ENT_QUOTES, 'UTF-8') . "' alt='GCash Payment' width='150'></p>
+            <p>Kindly log in to your account to view more details.</p>
+        ";
 
-                $mail->send();
-                echo '<script>Swal.fire("Success", "Notification sent to the landlord.", "success");</script>';
-            } catch (Exception $e) {
-                error_log("Mailer Error: " . $mail->ErrorInfo);
-                echo "<script>Swal.fire('Error', 'There was an error sending the notification. Please contact support.', 'error');</script>";
-            }
-        } else {
-            error_log("Database Error: " . $dbconnection->error);
-            echo '<script>Swal.fire("Error", "There was an error processing your booking. Please try again later.", "error");</script>';
-        }
+         $mail->send();
+        
+        // Re-encrypt the ID for the redirect
+        $encrypted_redirect_id = encrypt($rental_id, $encryption_key);
+        
+        // Make sure to encode the encrypted ID for URL
+        $encoded_id = urlencode($encrypted_redirect_id);
+        
+        // Output the success message and handle redirect with encrypted ID
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Successfully Booked!',
+                    text: 'Please kindly wait for the landlord to confirm your booking.',
+                    icon: 'success',
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'index.php';
+                    } else {
+                        window.location.href = 'index.php';
+                    }
+                });
+            });
+        </script>";
+        exit();
+        
+    } catch (Exception $e) {
+        error_log("Mailer Error: " . $mail->ErrorInfo);
+        $encrypted_error_id = encrypt($rental_id, $encryption_key);
+        $encoded_error_id = urlencode($encrypted_error_id);
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'There was an error sending the notification. Please contact support.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = 'book.php?bh_id=" . $encoded_error_id . "';
+                });
+            });
+        </script>";
+        exit();
+    }
+} else {
+    error_log("Database Error: " . $dbconnection->error);
+    $encrypted_error_id = encrypt($rental_id, $encryption_key);
+    $encoded_error_id = urlencode($encrypted_error_id);
+    echo "
+    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Error',
+                text: 'There was an error processing your booking. Please try again later.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = 'book.php?bh_id=" . $encoded_error_id . "';
+            });
+        });
+    </script>";
+    exit();
+}
+
     } else {
         echo '<script>Swal.fire("Error", "Error uploading file.", "error");</script>';
     }
@@ -197,7 +276,6 @@ if (isset($_POST["booknow"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Now</title>
-      <link rel="shortcut icon" type="x-icon" href="b.png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -356,7 +434,12 @@ if (isset($_POST["booknow"])) {
         <h2>Book Your Rental</h2>
 
         <div class="btn-container">
-            <a href="view.php?bh_id=<?php echo $rental_id; ?>" class="btn-back">Back to Details</a>
+            <?php
+// Encrypt the rental ID for the "Back to Details" URL
+$encrypted_bh_id = encrypt($rental_id, $encryption_key);
+?>
+<a href="view.php?bh_id=<?php echo urlencode($encrypted_bh_id); ?>" class="btn-back">Back to Details</a>
+
         </div>
 
         <form id="bookingForm" method="POST" action="book.php?bh_id=<?php echo htmlspecialchars($rental_id, ENT_QUOTES, 'UTF-8'); ?>" enctype="multipart/form-data">
@@ -438,7 +521,7 @@ if (isset($_POST["booknow"])) {
         </form>
     </div>
    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
 <!-- Add PHP variable for payment amount to JavaScript -->

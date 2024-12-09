@@ -125,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 include('header.php');
 
 // Define the number of records per page
-$results_per_page = 8;
+$results_per_page = 5;
 
 // Determine the current page number
 $pageno = isset($_GET['pageno']) ? (int)$_GET['pageno'] : 1;
@@ -389,6 +389,55 @@ h3 {
 h3{
     margin-left: 15px;
 }
+
+/* Ensure the search form is aligned to the right */
+.search-form-container {
+    display: flex;
+    justify-content: flex-end; /* Push to the right */
+    margin-bottom: 20px; /* Add spacing below */
+}
+
+/* Add styling for the search input and button */
+.search-form-container input[type="text"] {
+    width: 300px; /* Adjust width */
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.search-form-container button {
+    padding: 8px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+.search-form-container button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .search-form-container {
+        flex-direction: column; /* Stack vertically on smaller screens */
+        align-items: flex-start;
+    }
+
+    .search-form-container input[type="text"] {
+        margin-right: 0; /* Reset margin for stacking */
+        margin-bottom: 10px;
+        width: 100%; /* Use full width */
+    }
+
+    .search-form-container button {
+        width: 100%; /* Use full width */
+    }
+}
 </style>
 
 <div class="dashboard-container">
@@ -396,26 +445,38 @@ h3{
         <?php include('sidebar.php'); ?>
     </div>
    
-    <div class="main-content"> <br><br><br>
-        <h3>Book Information</h3>
-        <br />
-<?php
-        // Get unique rental IDs
-        $unique_rental_ids = array();
-        if ($result && mysqli_num_rows($result) > 0) {
-            while ($rental_row = mysqli_fetch_assoc($result)) {
-                // Only add rental ID if it's not already in the array
-                if (!in_array($rental_row['bhouse_id'], $unique_rental_ids)) {
-                    $unique_rental_ids[] = $rental_row['bhouse_id'];
-                    echo '<a href="add_walkin.php?rental_id=' . $rental_row['bhouse_id'] . '" class="btn btn-success mb-3 me-2">Add Walk-In ' .  '</a>';
+    <div class="main-content"> <br><br>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Book Information</h3>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <?php
+                // Get unique rental IDs
+                $unique_rental_ids = array();
+                if ($result && mysqli_num_rows($result) > 0) {
+                    while ($rental_row = mysqli_fetch_assoc($result)) {
+                        // Only add rental ID if it's not already in the array
+                        if (!in_array($rental_row['bhouse_id'], $unique_rental_ids)) {
+                            $unique_rental_ids[] = $rental_row['bhouse_id'];
+                            echo '<a href="add_walkin.php?rental_id=' . $rental_row['bhouse_id'] . '" class="btn btn-success me-2">Add Walk-In</a>';
+                        }
+                    }
+                    // Reset the result pointer for the main data display
+                    mysqli_data_seek($result, 0);
                 }
-            }
-            // Reset the result pointer for the main data display
-            mysqli_data_seek($result, 0);
-        }
-        ?>
+                ?>
+            </div>
+            <form method="get" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="d-flex">
+                <input type="text" name="search_query" class="form-control me-2" placeholder="Search by firstname" value="<?php echo isset($_GET['search_query']) ? htmlspecialchars($_GET['search_query']) : ''; ?>">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
         <!-- Responsive Table -->
-        <div class="table-responsive d-none d-md-block"> <!-- Hide on small screens -->
+        <div class="table-responsive d-none d-md-block">  
+              
+                
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -434,7 +495,37 @@ h3{
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
+                     <?php
+                    // Handle search query
+        $search_query = isset($_GET['search_query']) ? '%' . $_GET['search_query'] . '%' : null;
+
+        $query = "
+            SELECT b.id, b.firstname, b.middlename, b.lastname, b.email, 
+                   b.age, b.gender, b.contact_number, b.Address, 
+                   b.date_posted, b.paid_amount, b.bhouse_id
+            FROM book b
+            INNER JOIN rental r ON b.bhouse_id = r.rental_id
+            WHERE b.status = 'Confirm' 
+            AND r.register1_id = ?
+            " . ($search_query ? "AND b.firstname LIKE ?" : "") . "
+            LIMIT ?, ?";
+
+        $stmt = $dbconnection->prepare($query);
+
+        if ($search_query) {
+            $stmt->bind_param("isii", $current_user_id, $search_query, $offset, $results_per_page);
+        } else {
+            $stmt->bind_param("iii", $current_user_id, $offset, $results_per_page);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Reset URL if search_query is present
+        if (isset($_GET['search_query'])) {
+            echo '<script>
+                window.history.replaceState({}, document.title, "' . htmlspecialchars($_SERVER['PHP_SELF']) . '");
+            </script>';
+        }
                     while ($row = mysqli_fetch_assoc($result)) {
                         $monthly_rental = getMonthlyRateForRental($row['bhouse_id']); 
                         $balance = calculateBalance($row['id'], $monthly_rental, $row['paid_amount']); 

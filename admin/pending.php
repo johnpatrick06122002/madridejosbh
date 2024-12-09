@@ -47,13 +47,13 @@ if (isset($_POST['approve'])) {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';  // Set the SMTP server to Gmail
             $mail->SMTPAuth = true;
-            $mail->Username = 'lucklucky2100@gmail.com'; // Your SMTP username
-            $mail->Password = 'kjxf ptjv erqn yygv'; // Your SMTP password
+            $mail->Username = 'madridejosbh2@gmail.com'; // Your SMTP username
+            $mail->Password = 'ougf gwaw ezwh jmng'; // Your SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
             // Recipients
-            $mail->setFrom('your-email@gmail.com', 'Admin');  // Sender's email
+            $mail->setFrom('madridejosbh2@gmail.com', 'Madridejos Bh finder');  // Sender's email
             $mail->addAddress($email);  // Recipient's email (the user being approved)
 
             // Content
@@ -123,14 +123,14 @@ if ($total_records > 0) {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';  // Set the SMTP server to Gmail
         $mail->SMTPAuth = true;
-        $mail->Username = 'lucklucky2100@gmail.com'; // Your SMTP username
-        $mail->Password = 'kjxf ptjv erqn yygv'; // Your SMTP password
+        $mail->Username = 'madridejosbh2@gmail.com'; // Your SMTP username
+        $mail->Password = 'ougf gwaw ezwh jmng'; // Your SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
         // Recipients
-        $mail->setFrom('your-email@gmail.com', 'Admin');  // Sender's email
-        $mail->addAddress('kenethducay12@gmail.com');  // Admin email (recipient)
+        $mail->setFrom('madridejosbh2@gmail.com', 'Madridejos Bh finder');  // Sender's email
+        $mail->addAddress('madridejosbh2@gmail.com');  // Admin email (recipient)
 
         // Content
         $mail->isHTML(true);

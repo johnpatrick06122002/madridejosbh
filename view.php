@@ -3,18 +3,25 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <?php 
-// Step 1: Sanitize and validate rental ID
-$rental_id = isset($_GET['bh_id']) ? intval($_GET['bh_id']) : 0;
-$sql_register1 = "SELECT * FROM rental WHERE rental_id='$rental_id'";
+include('encryption_helper.php'); // Include the encryption helper file
 
+$encryption_key = 'YourSecureKeyHere'; // Retrieve this from an environment variable or config file
+
+// Example: Decrypt the incoming bh_id to retrieve the rental_id
+$rental_id = isset($_GET['bh_id']) ? decrypt($_GET['bh_id'], $encryption_key) : 0;
+if (!$rental_id) {
+    die("Invalid rental ID");
+}
+
+// Use the decrypted rental_id in your query
+$sql_register1 = "SELECT * FROM rental WHERE rental_id='$rental_id'";
 $result_register1 = mysqli_query($dbconnection, $sql_register1);
 if (!$result_register1) {
     die("Query Failed: " . mysqli_error($dbconnection));
 }
-
 while ($row_register1 = $result_register1->fetch_assoc()) {
-    $register1_id = $row_register1['id'];
-}
+    $register1_id = $row_register1['register1_id'];
+}   
 
 if (isset($_POST['submitfeedback'])) {
     // Step 1: Sanitize the email input
@@ -473,22 +480,6 @@ html, body {
         transform: scale(1.05); /* Slight zoom on hover */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Depth on hover */
     }
-    .star-display {
-    display: inline-flex;
-    gap: 2px;
-}
-
-.star-display .fa-star.filled {
-    color: #ffd700; /* Gold color for filled stars */
-}
-
-.star-display .fa-star.empty {
-    color: #ddd; /* Light gray for empty stars */
-}
-
-.star-display .fa-star {
-    font-size: 1.2rem;
-}
 </style>
 </head>
 <body>
@@ -538,7 +529,7 @@ html, body {
 <?php
  
 // Fetch Landlord's details
-$sql_ll = "SELECT CONCAT(firstname, ' ', COALESCE(middlename, ''), ' ', lastname) AS name, email, contact_number, profile_photo 
+$sql_ll = "SELECT CONCAT(firstname, ' ', COALESCE(middlename, ''), ' ', lastname) AS name, address, contact_number, profile_photo 
            FROM register2 
            JOIN register1 ON register2.register1_id = register1.id 
            WHERE register1_id = ?";
@@ -551,7 +542,7 @@ if ($stmt = $dbconnection->prepare($sql_ll)) {
 
     if ($result_ll && $row_ll = $result_ll->fetch_assoc()) {
         $name = $row_ll['name'];
-        $email = $row_ll['email'];
+        $address = $row_ll['address'];
         $contact_number = $row_ll['contact_number'];
         $profile_photo = $row_ll['profile_photo'];
     } else {
@@ -602,40 +593,72 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
 
 ?>
  <div class="landlord-info-card">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0"><i class="fa fa-user" aria-hidden="true"></i></p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0"><?php echo htmlspecialchars($name); ?></p>
-                </div>
+    <div class="card-body text-center">
+        <!-- Display Profile Photo -->
+        <div class="profile-photo-container mb-3">
+            <?php 
+            // Construct the profile photo path
+            $uploads_dir = 'uploads/';
+            $profile_photo_path = $uploads_dir . $profile_photo;
+
+            // Check if the photo exists
+            if (!empty($profile_photo) && file_exists($profile_photo_path)) : ?>
+                <img src="<?php echo htmlspecialchars($profile_photo_path); ?>" 
+                     alt="Profile Photo" 
+                     class="rounded-circle" 
+                     style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;">
+            <?php else : ?>
+                <!-- Placeholder if no photo is available -->
+                <img src="uploads/default-avatar.png" 
+                     alt="Default Avatar" 
+                     class="rounded-circle" 
+                     style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;">
+            <?php endif; ?>
+        </div>
+        
+        <!-- Display Name -->
+        <div class="row">
+            <div class="col-sm-3">
+                <p class="mb-0"><i class="fa fa-user" aria-hidden="true"></i></p>
             </div>
-            <hr>
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0"><i class="fa fa-envelope" aria-hidden="true"></i></p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0"><?php echo htmlspecialchars($email); ?></p>
-                </div>
+            <div class="col-sm-9">
+                <p class="text-muted mb-0"><?php echo htmlspecialchars($name); ?></p>
             </div>
-            <hr>
-            <div class="row">
-                <div class="col-sm-3">
-                    <p class="mb-0"><i class="fa fa-phone-square" aria-hidden="true"></i></p>
-                </div>
-                <div class="col-sm-9">
-                    <p class="text-muted mb-0"><?php echo htmlspecialchars($contact_number); ?></p>
-                </div>
+        </div>
+        <hr>
+
+        <!-- Display Address -->
+        <div class="row">
+            <div class="col-sm-3">
+              <p class="mb-0"><i class="fa fa-map-marker" aria-hidden="true"></i></p>
+
+            </div>
+            <div class="col-sm-9">
+                <p class="text-muted mb-0"><?php echo htmlspecialchars($address); ?></p>
+            </div>
+        </div>
+        <hr>
+
+        <!-- Display Contact Number -->
+        <div class="row">
+            <div class="col-sm-3">
+                <p class="mb-0"><i class="fa fa-phone-square" aria-hidden="true"></i></p>
+            </div>
+            <div class="col-sm-9">
+                <p class="text-muted mb-0"><?php echo htmlspecialchars($contact_number); ?></p>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Buttons -->
-    <a href="book.php?bh_id=<?php echo $rental_id; ?>" class="btn btn-primary">
-        BOOK NOW
-    </a>
+
+  <?php
+// Encrypt the rental ID for the BOOK NOW link
+$encrypted_bh_id = encrypt($rental_id, $encryption_key);
+?>
+<a href="book.php?bh_id=<?php echo urlencode($encrypted_bh_id); ?>" class="btn btn-primary">
+    BOOK NOW
+</a>
     <button data-toggle="modal" data-target="#feedback" class="btn btn-danger">FEEDBACK</button>
 </div>
     </div>
@@ -673,24 +696,15 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
                             <small><?php echo $date; ?></small>
                         </div>
                     </div>
-                   Star Rating Display
-
-<div class="star-display">
-    <?php
-        $filled_stars = (int)$ratings;
-        $empty_stars = 5 - $filled_stars;
-        
-        // Display filled stars
-        for($i = 0; $i < $filled_stars; $i++) {
-            echo '<i class="fa fa-star filled"></i>';
-        }
-        // Display empty stars
-        for($i = 0; $i < $empty_stars; $i++) {
-            echo '<i class="fa fa-star empty"></i>';
-        }
-    ?>
-</div>
-
+                    <div>
+                        <select name="star_rating_option" class="ratings" data-fratings="<?php echo $ratings; ?>" disabled>
+                            <option value="1" <?php if ($ratings == 1) echo 'selected'; ?>>★☆☆☆☆</option>
+                            <option value="2" <?php if ($ratings == 2) echo 'selected'; ?>>★★☆☆☆</option>
+                            <option value="3" <?php if ($ratings == 3) echo 'selected'; ?>>★★★☆☆</option>
+                            <option value="4" <?php if ($ratings == 4) echo 'selected'; ?>>★★★★☆</option>
+                            <option value="5" <?php if ($ratings == 5) echo 'selected'; ?>>★★★★★</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="card-body">
                     <p><?php echo htmlspecialchars($feedback); ?></p>   

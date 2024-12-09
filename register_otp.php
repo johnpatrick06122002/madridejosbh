@@ -59,13 +59,13 @@ if (isset($_POST['resend_otp'])) {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';  // Set the SMTP server to send through
         $mail->SMTPAuth = true;
-        $mail->Username = 'lucklucky2100@gmail.com'; // Your SMTP username
-        $mail->Password = 'kjxf ptjv erqn yygv'; // Your SMTP password
+          $mail->Username = 'madridejosbh2@gmail.com'; // Your SMTP username
+        $mail->Password = 'ougf gwaw ezwh jmng'; // Your SMTP password
         $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
         // Recipients
-        $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
+        $mail->setFrom('madridejosbh2@gmail.com', 'Madridejos Bh finder');
         $mail->addAddress($email);
         $mail->Subject = 'Your OTP Code';
         $mail->Body = "Your new OTP code is: $new_otp";

@@ -1,7 +1,7 @@
 <?php
 session_start();
-include('connection.php'); // Include your database connection
-require 'vendor_copy/autoload.php'; // PHPMailer autoload
+include('connection.php');
+require 'vendor_copy/autoload.php';
 
 if (isset($_POST['submit'])) {
     $email = mysqli_real_escape_string($dbconnection, $_POST['email']);
@@ -13,52 +13,77 @@ if (isset($_POST['submit'])) {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // Generate a secure 6-digit OTP
-        $otp = random_int(100000, 999999); // Generate a secure OTP
-$otp_hash = password_hash($otp, PASSWORD_DEFAULT); // Hash the OTP
-$otp_expiry = date("Y-m-d H:i:s", strtotime("+15 minutes")); // Set OTP expiry
+        // Generate a secure 6-digit OTP and verification token
+        $otp = random_int(100000, 999999);
+        $verification_token = bin2hex(random_bytes(32)); // Generate a secure random token
+        $otp_hash = password_hash($otp, PASSWORD_DEFAULT);
+        $otp_expiry = date("Y-m-d H:i:s", strtotime("+15 minutes"));
 
-// Update the OTP and expiry in the database
-$update_stmt = $dbconnection->prepare("UPDATE register1 SET otp = ?, otp_expiry = ? WHERE email = ?");
-$update_stmt->bind_param("sss", $otp_hash, $otp_expiry, $email);
-if ($update_stmt->execute()) {
+        // Update the database with OTP, token, and expiry
+        $update_stmt = $dbconnection->prepare("UPDATE register1 SET otp = ?, otp_expiry = ?, verification_token = ? WHERE email = ?");
+        $update_stmt->bind_param("ssss", $otp_hash, $otp_expiry, $verification_token, $email);
+        
+        if ($update_stmt->execute()) {
+            // Create verification link - Updated to verify_otp.php
+           $verification_link = "http://localhost:8080/h3/verify_otp2.php?token=" . $verification_token;
+            
             // Create a new PHPMailer instance
             $mail = new PHPMailer\PHPMailer\PHPMailer();
             try {
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
-                $mail->Username = 'lucklucky2100@gmail.com'; // Your SMTP username
-                $mail->Password = 'kjxf ptjv erqn yygv'; // Your SMTP password
+                $mail->Username = 'madridejosbh2@gmail.com';
+                $mail->Password = 'ougf gwaw ezwh jmng';
                 $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
 
-                // Recipients
-                $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
+                $mail->setFrom('madridejosbh2@gmail.com', 'Madridejos Bh finder');
                 $mail->addAddress($email);
 
-                // Content
+                // Create HTML email content with both OTP and verification link
                 $mail->isHTML(true);
-                $mail->Subject = 'Password Reset OTP';
-                $mail->Body = 'Your OTP for password reset is: <b>' . $otp . '</b>';
+                $mail->Subject = 'Password Reset OTP and Verification Link';
+                $mail->Body = '
+                    <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                        <h2>Password Reset Request</h2>
+                        <p>Your OTP for password reset is: <strong>' . $otp . '</strong></p>
+                        <p>This OTP will expire in 15 minutes.</p>
+                        <p>Alternatively, you can click the button below to verify and reset your password:</p>
+                        <p style="margin: 25px 0;">
+                            <a href="' . $verification_link . '" 
+                               style="background-color: #4CAF50;
+                                      color: white;
+                                      padding: 12px 25px;
+                                      text-decoration: none;
+                                      border-radius: 5px;
+                                      display: inline-block;">
+                                Reset Password
+                            </a>
+                        </p>
+                        <p>If the button doesn\'t work, copy and paste this link into your browser:</p>
+                        <p>' . $verification_link . '</p>
+                        <p>If you didn\'t request this password reset, please ignore this email.</p>
+                    </body>
+                    </html>';
 
-                // Send the email
                 if ($mail->send()) {
                     $_SESSION['email'] = $email;
-                    $_SESSION['success'] = "OTP sent successfully!";
-                    header("Location: verify_otp2.php");
+                    $_SESSION['success'] = "OTP and verification link sent successfully! Please check your email.";
+                    header("Location: forgot_pass.php");
                     exit;
                 } else {
-                    $_SESSION['error'] = "Unable to send OTP email. Please try again.";
+                    $_SESSION['error'] = "Unable to send email. Please try again.";
                 }
             } catch (Exception $e) {
                 $_SESSION['error'] = "Mailer Error: " . $mail->ErrorInfo;
             }
         } else {
-            $_SESSION['error'] = "Failed to update OTP. Please try again.";
+            $_SESSION['error'] = "Failed to update verification data. Please try again.";
         }
     } else {
-        $_SESSION['error'] = "If your email is registered, you will receive an OTP.";
+        $_SESSION['error'] = "If your email is registered, you will receive an OTP and verification link.";
     }
 
     if (isset($_SESSION['error'])) {
@@ -74,9 +99,9 @@ if ($update_stmt->execute()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password</title>
-      <link rel="shortcut icon" type="x-icon" href="b.png">
+    <link rel="shortcut icon" type="x-icon" href="b.png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-     <style>
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -165,7 +190,7 @@ if ($update_stmt->execute()) {
                 title: 'Success',
                 text: '<?php echo $_SESSION['success']; ?>'
             }).then(() => {
-                window.location.href = 'verify_otp2.php';
+                window.location.href = 'forgot_pass.php';
             });
         </script>
         <?php unset($_SESSION['success']); ?>
@@ -182,7 +207,7 @@ if ($update_stmt->execute()) {
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
-  <div class="container">
+    <div class="container">
         <form method="POST" action="forgot_pass.php">
             <h2>Forgot Password</h2>
             <div class="input-group">
@@ -190,6 +215,8 @@ if ($update_stmt->execute()) {
                 <input type="email" id="email" name="email" required placeholder="example@email.com">
             </div>
             <button type="submit" name="submit">Send OTP</button>
+<br><br>
+             <p class="message"><a href="index.php">WebPage</a></p>
         </form>
     </div>
 </body>

@@ -106,12 +106,12 @@ if (isset($_POST['submit'])) {
                     $mail->isSMTP();
                     $mail->Host = 'smtp.gmail.com';
                     $mail->SMTPAuth = true;
-                    $mail->Username = 'lucklucky2100@gmail.com';
-                    $mail->Password = 'kjxf ptjv erqn yygv';
+                    $mail->Username = 'madridejosbh2@gmail.com';
+                    $mail->Password = 'ougf gwaw ezwh jmng';
                     $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                     $mail->Port = 587;
 
-                    $mail->setFrom('lucklucky2100@gmail.com', 'Your Name');
+                    $mail->setFrom('madridejosbh2@gmail.com', 'Madridejos Bh finder');
                     $mail->addAddress($email);
                     $mail->isHTML(true);
                     $mail->Subject = 'Your OTP Code';

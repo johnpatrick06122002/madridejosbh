@@ -1,8 +1,5 @@
 <?php include('header.php'); ?>
 
-
-
-
 <?php 
 
 $rental_id = $_GET['bh_id'];
@@ -33,7 +30,7 @@ $monthly = $_POST['monthly'];
 $map = "https://maps.google.com/maps?q=".$_POST['latitude'].",".$_POST['longitute']."&t=&z=15&ie=UTF8&iwloc=&output=embed";
 $description = $_POST['description'];
 $photo = $_FILES['photo']['name'];
-$target = "../uploadss/".basename($photo);
+$target = "../uploads/".basename($photo);
 
 
 if (isset($_POST['free_wifi'])) {
@@ -61,7 +58,7 @@ $sql = "UPDATE rental SET title='$title', address='$address', slots='$slots', ma
 
 if ($dbconnection->query($sql) === TRUE) {
 	echo '<script type="text/javascript">alert("Successfully Updated");</script>';
-	move_uploadsed_file($_FILES['photo']['tmp_name'], $target);
+	move_uploaded_file($_FILES['photo']['tmp_name'], $target);
 
 		//gallery 
 	$totalfiles = count($_FILES['gallery']['name']);
@@ -70,8 +67,8 @@ if ($dbconnection->query($sql) === TRUE) {
 	for($i=0;$i<$totalfiles;$i++){
 	$filename = $_FILES['gallery']['name'][$i];
 	 
-		// uploads files and store in database
-		if(move_uploadsed_file($_FILES["gallery"]["tmp_name"][$i],'../uploadss/'.$filename)){
+		// Upload files and store in database
+		if(move_uploaded_file($_FILES["gallery"]["tmp_name"][$i],'../uploads/'.$filename)){
 		        // Image db insert sql
 		        $insert = "INSERT into gallery (file_name,rental_id) values('$filename','$rental_id')";
 		        mysqli_query($dbconnection, $insert);

@@ -1,10 +1,13 @@
 <?php include('header.php'); ?>
 
 <?php
-if(!isset($_SESSION['login_user'])){
-       header("location:../login.php");
-       die();
-     }
+include('../encryption_helper.php'); // Include encryption helper file
+$encryption_key = 'YourSecureKeyHere';
+
+if (!isset($_SESSION['login_user'])) {
+    header("location:../login.php");
+    die();
+}
 
 if (isset($_POST["delete"])) {
     $id = $_POST['rowid'];
@@ -29,6 +32,7 @@ if (isset($_POST["delete"])) {
     $stmt->close();
 }
 ?>
+
 <style>
 /* Main layout container */
 .dashboard-container {
@@ -105,8 +109,6 @@ if (isset($_POST["delete"])) {
     font-size: 14px;
 }
 
- 
-
 /* Header styles */
 h3 {
     margin: 0 0 20px 0;
@@ -141,8 +143,6 @@ h3 {
         min-width: 30px;
     }
 
-     
-
     h3 {
         font-size: 1.5rem;
         margin-bottom: 15px;
@@ -153,7 +153,7 @@ h3 {
         gap: 3px;
     }
 }
-   
+
 /* Table styles */
 .table {
     border: 1px solid #ddd;
@@ -180,87 +180,93 @@ h3 {
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-   
-    <div class="main-content"> <br><br><br>
-        <h3>My Boarding House </h3>
+
+    <div class="main-content">
+        <br><br><br>
+        <h3>My Boarding House</h3>
         
         <div class="table-container">
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Vacant</th>
-                        <th>Occupied</th>
-                        <th>View</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php
-                if (isset($_GET['pageno'])) {
-                    $pageno = $_GET['pageno'];
-                } else {
-                    $pageno = 1;
-                }
+                        <tr>
+                            <th>Title</th>
+                            <th>Vacant</th>
+                            <th>Occupied</th>
+                            <th>View</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    $pageno = isset($_GET['pageno']) ? (int)$_GET['pageno'] : 1;
 
-                $no_of_records_per_page = 8;
-                $offset = ($pageno - 1) * $no_of_records_per_page;
+                    $no_of_records_per_page = 8;
+                    $offset = ($pageno - 1) * $no_of_records_per_page;
 
-                $total_pages_sql = "SELECT COUNT(*) FROM register1";
-                $result_pages = mysqli_query($dbconnection, $total_pages_sql);
-                $total_rows = mysqli_fetch_array($result_pages)[0];
-                $total_pages = ceil($total_rows / $no_of_records_per_page);
+                    $total_pages_sql = "SELECT COUNT(*) FROM register1";
+                    $result_pages = mysqli_query($dbconnection, $total_pages_sql);
+                    $total_rows = mysqli_fetch_array($result_pages)[0];
+                    $total_pages = ceil($total_rows / $no_of_records_per_page);
 
-                $sql = "SELECT * FROM rental WHERE register1_id=? LIMIT ?, ?";
-                $stmt = $dbconnection->prepare($sql);
-                $stmt->bind_param("iii", $login_session, $offset, $no_of_records_per_page);
-                $stmt->execute();
-                $result = $stmt->get_result();
+                    $sql = "SELECT * FROM rental WHERE register1_id=? LIMIT ?, ?";
+                    $stmt = $dbconnection->prepare($sql);
+                    $stmt->bind_param("iii", $login_session, $offset, $no_of_records_per_page);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
 
-                while ($row = $result->fetch_assoc()) {
-                    $rent_id = $row['rental_id'];
-                ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($row['title']); ?></td>
-                        <td class="col-md-1">
-                            <?php
-                            $sql_book = "SELECT COUNT(*) FROM book WHERE bhouse_id=? AND register1_id=? AND status='Confirm'";
-                            $stmt_book = $dbconnection->prepare($sql_book);
-                            $stmt_book->bind_param("ii", $rent_id, $login_session);
-                            $stmt_book->execute();
-                            $result_book = $stmt_book->get_result();
-                            $occupied = $result_book->fetch_array()[0];
-                            $stmt_book->close();
+                    while ($row = $result->fetch_assoc()) {
+                        $rent_id = $row['rental_id'];
+                        $encrypted_bh_id = encrypt($rent_id, $encryption_key);
+                    ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($row['title']); ?></td>
+                            <td class="col-md-1">
+                                <?php
+                                $sql_book = "SELECT COUNT(*) FROM book WHERE bhouse_id=? AND register1_id=? AND status='Confirm'";
+                                $stmt_book = $dbconnection->prepare($sql_book);
+                                $stmt_book->bind_param("ii", $rent_id, $login_session);
+                                $stmt_book->execute();
+                                $result_book = $stmt_book->get_result();
+                                $occupied = $result_book->fetch_array()[0];
+                                $stmt_book->close();
 
-                            $vacant_slots = $row['slots'] - $occupied;
-                            echo htmlspecialchars($vacant_slots);
-                            ?>
-                        </td>
-                        <td class="col-md-1"><?php echo htmlspecialchars($occupied); ?></td>
-                        <td class="col-md-1"><a href="../view.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-success"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
-                        <td class="col-md-1"><a href="edit.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-warning"><i class="fa fa-pencil-square" aria-hidden="true"></i></a></td>
-                        <td class="col-md-1">
-                            <form action="" method="POST" class="delete-form">
-                                <input type="hidden" name="rowid" value="<?php echo htmlspecialchars($row['id']); ?>">
-                                <input type="hidden" name="delete" value="1">
-                                <button type="button" class="btn btn-danger delete-btn"><i class="fa fa-trash" aria-hidden="true"></i></button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php 
-                } 
-                $stmt->close();
-                ?>
-                </tbody>
-            </table>
+                                $vacant_slots = $row['slots'] - $occupied;
+                                echo htmlspecialchars($vacant_slots);
+                                ?>
+                            </td>
+                            <td class="col-md-1"><?php echo htmlspecialchars($occupied); ?></td>
+                            <td class="col-md-1">
+                                <a href="../view.php?bh_id=<?php echo urlencode($encrypted_bh_id); ?>" class="btn btn-success">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                            <td class="col-md-1">
+                                <a href="edit.php?bh_id=<?php echo htmlspecialchars($rent_id); ?>" class="btn btn-warning">
+                                    <i class="fa fa-pencil-square" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                            <td class="col-md-1">
+                                <form action="" method="POST" class="delete-form">
+                                    <input type="hidden" name="rowid" value="<?php echo htmlspecialchars($row['id']); ?>">
+                                    <input type="hidden" name="delete" value="1">
+                                    <button type="button" class="btn btn-danger delete-btn">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php 
+                    } 
+                    $stmt->close();
+                    ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-
-       
-
-<?php include('footer.php'); ?>
-
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -287,3 +293,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<?php include('footer.php'); ?>
