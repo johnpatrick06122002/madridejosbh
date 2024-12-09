@@ -23,50 +23,12 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Function to check if a column exists in a table
-function columnExists($dbconnection, $table, $column) {
-    $query = "SHOW COLUMNS FROM `$table` LIKE '$column'";
-    $result = mysqli_query($dbconnection, $query);
-    return $result && mysqli_num_rows($result) > 0;
-}
-
-// Table name
-$tableName = "admins";
-
-// Drop reset_token column if it exists
-if (columnExists($dbconnection, $tableName, 'reset_token')) {
-    $dropQuery = "ALTER TABLE `$tableName` DROP COLUMN `reset_token`";
-    if (mysqli_query($dbconnection, $dropQuery)) {
-        echo "Column 'reset_token' dropped successfully.<br>";
-    } else {
-        echo "ERROR: Could not drop 'reset_token'. " . mysqli_error($dbconnection) . "<br>";
-    }
+// Change the 'id' column in the 'book' table to INT(6) and remove AUTO_INCREMENT
+$alterQuery = "ALTER TABLE book MODIFY id INT(6) NOT NULL";
+if (mysqli_query($dbconnection, $alterQuery)) {
+    echo "Column 'id' in the 'book' table modified successfully.<br>";
 } else {
-    echo "Column 'reset_token' does not exist.<br>";
-}
-
-// Rename reset_token_expiry to otp_expiry
-if (columnExists($dbconnection, $tableName, 'reset_token_expiry')) {
-    $renameQuery = "ALTER TABLE `$tableName` CHANGE `reset_token_expiry` `otp_expiry` DATETIME";
-    if (mysqli_query($dbconnection, $renameQuery)) {
-        echo "Column 'reset_token_expiry' renamed to 'otp_expiry' successfully.<br>";
-    } else {
-        echo "ERROR: Could not rename 'reset_token_expiry' to 'otp_expiry'. " . mysqli_error($dbconnection) . "<br>";
-    }
-} else {
-    echo "Column 'reset_token_expiry' does not exist.<br>";
-}
-
-// Add verification_token column if it doesn't exist
-if (!columnExists($dbconnection, $tableName, 'verification_token')) {
-    $addQuery = "ALTER TABLE `$tableName` ADD `verification_token` VARCHAR(64) DEFAULT NULL";
-    if (mysqli_query($dbconnection, $addQuery)) {
-        echo "Column 'verification_token' added successfully.<br>";
-    } else {
-        echo "ERROR: Could not add 'verification_token'. " . mysqli_error($dbconnection) . "<br>";
-    }
-} else {
-    echo "Column 'verification_token' already exists.<br>";
+    echo "ERROR: Could not modify the 'id' column. " . mysqli_error($dbconnection) . "<br>";
 }
 
 // Close the database connection
