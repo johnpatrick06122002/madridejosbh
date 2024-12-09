@@ -23,38 +23,27 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Function to check if a column exists in a table
-function columnExists($dbconnection, $table, $column) {
-    $query = "SHOW COLUMNS FROM `$table` LIKE '$column'";
-    $result = mysqli_query($dbconnection, $query);
-    return $result && mysqli_num_rows($result) > 0;
-}
+// Query to get all columns of register1
+$query = "DESCRIBE register1";
 
-// Table name
-$tableName = "register1";
+$result = mysqli_query($dbconnection, $query);
 
-// Add session_token column if it doesn't exist
-if (!columnExists($dbconnection, $tableName, 'session_token')) {
-    $alterQuery = "ALTER TABLE `$tableName` ADD `session_token` VARCHAR(255) DEFAULT NULL";
-    if (mysqli_query($dbconnection, $alterQuery)) {
-        echo "Column 'session_token' added successfully.<br>";
-    } else {
-        echo "ERROR: Could not add 'session_token'. " . mysqli_error($dbconnection) . "<br>";
+if ($result) {
+    echo "<table border='1'>";
+    echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($row['Field']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Type']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Null']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Key']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Default']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Extra']) . "</td>";
+        echo "</tr>";
     }
+    echo "</table>";
 } else {
-    echo "Column 'session_token' already exists.<br>";
-}
-
-// Add verification_token column if it doesn't exist
-if (!columnExists($dbconnection, $tableName, 'verification_token')) {
-    $alterQuery = "ALTER TABLE `$tableName` ADD `verification_token` VARCHAR(64) DEFAULT NULL";
-    if (mysqli_query($dbconnection, $alterQuery)) {
-        echo "Column 'verification_token' added successfully.<br>";
-    } else {
-        echo "ERROR: Could not add 'verification_token'. " . mysqli_error($dbconnection) . "<br>";
-    }
-} else {
-    echo "Column 'verification_token' already exists.<br>";
+    echo "ERROR: Could not fetch table fields. " . mysqli_error($dbconnection);
 }
 
 // Close the database connection
