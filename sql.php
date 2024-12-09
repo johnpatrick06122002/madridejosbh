@@ -23,12 +23,32 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Change the 'id' column in the 'book' table to INT(6) and remove AUTO_INCREMENT
-$alterQuery = "ALTER TABLE book MODIFY id INT(6) NOT NULL";
-if (mysqli_query($dbconnection, $alterQuery)) {
-    echo "Column 'id' in the 'book' table modified successfully.<br>";
+// Fetch all data from register1 table
+$query = "SELECT * FROM register1";
+$result = mysqli_query($dbconnection, $query);
+
+if ($result) {
+    echo "<table border='1'>";
+    echo "<tr>";
+
+    // Fetch and display column headers
+    $fields = mysqli_fetch_fields($result);
+    foreach ($fields as $field) {
+        echo "<th>" . htmlspecialchars($field->name) . "</th>";
+    }
+    echo "</tr>";
+
+    // Fetch and display each row of data
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<tr>";
+        foreach ($row as $column) {
+            echo "<td>" . htmlspecialchars($column) . "</td>";
+        }
+        echo "</tr>";
+    }
+    echo "</table>";
 } else {
-    echo "ERROR: Could not modify the 'id' column. " . mysqli_error($dbconnection) . "<br>";
+    echo "ERROR: Could not execute query: $query. " . mysqli_error($dbconnection);
 }
 
 // Close the database connection
