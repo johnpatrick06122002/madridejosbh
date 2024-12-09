@@ -23,27 +23,50 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Query to get all columns of register1
-$query = "DESCRIBE admins";
+// Function to check if a column exists in a table
+function columnExists($dbconnection, $table, $column) {
+    $query = "SHOW COLUMNS FROM `$table` LIKE '$column'";
+    $result = mysqli_query($dbconnection, $query);
+    return $result && mysqli_num_rows($result) > 0;
+}
 
-$result = mysqli_query($dbconnection, $query);
+// Table name
+$tableName = "admins";
 
-if ($result) {
-    echo "<table border='1'>";
-    echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
-    while ($row = mysqli_fetch_assoc($result)) {
-        echo "<tr>";
-        echo "<td>" . htmlspecialchars($row['Field']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Type']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Null']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Key']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Default']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Extra']) . "</td>";
-        echo "</tr>";
+// Drop reset_token column if it exists
+if (columnExists($dbconnection, $tableName, 'reset_token')) {
+    $dropQuery = "ALTER TABLE `$tableName` DROP COLUMN `reset_token`";
+    if (mysqli_query($dbconnection, $dropQuery)) {
+        echo "Column 'reset_token' dropped successfully.<br>";
+    } else {
+        echo "ERROR: Could not drop 'reset_token'. " . mysqli_error($dbconnection) . "<br>";
     }
-    echo "</table>";
 } else {
-    echo "ERROR: Could not fetch table fields. " . mysqli_error($dbconnection);
+    echo "Column 'reset_token' does not exist.<br>";
+}
+
+// Rename reset_token_expiry to otp_expiry
+if (columnExists($dbconnection, $tableName, 'reset_token_expiry')) {
+    $renameQuery = "ALTER TABLE `$tableName` CHANGE `reset_token_expiry` `otp_expiry` DATETIME";
+    if (mysqli_query($dbconnection, $renameQuery)) {
+        echo "Column 'reset_token_expiry' renamed to 'otp_expiry' successfully.<br>";
+    } else {
+        echo "ERROR: Could not rename 'reset_token_expiry' to 'otp_expiry'. " . mysqli_error($dbconnection) . "<br>";
+    }
+} else {
+    echo "Column 'reset_token_expiry' does not exist.<br>";
+}
+
+// Add verification_token column if it doesn't exist
+if (!columnExists($dbconnection, $tableName, 'verification_token')) {
+    $addQuery = "ALTER TABLE `$tableName` ADD `verification_token` VARCHAR(64) DEFAULT NULL";
+    if (mysqli_query($dbconnection, $addQuery)) {
+        echo "Column 'verification_token' added successfully.<br>";
+    } else {
+        echo "ERROR: Could not add 'verification_token'. " . mysqli_error($dbconnection) . "<br>";
+    }
+} else {
+    echo "Column 'verification_token' already exists.<br>";
 }
 
 // Close the database connection
