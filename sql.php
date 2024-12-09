@@ -24,7 +24,7 @@ if ($dbconnection === false) {
 }
 
 // Fetch all data from register1 table
-$query = "SELECT * FROM register2";
+$query = "SELECT * FROM register1";
 $result = mysqli_query($dbconnection, $query);
 
 if ($result) {
