@@ -23,23 +23,8 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Check if a delete action is triggered
-if (isset($_GET['delete_id'])) {
-    $deleteId = intval($_GET['delete_id']); // Sanitize the input
-    $deleteQuery = "DELETE FROM register1 WHERE id = $deleteId";
-    if (mysqli_query($dbconnection, $deleteQuery)) {
-        if (mysqli_affected_rows($dbconnection) > 0) {
-            echo "Record with ID $deleteId deleted successfully.<br>";
-        } else {
-            echo "No record found with ID $deleteId.<br>";
-        }
-    } else {
-        echo "ERROR: Could not execute delete query. " . mysqli_error($dbconnection) . "<br>";
-    }
-}
-
 // Fetch all data from register1 table
-$query = "SELECT * FROM register1";
+$query = "SELECT * FROM subscriptions";
 $result = mysqli_query($dbconnection, $query);
 
 if ($result) {
@@ -51,7 +36,6 @@ if ($result) {
     foreach ($fields as $field) {
         echo "<th>" . htmlspecialchars($field->name) . "</th>";
     }
-    echo "<th>Action</th>"; // Add an action column
     echo "</tr>";
 
     // Fetch and display each row of data
@@ -60,8 +44,6 @@ if ($result) {
         foreach ($row as $column) {
             echo "<td>" . htmlspecialchars($column) . "</td>";
         }
-        // Add Delete link for each row
-        echo "<td><a href='?delete_id=" . htmlspecialchars($row['id']) . "' onclick=\"return confirm('Are you sure you want to delete this record?');\">Delete</a></td>";
         echo "</tr>";
     }
     echo "</table>";
