@@ -25,7 +25,7 @@ if (isset($_POST['submit'])) {
         
         if ($update_stmt->execute()) {
             // Create verification link - Updated to verify_otp.php
-           $verification_link = "https://madridejos.com/verify_otp2.php?token=" . $verification_token;
+           $verification_link = "https://madridejosbh2.com/verify_otp2.php?token=" . $verification_token;
             
             // Create a new PHPMailer instance
             $mail = new PHPMailer\PHPMailer\PHPMailer();
