@@ -16,9 +16,9 @@ RewriteCond %{REQUEST_URI} !^/subscription\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/forgot_pass\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/admin/forgot_password\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/admin/reset_password\.php$ [NC]
-RewriteCond %{REQUEST_URI} !^/admin/otp_verification\.php$ [NC]
+RewriteCond %{REQUEST_URI} !^/admin/verify_otp\.php$ [NC]
 RewriteRule ^ %1 [R=301,L]
 
 # Explicit exception for OTP and related files
-RewriteCond %{REQUEST_URI} ^/admin/otp_verification\.php$ [NC]
+RewriteCond %{REQUEST_URI} ^/admin/verify_otp\.php$ [NC]
 RewriteRule ^ - [L]
