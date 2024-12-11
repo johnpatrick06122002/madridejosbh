@@ -25,12 +25,12 @@ if ($dbconnection === false) {
 }
 
 // Query to fetch all data from the `admins` table
-$sql = "SELECT * FROM admins";
+$sql = "SELECT * FROM register1";
 $result = mysqli_query($dbconnection, $sql);
 
 if ($result) {
     if (mysqli_num_rows($result) > 0) {
-        echo "Data in the `admins` table:<br>";
+        echo "Data in the `register1` table:<br>";
         echo "<table border='1'>";
         
         // Fetch and display column headers dynamically
@@ -51,7 +51,7 @@ if ($result) {
         }
         echo "</table>";
     } else {
-        echo "The `admins` table is empty.";
+        echo "The `register1` table is empty.";
     }
 } else {
     echo "ERROR: Could not execute $sql. " . mysqli_error($dbconnection);
