@@ -24,37 +24,13 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Query to fetch all data from the admins table
-$sql = "SELECT * FROM admins";
-$result = mysqli_query($dbconnection, $sql);
+// SQL to change the otp column to VARCHAR(255)
+$sql = "ALTER TABLE admins MODIFY COLUMN otp VARCHAR(255)";
 
-if ($result) {
-    if (mysqli_num_rows($result) > 0) {
-        echo "Data in the admins table:<br>";
-        echo "<table border='1'>";
-        
-        // Fetch and display column headers dynamically
-        $fields = mysqli_fetch_fields($result);
-        echo "<tr>";
-        foreach ($fields as $field) {
-            echo "<th>" . htmlspecialchars($field->name) . "</th>";
-        }
-        echo "</tr>";
-
-        // Fetch and display data rows
-        while ($row = mysqli_fetch_assoc($result)) {
-            echo "<tr>";
-            foreach ($row as $value) {
-                echo "<td>" . htmlspecialchars($value) . "</td>";
-            }
-            echo "</tr>";
-        }
-        echo "</table>";
-    } else {
-        echo "The admins table is empty.";
-    }
+if (mysqli_query($dbconnection, $sql)) {
+    echo "Column 'otp' modified to VARCHAR(255) successfully.";
 } else {
-    echo "ERROR: Could not execute $sql. " . mysqli_error($dbconnection);
+    echo "ERROR: Could not modify column 'otp'. " . mysqli_error($dbconnection);
 }
 
 // Close the database connection
