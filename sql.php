@@ -24,15 +24,25 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Query to show all tables
-$sql = "SHOW TABLES";
+// Query to describe the `admins` table
+$sql = "DESCRIBE admins";
 $result = mysqli_query($dbconnection, $sql);
 
 if ($result) {
-    echo "Tables in the database:<br>";
-    while ($row = mysqli_fetch_row($result)) {
-        echo $row[0] . "<br>";
+    echo "Fields in the `admins` table:<br>";
+    echo "<table border='1'>";
+    echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($row['Field']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Type']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Null']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Key']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Default']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Extra']) . "</td>";
+        echo "</tr>";
     }
+    echo "</table>";
 } else {
     echo "ERROR: Could not execute $sql. " . mysqli_error($dbconnection);
 }
