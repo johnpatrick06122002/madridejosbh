@@ -24,31 +24,27 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Update query to change the email and hashed password for ID 1
-$new_email = 'madridejosbh2@gmail.com';
-$new_password = 'keneth@12ducay07';
+// Query to describe the `admins` table
+$sql = "DESCRIBE admins";
+$result = mysqli_query($dbconnection, $sql);
 
-// Hash the password
-$hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-
-$sql = "UPDATE admins SET email = ?, password = ? WHERE id = 1";
-
-// Prepare the statement
-if ($stmt = mysqli_prepare($dbconnection, $sql)) {
-    // Bind parameters
-    mysqli_stmt_bind_param($stmt, 'ss', $new_email, $hashed_password);
-
-    // Execute the statement
-    if (mysqli_stmt_execute($stmt)) {
-        echo "Record updated successfully with a hashed password.";
-    } else {
-        echo "ERROR: Could not execute query: $sql. " . mysqli_error($dbconnection);
+if ($result) {
+    echo "Fields in the `admins` table:<br>";
+    echo "<table border='1'>";
+    echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($row['Field']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Type']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Null']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Key']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Default']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['Extra']) . "</td>";
+        echo "</tr>";
     }
-
-    // Close the statement
-    mysqli_stmt_close($stmt);
+    echo "</table>";
 } else {
-    echo "ERROR: Could not prepare query: $sql. " . mysqli_error($dbconnection);
+    echo "ERROR: Could not execute $sql. " . mysqli_error($dbconnection);
 }
 
 // Close the database connection
