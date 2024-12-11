@@ -1,7 +1,7 @@
 <?php
 session_start();
-include('../connection.php');
-require '../vendor_copy/autoload.php';
+include('../connection.php'); // Database connection
+require '../vendor_copy/autoload.php'; // PHPMailer autoload
 
 if (!isset($_SESSION['email'])) {
     header('Location: forgot_password.php');
@@ -12,85 +12,51 @@ $msg = "";
 
 // Handle OTP verification
 if (isset($_POST['verify'])) {
-    $otp_input = trim($_POST['otp']); // Add trim to remove any whitespace
+    $otp_input = $_POST['otp'];
     $email = $_SESSION['email'];
 
-    // Add input validation
-    if (empty($otp_input) || strlen($otp_input) !== 6 || !is_numeric($otp_input)) {
-        $msg = "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Input',
-                text: 'Please enter a valid 6-digit OTP.'
-            });
-        </script>";
-    } else {
-        $stmt = $dbconnection->prepare("SELECT otp, otp_expiry FROM admins WHERE email = ?");
-        if (!$stmt) {
-            error_log("Prepare failed: " . $dbconnection->error);
+    $stmt = $dbconnection->prepare("SELECT otp, otp_expiry FROM admins WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    if ($row) {
+        $hashed_otp = $row['otp'];
+        $otp_expiry = $row['otp_expiry'];
+
+        if (new DateTime() > new DateTime($otp_expiry)) {
             $msg = "<script>
                 Swal.fire({
                     icon: 'error',
-                    title: 'System Error',
-                    text: 'Please try again later.'
+                    title: 'OTP Expired',
+                    text: 'The OTP has expired. Please request a new one.'
                 });
             </script>";
+        } elseif (password_verify($otp_input, $hashed_otp)) {
+            $_SESSION['otp_verified'] = true;
+            header("Location: reset_password.php");
+            exit();
         } else {
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $row = $result->fetch_assoc();
-
-            if ($row) {
-                $hashed_otp = $row['otp'];
-                $otp_expiry = strtotime($row['otp_expiry']);
-                $current_time = time();
-
-                if ($current_time > $otp_expiry) {
-                    $msg = "<script>
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'OTP Expired',
-                            text: 'The OTP has expired. Please request a new one.'
-                        });
-                    </script>";
-                } elseif (password_verify($otp_input, $hashed_otp)) {
-                    // Add success message before redirect
-                    $_SESSION['otp_verified'] = true;
-                    echo "<script>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: 'OTP verified successfully!'
-                        }).then(() => {
-                            window.location.href = 'reset_password.php';
-                        });
-                    </script>";
-                    exit();
-                } else {
-                    $msg = "<script>
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid OTP',
-                            text: 'The OTP you entered is incorrect. Please try again.'
-                        });
-                    </script>";
-                }
-            } else {
-                $msg = "<script>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'No OTP record found. Please try again.'
-                    });
-                </script>";
-            }
-            $stmt->close();
+            $msg = "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid OTP',
+                    text: 'The OTP you entered is incorrect. Please try again.'
+                });
+            </script>";
         }
+    } else {
+        $msg = "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No OTP record found. Please try again.'
+            });
+        </script>";
     }
+    $stmt->close();
 }
-
-// Rest of the code remains the same...
 // Handle OTP resend
 if (isset($_POST['resend_otp'])) {
     $email = $_SESSION['email'];
