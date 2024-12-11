@@ -15,10 +15,4 @@ RewriteCond %{REQUEST_URI} !^/register_step2\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/subscription\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/forgot_pass\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/admin/forgot_password\.php$ [NC]
-RewriteCond %{REQUEST_URI} !^/admin/reset_password\.php$ [NC]
 RewriteRule ^ %1 [R=301,L]
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{REQUEST_METHOD} ^POST$
-    RewriteRule .* - [L]
-</IfModule>
