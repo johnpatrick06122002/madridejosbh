@@ -28,12 +28,11 @@ if (isset($_POST['reset'])) {
         $update_password = mysqli_query($dbconnection, "UPDATE admins SET password = '$hashed_password', otp = '' WHERE email = '$email'");
 
         if ($update_password) {
-    // Clear session data
-    unset($_SESSION['email']);
-    unset($_SESSION['otp_verified']);
+            // Clear session data
+            unset($_SESSION['email']);
+            unset($_SESSION['otp_verified']);
 
-    // Display SweetAlert for success
-    echo "<script>
+           echo "<script>
         Swal.fire({
             icon: 'success',
             title: 'Password Reset Successful',
@@ -45,9 +44,9 @@ if (isset($_POST['reset'])) {
             }
         });
     </script>";
-    exit();
-} else {
-    // Display SweetAlert for database error
+            exit();
+        } else {
+           // Display SweetAlert for database error
     echo "<script>
         Swal.fire({
             icon: 'error',
@@ -60,9 +59,26 @@ if (isset($_POST['reset'])) {
             }
         });
     </script>";
-    exit();
+            exit();
+        }
+    } else {
+     // Display SweetAlert for database error
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'There was an issue updating your password. Please try again.',
+            confirmButtonText: 'Retry'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location = 'reset_password.php?error=mismatch'; // Redirect after confirmation
+            }
+        });
+    </script>";
+      
+        exit();
+    }
 }
-    }}
 if (isset($_GET['error'])) {
     $error = $_GET['error'];
 
