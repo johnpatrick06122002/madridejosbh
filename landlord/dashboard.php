@@ -326,7 +326,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
         <?php include('sidebar.php'); ?>
     </div>
     
-    <div class="main-content">
+    <div class="main-content"><br><br>
         <h3>Dashboard</h3>
         
         <div class="dashboard-cards">
