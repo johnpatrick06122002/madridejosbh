@@ -19,6 +19,4 @@ RewriteCond %{REQUEST_URI} !^/admin/reset_password\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/admin/verify_otp\.php$ [NC]
 RewriteRule ^ %1 [R=301,L]
 
-# Explicit exception for OTP and related files
-RewriteCond %{REQUEST_URI} ^/admin/verify_otp\.php$ [NC]
-RewriteRule ^ - [L]
+ 
