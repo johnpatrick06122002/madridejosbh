@@ -74,16 +74,42 @@ if (isset($_POST['approve'])) {
 if (isset($_POST['delete'])) {
     $id = filter_var($_POST['rowid'], FILTER_SANITIZE_NUMBER_INT);
 
-    $sql_delete = "DELETE FROM register1 WHERE id = ?";
-    $stmt = $dbconnection->prepare($sql_delete);
-    $stmt->bind_param("i", $id);
+    // Start a transaction to maintain data integrity
+    $dbconnection->begin_transaction();
 
-    if ($stmt->execute()) {
+    try {
+        // Delete related rows in `subscriptions`
+        $sql_delete_subscriptions = "DELETE FROM subscriptions WHERE register1_id = ?";
+        $stmt = $dbconnection->prepare($sql_delete_subscriptions);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+
+        // Delete related rows in `register2`
+        $sql_delete_register2 = "DELETE FROM register2 WHERE register1_id = ?";
+        $stmt = $dbconnection->prepare($sql_delete_register2);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+
+        // Delete the row in `register1`
+        $sql_delete_register1 = "DELETE FROM register1 WHERE id = ?";
+        $stmt = $dbconnection->prepare($sql_delete_register1);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
+
+        // Commit the transaction
+        $dbconnection->commit();
         $delete_success = true;
-    }
 
-    $stmt->close();
+    } catch (Exception $e) {
+        // Rollback the transaction on error
+        $dbconnection->rollback();
+        echo "Error deleting record: " . $e->getMessage();
+    }
 }
+
 
 // Pagination variables
 $records_per_page = 5; // Number of records per page
