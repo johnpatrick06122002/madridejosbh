@@ -28,24 +28,41 @@ if (isset($_POST['reset'])) {
         $update_password = mysqli_query($dbconnection, "UPDATE admins SET password = '$hashed_password', otp = '' WHERE email = '$email'");
 
         if ($update_password) {
-            // Clear session data
-            unset($_SESSION['email']);
-            unset($_SESSION['otp_verified']);
+    // Clear session data
+    unset($_SESSION['email']);
+    unset($_SESSION['otp_verified']);
 
-            // Redirect with a success message
-            header('Location: index.php?reset=success');
-            exit();
-        } else {
-            // Redirect with an error message
-            header('Location: reset_password.php?error=database');
-            exit();
-        }
-    } else {
-        // Redirect with a password mismatch error
-        header('Location: reset_password.php?error=mismatch');
-        exit();
-    }
+    // Display SweetAlert for success
+    echo "<script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Password Reset Successful',
+            text: 'Your password has been reset successfully! You will be redirected to the login page.',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location = 'index.php?reset=success'; // Redirect after confirmation
+            }
+        });
+    </script>";
+    exit();
+} else {
+    // Display SweetAlert for database error
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'There was an issue updating your password. Please try again.',
+            confirmButtonText: 'Retry'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location = 'reset_password.php?error=database'; // Redirect after confirmation
+            }
+        });
+    </script>";
+    exit();
 }
+
 if (isset($_GET['error'])) {
     $error = $_GET['error'];
 
