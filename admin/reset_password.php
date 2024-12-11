@@ -12,7 +12,13 @@ if (!isset($_SESSION['otp_verified']) || !$_SESSION['otp_verified']) {
 if (isset($_POST['reset'])) {
     $password = mysqli_real_escape_string($dbconnection, $_POST['password']);
     $confirm_password = mysqli_real_escape_string($dbconnection, $_POST['confirm_password']);
+    // Password validation regex
+    $passwordRegex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
 
+    if (!preg_match($passwordRegex, $password)) {
+        header('Location: reset_password.php?error=invalid_password');
+        exit();
+    }
     if ($password === $confirm_password) {
         // Hash the new password
         $hashed_password = password_hash($password, PASSWORD_ARGON2I);
@@ -27,7 +33,7 @@ if (isset($_POST['reset'])) {
             unset($_SESSION['otp_verified']);
 
             // Redirect with a success message
-            header('Location: index.php');
+            header('Location: index.php?reset=success');
             exit();
         } else {
             // Redirect with an error message
@@ -40,8 +46,37 @@ if (isset($_POST['reset'])) {
         exit();
     }
 }
-?>
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
 
+    if ($error === 'invalid_password') {
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Password',
+                text: 'Password must be at least 8 characters long, include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.',
+            });
+        </script>";
+    } elseif ($error === 'mismatch') {
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Password Mismatch',
+                text: 'Passwords do not match. Please try again.',
+            });
+        </script>";
+    } elseif ($error === 'database') {
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to update password. Please try again later.',
+            });
+        </script>";
+    }
+}
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -163,10 +198,9 @@ if (isset($_POST['reset'])) {
             <button type="submit" name="reset">Reset Password</button>
         </form>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Existing JavaScript remains unchanged
+        // Toggle password visibility
         const togglePassword1 = document.getElementById('togglePassword1');
         const passwordField1 = document.getElementById('password');
 
@@ -184,6 +218,34 @@ if (isset($_POST['reset'])) {
             passwordField2.setAttribute('type', type);
             this.classList.toggle('fa-eye-slash');
         });
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+
+    // Password validation regex
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Password',
+            text: 'Password must be at least 8 characters long, include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.',
+        });
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'error',
+            title: 'Password Mismatch',
+            text: 'Passwords do not match. Please try again.',
+        });
+    }
+});
+
     </script>
 </body>
 </html>
