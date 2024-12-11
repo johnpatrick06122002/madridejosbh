@@ -25,7 +25,7 @@ if ($dbconnection === false) {
 }
 
 // Query to describe the table structure
-$describe_sql = "DESCRIBE register1";
+$describe_sql = "DESCRIBE book";
 $describe_result = mysqli_query($dbconnection, $describe_sql);
 
 if ($describe_result) {
@@ -50,7 +50,7 @@ if ($describe_result) {
 }
 
 // Query to fetch all data from the table
-$data_sql = "SELECT * FROM register1";
+$data_sql = "SELECT * FROM book";
 $data_result = mysqli_query($dbconnection, $data_sql);
 
 if ($data_result) {
