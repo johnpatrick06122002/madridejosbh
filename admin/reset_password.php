@@ -28,88 +28,23 @@ if (isset($_POST['reset'])) {
         $update_password = mysqli_query($dbconnection, "UPDATE admins SET password = '$hashed_password', otp = '' WHERE email = '$email'");
 
         if ($update_password) {
-    // Clear session data
-    unset($_SESSION['email']);
-    unset($_SESSION['otp_verified']);
-
-    // Display SweetAlert for success
-    echo "<script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Password Reset Successful',
-            text: 'Your password has been reset successfully! Redirecting to the login page...',
-            timer: 3000, // Auto-close alert after 3 seconds
-            timerProgressBar: true,
-            showConfirmButton: false
-        }).then(() => {
-            window.location = 'index.php'; // Redirect to login
-        });
-    </script>";
-    exit();
-}else {
-           // Display SweetAlert for database error
-    echo "<script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'There was an issue updating your password. Please try again.',
-            confirmButtonText: 'Retry'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location = 'reset_password.php?error=database'; // Redirect after confirmation
-            }
-        });
-    </script>";
+            // Clear session data
+            unset($_SESSION['email']);
+            unset($_SESSION['otp_verified']);
+            
+            // Set a success flag in the session
+            $_SESSION['password_reset_success'] = true;
+            header('Location: reset_password.php?status=success');
+            exit();
+        } else {
+            header('Location: reset_password.php?error=database');
             exit();
         }
     } else {
-     // Display SweetAlert for database error
-    echo "<script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'There was an issue updating your password. Please try again.',
-            confirmButtonText: 'Retry'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location = 'reset_password.php?error=mismatch'; // Redirect after confirmation
-            }
-        });
-    </script>";
-      
+        header('Location: reset_password.php?error=mismatch');
         exit();
     }
 }
-if (isset($_GET['error'])) {
-    $error = $_GET['error'];
-
-    if ($error === 'invalid_password') {
-        echo "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid Password',
-                text: 'Password must be at least 8 characters long, include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.',
-            });
-        </script>";
-    } elseif ($error === 'mismatch') {
-        echo "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Password Mismatch',
-                text: 'Passwords do not match. Please try again.',
-            });
-        </script>";
-    } elseif ($error === 'database') {
-        echo "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Failed to update password. Please try again later.',
-            });
-        </script>";
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -118,8 +53,11 @@ if (isset($_GET['error'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password</title>
+    <!-- Load SweetAlert2 CSS and JS in the head -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Your existing styles remain the same -->
     <style>
         :root {
             --primary-color: #4a90e2;
@@ -232,8 +170,58 @@ if (isset($_GET['error'])) {
             <button type="submit" name="reset">Reset Password</button>
         </form>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
+        // Handle success and error messages
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php
+            if (isset($_GET['status']) && $_GET['status'] === 'success') {
+                echo "
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Password Reset Successful',
+                    text: 'Your password has been reset successfully! Redirecting to the login page...',
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location = 'index.php';
+                });
+                ";
+            }
+            
+            if (isset($_GET['error'])) {
+                $error = $_GET['error'];
+                if ($error === 'invalid_password') {
+                    echo "
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Password',
+                        text: 'Password must be at least 8 characters long, include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.',
+                    });
+                    ";
+                } elseif ($error === 'mismatch') {
+                    echo "
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Password Mismatch',
+                        text: 'Passwords do not match. Please try again.',
+                    });
+                    ";
+                } elseif ($error === 'database') {
+                    echo "
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update password. Please try again later.',
+                    });
+                    ";
+                }
+            }
+            ?>
+        });
+
+        // Your existing password toggle and form validation code
         // Toggle password visibility
         const togglePassword1 = document.getElementById('togglePassword1');
         const passwordField1 = document.getElementById('password');
@@ -253,33 +241,33 @@ if (isset($_GET['error'])) {
             this.classList.toggle('fa-eye-slash');
         });
 
+        // Form validation
         document.querySelector('form').addEventListener('submit', function (e) {
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirm_password').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
 
-    // Password validation regex
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            // Password validation regex
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    if (!passwordRegex.test(password)) {
-        e.preventDefault();
-        Swal.fire({
-            icon: 'error',
-            title: 'Invalid Password',
-            text: 'Password must be at least 8 characters long, include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.',
+            if (!passwordRegex.test(password)) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Password',
+                    text: 'Password must be at least 8 characters long, include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.',
+                });
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Password Mismatch',
+                    text: 'Passwords do not match. Please try again.',
+                });
+            }
         });
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        e.preventDefault();
-        Swal.fire({
-            icon: 'error',
-            title: 'Password Mismatch',
-            text: 'Passwords do not match. Please try again.',
-        });
-    }
-});
-
     </script>
 </body>
 </html>
