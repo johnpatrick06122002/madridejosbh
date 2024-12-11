@@ -62,7 +62,7 @@ if (isset($_POST['reset'])) {
     </script>";
     exit();
 }
-
+    }}
 if (isset($_GET['error'])) {
     $error = $_GET['error'];
 
