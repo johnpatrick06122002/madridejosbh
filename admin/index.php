@@ -2,13 +2,17 @@
 session_start(); // Start session at the beginning of the script
 
 if (isset($_POST["login"])) {
-    $email = $_POST['email']; // Use email for login
-    $password_hash = $_POST['password']; // Password field
+    $email = trim($_POST['email']); // Sanitize email input
+    $password = $_POST['password']; // Raw password input
 
-    // Database connection (adjust parameters as needed)
-  include('../connection.php');
-    // Prepare and bind
+    // Include database connection
+    include('../connection.php');
+
+    // Prepare and execute query securely
     $stmt = $dbconnection->prepare("SELECT * FROM admins WHERE email = ?");
+    if (!$stmt) {
+        die("ERROR: Could not prepare query: " . $dbconnection->error);
+    }
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -16,15 +20,16 @@ if (isset($_POST["login"])) {
     // Check if user exists
     if ($result->num_rows > 0) {
         $admin = $result->fetch_assoc();
-        // Verify password
-        if (password_verify($password_hash, $admin['password'])) {
-            // Set session variable indicating user is logged in
+        
+        // Verify hashed password
+        if (password_verify($password, $admin['password'])) {
+            // Set session variables
             $_SESSION['admin_loggedin'] = true;
             $_SESSION['firstname'] = $admin['firstname'];
-            $_SESSION['just_loggedin'] = true; // New session variable to indicate a fresh login
+            $_SESSION['just_loggedin'] = true; // Indicates a fresh login
+            
             echo '<script>
                     document.addEventListener("DOMContentLoaded", function() {
-                        // Set the active link to dashboard in localStorage
                         localStorage.setItem("activeLink", "dashboard.php");
                         
                         Swal.fire({
@@ -38,6 +43,7 @@ if (isset($_POST["login"])) {
                     });
                   </script>';
         } else {
+            // Password mismatch
             echo '<script>
                     document.addEventListener("DOMContentLoaded", function() {
                         Swal.fire({
@@ -49,6 +55,7 @@ if (isset($_POST["login"])) {
                   </script>';
         }
     } else {
+        // Email not found
         echo '<script>
                 document.addEventListener("DOMContentLoaded", function() {
                     Swal.fire({
@@ -60,11 +67,12 @@ if (isset($_POST["login"])) {
               </script>';
     }
 
-    // Close statement and connection
+    // Close statement and database connection
     $stmt->close();
     $dbconnection->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
