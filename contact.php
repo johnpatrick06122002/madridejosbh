@@ -94,30 +94,29 @@
 
     <!-- Contact Section -->
     <div class="contact-section">
-        <div class="container">
-            <div class="contact-info">
-                <!-- Contact Card 1: Email -->
-                <div class="contact-card">
-                    <i class="fas fa-envelope"></i>
-                    <h5>Email Us</h5>
-                    <p><a href="kenethducay12@gmail.com">kenethducay12@gmail.com</a></p>
-                </div>
-                <!-- Contact Card 2: Phone -->
-                <div class="contact-card">
-                    <i class="fas fa-phone-alt"></i>
-                    <h5>Call Us</h5>
-                    <p><a href="tel:+639932685248">+63 993 268 5248</a></p>
-                </div>
-                <!-- Contact Card 3: Location -->
-                <div class="contact-card">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <h5>Visit Us</h5>
-                    <p>123 Barangay St., Madridejos, Cebu, Philippines</p>
-                </div>
+    <div class="container">
+        <div class="contact-info">
+            <!-- Contact Card 1: Email -->
+            <div class="contact-card">
+                <i class="fas fa-envelope"></i>
+                <h5>Email Us</h5>
+                <p><a href="mailto:madridejosbh2@gmail.com">madridejosbh2@gmail.com</a></p>
+            </div>
+            <!-- Contact Card 2: Phone -->
+            <div class="contact-card">
+                <i class="fas fa-phone-alt"></i>
+                <h5>Call Us</h5>
+                <p><a href="tel:+639932685248">+63 993 268 5248</a></p>
+            </div>
+            <!-- Contact Card 3: Location -->
+            <div class="contact-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h5>Visit Us</h5>
+                <p>123 Barangay St., Madridejos, Cebu, Philippines</p>
             </div>
         </div>
     </div>
-
+</div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

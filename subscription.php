@@ -174,7 +174,7 @@ if (isset($_POST['subscribe'])) {
                 <!-- Monthly Plan -->
                 <div class="plan-card">
                     <h3>Monthly Plan</h3>
-                    <p>$10/month</p>
+                    <p>59/month</p>
                     <input type="radio" name="plan" id="plan1" value="monthly" required>
                     <label for="plan1">Select</label>
                 </div>
@@ -182,7 +182,7 @@ if (isset($_POST['subscribe'])) {
                 <!-- 3 Months Plan -->
                 <div class="plan-card">
                     <h3>3 Months Plan</h3>
-                    <p>$25/3 months</p>
+                    <p>159/3 months</p>
                     <input type="radio" name="plan" id="plan3" value="3months" required>
                     <label for="plan3">Select</label>
                 </div>
@@ -190,7 +190,7 @@ if (isset($_POST['subscribe'])) {
                 <!-- 6 Months Plan -->
                 <div class="plan-card">
                     <h3>6 Months Plan</h3>
-                    <p>$50/6 months</p>
+                    <p>359/6 months</p>
                     <input type="radio" name="plan" id="plan6" value="6months" required>
                     <label for="plan6">Select</label>
                 </div>
@@ -198,7 +198,7 @@ if (isset($_POST['subscribe'])) {
                 <!-- Yearly Plan -->
                 <div class="plan-card">
                     <h3>Yearly Plan</h3>
-                    <p>$100/year</p>
+                    <p>699/year</p>
                     <input type="radio" name="plan" id="plan12" value="yearly" required>
                     <label for="plan12">Select</label>
                 </div>
