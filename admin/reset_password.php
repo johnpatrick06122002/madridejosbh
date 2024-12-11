@@ -40,7 +40,7 @@ if (isset($_POST['reset'])) {
             confirmButtonText: 'OK'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location = 'index.php?reset=success'; // Redirect after confirmation
+                window.location = 'index.php'; // Redirect after confirmation
             }
         });
     </script>";
