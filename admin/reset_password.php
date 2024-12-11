@@ -28,24 +28,25 @@ if (isset($_POST['reset'])) {
         $update_password = mysqli_query($dbconnection, "UPDATE admins SET password = '$hashed_password', otp = '' WHERE email = '$email'");
 
         if ($update_password) {
-            // Clear session data
-            unset($_SESSION['email']);
-            unset($_SESSION['otp_verified']);
+    // Clear session data
+    unset($_SESSION['email']);
+    unset($_SESSION['otp_verified']);
 
-           echo "<script>
+    // Display SweetAlert for success
+    echo "<script>
         Swal.fire({
             icon: 'success',
             title: 'Password Reset Successful',
-            text: 'Your password has been reset successfully! You will be redirected to the login page.',
-            confirmButtonText: 'OK'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location = 'index.php'; // Redirect after confirmation
-            }
+            text: 'Your password has been reset successfully! Redirecting to the login page...',
+            timer: 3000, // Auto-close alert after 3 seconds
+            timerProgressBar: true,
+            showConfirmButton: false
+        }).then(() => {
+            window.location = 'index.php'; // Redirect to login
         });
     </script>";
-            exit();
-        } else {
+    exit();
+}else {
            // Display SweetAlert for database error
     echo "<script>
         Swal.fire({
