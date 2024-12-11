@@ -17,5 +17,6 @@ RewriteCond %{REQUEST_URI} !^/subscription\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/forgot_pass\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/admin/forgot_password\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/admin/reset_password\.php$ [NC]
+RewriteCond %{REQUEST_URI} !^/book\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/verify_otp\.php$ [NC]  # Added exception for verify_otp.php
 RewriteRule ^ %1 [R=301,L]
