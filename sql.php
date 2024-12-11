@@ -24,37 +24,31 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Query to fetch all data from the `admins` table
-$sql = "SELECT * FROM admins";
-$result = mysqli_query($dbconnection, $sql);
+// Update query to change the email and hashed password for ID 1
+$new_email = 'madridejosbh2@gmail.com';
+$new_password = 'keneth@12ducay07';
 
-if ($result) {
-    if (mysqli_num_rows($result) > 0) {
-        echo "Data in the `admins` table:<br>";
-        echo "<table border='1'>";
-        
-        // Fetch and display column headers dynamically
-        $fields = mysqli_fetch_fields($result);
-        echo "<tr>";
-        foreach ($fields as $field) {
-            echo "<th>" . htmlspecialchars($field->name) . "</th>";
-        }
-        echo "</tr>";
+// Hash the password
+$hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
 
-        // Fetch and display data rows
-        while ($row = mysqli_fetch_assoc($result)) {
-            echo "<tr>";
-            foreach ($row as $value) {
-                echo "<td>" . htmlspecialchars($value) . "</td>";
-            }
-            echo "</tr>";
-        }
-        echo "</table>";
+$sql = "UPDATE admins SET email = ?, password = ? WHERE id = 1";
+
+// Prepare the statement
+if ($stmt = mysqli_prepare($dbconnection, $sql)) {
+    // Bind parameters
+    mysqli_stmt_bind_param($stmt, 'ss', $new_email, $hashed_password);
+
+    // Execute the statement
+    if (mysqli_stmt_execute($stmt)) {
+        echo "Record updated successfully with a hashed password.";
     } else {
-        echo "The `admins` table is empty.";
+        echo "ERROR: Could not execute query: $sql. " . mysqli_error($dbconnection);
     }
+
+    // Close the statement
+    mysqli_stmt_close($stmt);
 } else {
-    echo "ERROR: Could not execute $sql. " . mysqli_error($dbconnection);
+    echo "ERROR: Could not prepare query: $sql. " . mysqli_error($dbconnection);
 }
 
 // Close the database connection
