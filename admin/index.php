@@ -3,7 +3,7 @@ session_start(); // Start session at the beginning of the script
 
 if (isset($_POST["login"])) {
     $email = $_POST['email']; // Use email for login
-    $password = $_POST['password']; // Password field
+    $password_hash = $_POST['password']; // Password field
 
     // Database connection (adjust parameters as needed)
   include('../connection.php');
@@ -17,7 +17,7 @@ if (isset($_POST["login"])) {
     if ($result->num_rows > 0) {
         $admin = $result->fetch_assoc();
         // Verify password
-        if (password_verify($password, $admin['password'])) {
+        if (password_verify($password_hash, $admin['password'])) {
             // Set session variable indicating user is logged in
             $_SESSION['admin_loggedin'] = true;
             $_SESSION['firstname'] = $admin['firstname'];
