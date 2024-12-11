@@ -191,18 +191,15 @@ if(isset($_POST["create"])) {
             <label>Monthly Installment Amount (₱)</label>
             <input type="number" class="form-control" name="installment_amount">
           </div>
+<!-- Add Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <div class="form-group text-center">
-  <label>Location (Madridejos Area)</label>
-  <div class="embed-responsive embed-responsive-16by9">
-    <iframe 
-      src="https://maps.google.com/maps?q=11.2663,123.7202&t=&z=15&ie=UTF8&iwloc=&output=embed" 
-      class="embed-responsive-item" 
-      allowfullscreen 
-      loading="lazy" 
-      style="border:0;">
-    </iframe>
-  </div>
+  <label>Location (Click on the map to select your area)</label>
+  <div id="map" class="embed-responsive embed-responsive-16by9" style="height: 400px;"></div>
 </div>
+<input type="hidden" name="latitude" id="latitude">
+<input type="hidden" name="longitude" id="longitude">
 
 
 
@@ -228,6 +225,44 @@ if(isset($_POST["create"])) {
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Add Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  // Default coordinates for Madridejos
+  const defaultLocation = [11.2663, 123.7202];
+  let map, marker;
+
+  // Initialize the map
+  map = L.map('map').setView(defaultLocation, 15); // Set view to Madridejos with zoom level 15
+
+  // Add OpenStreetMap tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Add a marker at the default location
+  marker = L.marker(defaultLocation, { draggable: true }).addTo(map);
+
+  // Update latitude and longitude fields on marker drag
+  marker.on('dragend', function (e) {
+    const latLng = e.target.getLatLng();
+    document.getElementById('latitude').value = latLng.lat;
+    document.getElementById('longitude').value = latLng.lng;
+  });
+
+  // Update marker position and fields when the map is clicked
+  map.on('click', function (e) {
+    const { lat, lng } = e.latlng;
+    marker.setLatLng([lat, lng]); // Move marker to clicked location
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lng;
+  });
+
+  // Initialize the latitude and longitude fields
+  document.getElementById('latitude').value = defaultLocation[0];
+  document.getElementById('longitude').value = defaultLocation[1];
+</script>
 
   <!-- Custom JS -->
   <script>
