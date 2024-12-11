@@ -24,25 +24,35 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Query to describe the `admins` table
-$sql = "DESCRIBE admins";
+// Query to fetch all data from the admins table
+$sql = "SELECT * FROM admins";
 $result = mysqli_query($dbconnection, $sql);
 
 if ($result) {
-    echo "Fields in the `admins` table:<br>";
-    echo "<table border='1'>";
-    echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
-    while ($row = mysqli_fetch_assoc($result)) {
+    if (mysqli_num_rows($result) > 0) {
+        echo "Data in the admins table:<br>";
+        echo "<table border='1'>";
+        
+        // Fetch and display column headers dynamically
+        $fields = mysqli_fetch_fields($result);
         echo "<tr>";
-        echo "<td>" . htmlspecialchars($row['Field']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Type']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Null']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Key']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Default']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Extra']) . "</td>";
+        foreach ($fields as $field) {
+            echo "<th>" . htmlspecialchars($field->name) . "</th>";
+        }
         echo "</tr>";
+
+        // Fetch and display data rows
+        while ($row = mysqli_fetch_assoc($result)) {
+            echo "<tr>";
+            foreach ($row as $value) {
+                echo "<td>" . htmlspecialchars($value) . "</td>";
+            }
+            echo "</tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "The admins table is empty.";
     }
-    echo "</table>";
 } else {
     echo "ERROR: Could not execute $sql. " . mysqli_error($dbconnection);
 }
