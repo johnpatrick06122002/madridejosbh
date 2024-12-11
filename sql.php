@@ -24,13 +24,62 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// SQL to modify the otp column to VARCHAR(255)
-$sql = "ALTER TABLE admins MODIFY COLUMN otp VARCHAR(255)";
+// Query to describe the table structure
+$describe_sql = "DESCRIBE register1";
+$describe_result = mysqli_query($dbconnection, $describe_sql);
 
-if (mysqli_query($dbconnection, $sql)) {
-    echo "Column 'otp' modified to VARCHAR(255) successfully.";
+if ($describe_result) {
+    echo "<h3>Table Structure: admins</h3>";
+    echo "<table border='1'>";
+    echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
+
+    // Fetch and display table structure
+    while ($field = mysqli_fetch_assoc($describe_result)) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($field['Field']) . "</td>";
+        echo "<td>" . htmlspecialchars($field['Type']) . "</td>";
+        echo "<td>" . htmlspecialchars($field['Null']) . "</td>";
+        echo "<td>" . htmlspecialchars($field['Key']) . "</td>";
+        echo "<td>" . htmlspecialchars($field['Default']) . "</td>";
+        echo "<td>" . htmlspecialchars($field['Extra']) . "</td>";
+        echo "</tr>";
+    }
+    echo "</table>";
 } else {
-    echo "ERROR: Could not modify column 'otp'. " . mysqli_error($dbconnection);
+    echo "ERROR: Could not execute $describe_sql. " . mysqli_error($dbconnection);
+}
+
+// Query to fetch all data from the table
+$data_sql = "SELECT * FROM register1";
+$data_result = mysqli_query($dbconnection, $data_sql);
+
+if ($data_result) {
+    if (mysqli_num_rows($data_result) > 0) {
+        echo "<h3>Data in the admins Table</h3>";
+        echo "<table border='1'>";
+
+        // Fetch and display column headers dynamically
+        $fields = mysqli_fetch_fields($data_result);
+        echo "<tr>";
+        foreach ($fields as $field) {
+            echo "<th>" . htmlspecialchars($field->name) . "</th>";
+        }
+        echo "</tr>";
+
+        // Fetch and display data rows
+        while ($row = mysqli_fetch_assoc($data_result)) {
+            echo "<tr>";
+            foreach ($row as $value) {
+                echo "<td>" . htmlspecialchars($value) . "</td>";
+            }
+            echo "</tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "The admins table is empty.";
+    }
+} else {
+    echo "ERROR: Could not execute $data_sql. " . mysqli_error($dbconnection);
 }
 
 // Close the database connection
