@@ -25,7 +25,7 @@ if ($dbconnection === false) {
 }
 
 // Query to fetch all data from the admins table
-$sql = "SELECT * FROM admins";
+$sql = "SELECT * FROM register1";
 $result = mysqli_query($dbconnection, $sql);
 
 if ($result) {
