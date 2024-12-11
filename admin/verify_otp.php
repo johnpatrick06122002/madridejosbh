@@ -35,8 +35,20 @@ if (isset($_POST['verify'])) {
             </script>";
         } elseif (password_verify($otp_input, $hashed_otp)) {
             $_SESSION['otp_verified'] = true;
-            header("Location: reset_password.php");
-            exit();
+
+            // Success SweetAlert
+            $msg = "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'OTP Verified',
+                    text: 'The OTP has been verified successfully!',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location = 'reset_password.php'; // Redirect after user clicks 'OK'
+                    }
+                });
+            </script>";
         } else {
             $msg = "<script>
                 Swal.fire({
@@ -57,6 +69,7 @@ if (isset($_POST['verify'])) {
     }
     $stmt->close();
 }
+
 // Handle OTP resend
 if (isset($_POST['resend_otp'])) {
     $email = $_SESSION['email'];
