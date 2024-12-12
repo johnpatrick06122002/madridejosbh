@@ -222,6 +222,31 @@ canvas {
                     </div>
                 </div>
             </div>
+            <div class="card-box">
+                <div class="widget-style3">
+                    <div class="widget-data">
+                        <div class="font-24">
+                            <?php
+                            
+                            $result = mysqli_query($dbconnection, "
+                              SELECT COUNT(DISTINCT id) AS total_landlords
+                    FROM register1 
+                    WHERE confirmation = 'null'
+                            ");
+                            $row = mysqli_fetch_array($result);
+                            $total_active_subscriptions = $row[0];
+                            echo $total_active_subscriptions;
+                            ?>
+                        </div>
+                        <div class="font-14">Number of Landlords</div>
+                    </div>
+                    <div class="widget-icon">
+                        <div class="icon">
+                            <i class="fa fa-thumbs-o-up"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Charts Section -->
