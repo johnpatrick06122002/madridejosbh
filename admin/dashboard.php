@@ -222,31 +222,38 @@ canvas {
                     </div>
                 </div>
             </div>
-            <div class="card-box">
-                <div class="widget-style3">
-                    <div class="widget-data">
-                        <div class="font-24">
-                            <?php
-                            
-                            $result = mysqli_query($dbconnection, "
-                              SELECT COUNT(DISTINCT id) AS total_landlords
-                    FROM register1 
-                    WHERE confirmation = 'null'
-                            ");
-                            $row = mysqli_fetch_array($result);
-                            $total_active_subscriptions = $row[0];
-                            echo $total_active_subscriptions;
-                            ?>
-                        </div>
-                        <div class="font-14">Number of Landlords</div>
-                    </div>
-                    <div class="widget-icon">
-                        <div class="icon">
-                            <i class="fa fa-thumbs-o-up"></i>
-                        </div>
-                    </div>
-                </div>
+            <!-- Widget Container -->
+<div class="card-box">
+    <div class="widget-style3">
+        <div class="widget-data">
+            <div class="font-24">
+                <?php
+                // Database query to count unconfirmed landlords
+                $query = "SELECT COUNT(*) as total_landlords 
+                         FROM register1 
+                         WHERE confirmation IS NULL";
+                
+                $result = mysqli_query($dbconnection, $query);
+                
+                if ($result) {
+                    $row = mysqli_fetch_assoc($result);
+                    echo htmlspecialchars($row['total_landlords']);
+                } else {
+                    echo "0";
+                    // Optionally log the error
+                    error_log("Database query failed: " . mysqli_error($dbconnection));
+                }
+                ?>
             </div>
+            <div class="font-14">Pending Requests</div>
+        </div>
+        <div class="widget-icon">
+            <div class="icon">
+                <i class="fa fa-clock-o"></i>
+            </div>
+        </div>
+    </div>
+</div>
         </div>
 
         <!-- Charts Section -->
