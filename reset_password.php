@@ -88,99 +88,55 @@ if (isset($_GET['error'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #3a7bd5;
-            --background-color: #f4f7f6;
-            --text-color: #2c3e50;
-            --border-radius: 12px;
-        }
-
-        * {
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-
         body {
-            font-family: 'Inter', Arial, sans-serif;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1)), url('b.png') no-repeat center center fixed;
-            background-size: cover;
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            color: var(--text-color);
         }
 
         .reset-form {
             background-color: white;
-            padding: 40px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            width: 450px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
             text-align: center;
-        }
-
-        h2 {
-            margin-bottom: 30px;
-            color: var(--primary-color);
-            font-weight: 600;
         }
 
         .input-field {
             position: relative;
-            margin: 20px 0;
+            margin: 10px 0;
         }
 
         input {
-            width: 100%;
-            padding: 15px 50px 15px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            background-color: #f9f9f9;
-            outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+            width: 80%;
+            padding: 12px 40px 12px 12px; /* Added left padding for icon */
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
 
         .toggle-password {
             position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            right: 30px;
+            top: 12px;
             cursor: pointer;
             color: #888;
-            transition: color 0.3s;
-        }
-
-        .toggle-password:hover {
-            color: var(--primary-color);
         }
 
         button {
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            background-color: #43A047;
             color: white;
             border: none;
-            padding: 15px;
-            border-radius: var(--border-radius);
+            padding: 12px;
+            border-radius: 4px;
             cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            transform: translateY(0);
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            background-color: #388E3C;
         }
     </style>
 </head>
