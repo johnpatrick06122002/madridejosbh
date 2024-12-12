@@ -68,11 +68,11 @@ echo "
 </style>";
 
 // Query to describe the table structure
-$describe_sql = "DESCRIBE register1";
+$describe_sql = "DESCRIBE register2";
 $describe_result = mysqli_query($dbconnection, $describe_sql);
 
 if ($describe_result) {
-    echo "<h3>Table Structure: register1</h3>";
+    echo "<h3>Table Structure: register</h3>";
     echo "<table>";
     echo "<tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr>";
 
@@ -92,7 +92,7 @@ if ($describe_result) {
 }
 
 // Query to fetch all data from the table
-$data_sql = "SELECT * FROM register1";
+$data_sql = "SELECT * FROM register2";
 $data_result = mysqli_query($dbconnection, $data_sql);
 
 if ($data_result) {
