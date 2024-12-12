@@ -406,7 +406,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
         </div>
 
         <div class="chart-container2">
-            <h3>Boarding House Ratings</h3>
+            <h3>Boarding House Monthly Booking</h3>
             <canvas id="monthlyBookingsChart"></canvas>
         </div>
     </div>
