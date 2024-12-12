@@ -324,7 +324,7 @@ h3{
         <?php include('sidebar.php'); ?>
     </div>
     <div class="main-content"><br><br>
-        <h3>User Subscription and Info</h3>
+        <h3>Landlord's info</h3>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
