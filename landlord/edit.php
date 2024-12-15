@@ -1,10 +1,8 @@
 <?php
 include('header.php');
-if(!isset($_SESSION['login_user'])){
-       header("location:../login.php");
-       die();
-     } 
+
 $rental_id = $_GET['bh_id'];
+$notice = "This is your default notice text. Customize it here in the code.";
 $sql_edit = "SELECT * FROM rental WHERE rental_id='$rental_id'";
 $result_edit = mysqli_query($dbconnection, $sql_edit);
 
@@ -21,6 +19,7 @@ if ($result_edit && mysqli_num_rows($result_edit) > 0) {
     $downpayment_amount = $row_edit['downpayment_amount'];
     $installment_months = $row_edit['installment_months'];
     $installment_amount = $row_edit['installment_amount'];
+     $notice = $row_edit['notice']; // Load notice from the database
 } else {
     echo "Error: Rental details not found.";
     exit; // or handle the error appropriately
@@ -32,6 +31,7 @@ if (isset($_POST["create"])) {
     $slots = mysqli_real_escape_string($dbconnection, $_POST['slots']);
     $monthly = floatval(str_replace(',', '', $_POST['monthly']));
     $description = mysqli_real_escape_string($dbconnection, $_POST['description']);
+     $notice = mysqli_real_escape_string($dbconnection, $_POST['notice']); // Assign the updated notice
 
     // Check if latitude and longitude are set to construct map URL
     if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
@@ -65,15 +65,45 @@ if (isset($_POST["create"])) {
         $installment_months = null; // Clear installment months
         $installment_amount = null;  // Clear installment amount
     }
+    $existingQrCode = $row_edit['qr_code']; // Store the existing QR code from the database
+  $notice = mysqli_real_escape_string($dbconnection, $_POST['notice']);
+    // QR Code upload
+    if (!empty($_FILES['qr_code']['name'])) {
+        // A new QR code is uploaded
+        $qrCode = $_FILES['qr_code']['name'];
+        $qrTarget = "../uploads/qrcodes/" . basename($qrCode);
+
+        if (move_uploaded_file($_FILES['qr_code']['tmp_name'], $qrTarget)) {
+            $qrCodePath = basename($qrCode); // Save the new QR code file path
+        } else {
+            $qrCodePath = $existingQrCode; // If upload fails, retain the existing QR code
+            echo '<script>';
+            echo 'Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Failed to upload QR code file. Retaining the existing QR code.",
+                showConfirmButton: true,
+                confirmButtonText: "OK"
+            });';
+            echo '</script>';
+        }
+    } else {
+        // No new QR code uploaded, retain the existing one
+        $qrCodePath = $existingQrCode;
+    }
+
+
 
     // Update query
     $sql = "UPDATE rental SET 
-        title='$title', 
+        title='$title',  
         address='$address', 
         slots='$slots', 
         map='$map', 
         photo='$photo', 
+        qr_code=" . ($qrCodePath !== null ? "'$qrCodePath'" : "NULL") . ", 
         description='$description', 
+        notice='$notice', 
         register1_id='$login_session', 
         monthly='$monthly', 
         wifi='$freewifi', 
@@ -123,7 +153,8 @@ if (isset($_POST["create"])) {
         echo '</script>';
     }
 }
-
+ 
+ 
 ?>
 
 <div class="row">
@@ -144,6 +175,14 @@ if (isset($_POST["create"])) {
                 <label>Boarding House Name</label>
                 <input name="title" type="text" class="form-control" value="<?php echo $title; ?>" required>
             </div>
+            <div class="form-group">
+   <label>Notice</label>
+<textarea 
+    name="notice" 
+    class="form-control" 
+    maxlength="255" 
+    readonly
+><?php echo htmlspecialchars($notice); ?></textarea>
             <div class="form-group">
                 <label>Description</label>
                 <div class="page-wrapper box-content">
@@ -178,6 +217,7 @@ if (isset($_POST["create"])) {
     <div class="form-group">
         <label>Installment Months</label>
         <select name="installment_months" class="form-control">
+            <option value="1" <?php echo ($installment_months == 1) ? 'selected' : ''; ?>>1 month</option>
             <option value="2" <?php echo ($installment_months == 2) ? 'selected' : ''; ?>>2 months</option>
             <option value="3" <?php echo ($installment_months == 3) ? 'selected' : ''; ?>>3 months</option>
             <option value="4" <?php echo ($installment_months == 4) ? 'selected' : ''; ?>>4 months</option>
@@ -223,6 +263,17 @@ if (isset($_POST["create"])) {
                         <label>Gallery</label><br />
                         <input type="file" name="gallery[]" multiple accept=".png,.jpeg,.jpg">
                     </div>
+                    <div class="form-group">
+    <label>Upload QR Code</label><br />
+    <input type="file" name="qr_code" accept=".png,.jpeg,.jpg"  >
+</div>
+<?php if (!empty($row_edit['qr_code'])) { ?>
+    <div class="form-group">
+        <label>Existing QR Code</label><br />
+        <img src="../uploads/qrcodes/<?php echo htmlspecialchars($row_edit['qr_code']); ?>" alt="QR Code" style="width: 150px; height: 150px;">
+    </div>
+<?php } ?>
+
                 </div>
                <div class="col">
                     <center>
@@ -231,6 +282,7 @@ if (isset($_POST["create"])) {
                 </div>
             </div>
             <br>
+            
             <div class="form-group">
                 <input type="submit" name="create" value="Update Boarding House" class="btn btn-primary btn-block">
             </div>

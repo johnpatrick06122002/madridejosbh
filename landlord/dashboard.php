@@ -41,177 +41,100 @@ if (!$row || $row['session_token'] !== $session_token) {
     exit;
 }
 
-
 $query = "
-    SELECT r.title AS boarding_house, 
-           MONTH(b.last_payment_date) AS month, 
-           IFNULL(SUM(b.paid_amount), 0) AS monthly_income
+    SELECT 
+        r.title AS boarding_house, 
+        MONTH(p.last_date_pay) AS month, 
+        IFNULL(SUM(p.amount), 0) AS monthly_income
     FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id 
+    LEFT JOIN payment p ON r.rental_id = p.rental_id
+    LEFT JOIN booking b ON b.payment_id = p.payment_id 
         AND b.status = 'Confirm'
-        AND YEAR(b.last_payment_date) = YEAR(CURRENT_DATE)
-    WHERE r.register1_id = '$login_session'
-    GROUP BY r.title, MONTH(b.last_payment_date)
-    ORDER BY r.title, MONTH(b.last_payment_date)
+        AND YEAR(p.last_date_pay) = YEAR(CURRENT_DATE)
+    WHERE r.register1_id = ?
+    GROUP BY r.title, MONTH(p.last_date_pay)
+    ORDER BY r.title, MONTH(p.last_date_pay);
 ";
 
-$result = mysqli_query($dbconnection, $query);
+$stmt = $dbconnection->prepare($query);
+$stmt->bind_param("i", $login_session);
+$stmt->execute();
+$result = $stmt->get_result();
 
 $boarding_houses = [];
-$monthly_incomes = [];
 $monthly_data = []; // Array to store month-wise income
 $total_income = 0;
 
 if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $boarding_houses[] = $row['boarding_house'];
-        $monthly_incomes[] = $row['monthly_income'];
-
-        // Store income by month for each boarding house
+    while ($row = $result->fetch_assoc()) {
+        $boarding_house = $row['boarding_house'];
         $month_name = date('F', mktime(0, 0, 0, $row['month'], 1)); // Convert month number to name
-        $monthly_data[$row['boarding_house']][$month_name] = $row['monthly_income'];
-        
-        $total_income += $row['monthly_income'];  // Accumulate total income
-    }
-} else {
-    echo "Error fetching data: " . mysqli_error($dbconnection);
-}
+        $monthly_income = $row['monthly_income'];
 
-
-// Query to fetch brokers count for each boarding house
-$brokers_query = "
-    SELECT r.title as boarding_house, COUNT(b.id) as broker_count
-    FROM rental r
-    JOIN book b ON r.rental_id = b.bhouse_id
-    WHERE r.id = '$login_session' AND b.status = 'Confirm'
-    GROUP BY r.title
-";
-
-$brokers_result = mysqli_query($dbconnection, $brokers_query);
-
-$brokers_data = [];
-$total_brokers = 0;
-
-if ($brokers_result) {
-    while ($row = mysqli_fetch_assoc($brokers_result)) {
-        $brokers_data[] = $row;
-        $total_brokers += $row['broker_count'];
-    }
-} else {
-    echo "Error fetching data: " . mysqli_error($dbconnection);
-}
-
-$broker_labels = array_column($brokers_data, 'boarding_house');
-$broker_counts = array_column($brokers_data, 'broker_count');
-$broker_percentages = [];
-
-foreach ($broker_counts as $count) {
-    $broker_percentages[] = ($count / $total_brokers) * 100;
-}
-
-$monthly_total_income = array_fill(1, 12, 0); // Initialize all months from January (1) to December (12) with 0
-
-$monthly_income_query = "
-    SELECT MONTH(b.date_posted) as month, IFNULL(SUM(r.monthly), 0) as total_income
-    FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id AND b.status = 'Confirm'
-    WHERE r.id  = ?
-    GROUP BY MONTH(b.date_posted)
-";
-
-if ($stmt = mysqli_prepare($dbconnection, $monthly_income_query)) {
-    mysqli_stmt_bind_param($stmt, "i", $login_session); // Assuming $login_session is an integer
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $month, $total_income);
-
-    while (mysqli_stmt_fetch($stmt)) {
-        $monthly_total_income[$month] = $total_income;
-    }
-
-    mysqli_stmt_close($stmt);
-} else {
-    echo "Error preparing the query: " . mysqli_error($dbconnection);
-}
-
-// Query to fetch total monthly income across all boarding houses for the current landlord
-$query = "
-    SELECT r.title AS boarding_house, 
-           MONTH(b.last_payment_date) AS month, 
-           IFNULL(SUM(b.paid_amount), 0) AS monthly_income
-    FROM rental r
-    LEFT JOIN book b ON r.rental_id = b.bhouse_id 
-        AND b.status = 'Confirm'
-        AND YEAR(b.last_payment_date) = YEAR(CURRENT_DATE)
-    WHERE r.register1_id = '$login_session'
-    GROUP BY r.title, MONTH(b.last_payment_date)
-    ORDER BY r.title, MONTH(b.last_payment_date)
-";
-
-$result = mysqli_query($dbconnection, $query);
-
-$boarding_houses = [];
-$monthly_incomes = [];
-$monthly_data = []; // Array to store month-wise income
-$total_income = 0;
-
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $boarding_houses[] = $row['boarding_house'];
-        $monthly_incomes[] = $row['monthly_income'];
-
-        // Store income by month for each boarding house
-        $month_name = date('F', mktime(0, 0, 0, $row['month'], 1)); // Convert month number to name
-        $monthly_data[$row['boarding_house']][$month_name] = $row['monthly_income'];
-        
-        $total_income += $row['monthly_income'];  // Accumulate total income
-    }
-} else {
-    echo "Error fetching data: " . mysqli_error($dbconnection);
-}
-
- 
-
-// Initialize array for monthly bookings
-$monthly_bookings = array_fill(1, 12, 0); // January (1) to December (12)
-
-// SQL query for total number of bookings per month
-$monthly_bookings_query = "
-    SELECT MONTH(date_posted) AS month, COUNT(*) AS total_bookings
-    FROM book
-    WHERE YEAR(date_posted) = YEAR(CURDATE())
-    AND register1_id = ?
-    GROUP BY MONTH(date_posted)
-    ORDER BY MONTH(date_posted)
-";
-
-if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
-    // Bind parameters
-    mysqli_stmt_bind_param($stmt, "i", $login_session); // Assuming $login_session is an integer
-
-    // Execute the query
-    if (mysqli_stmt_execute($stmt)) {
-        mysqli_stmt_bind_result($stmt, $month, $total_bookings);
-
-        // Fetch results
-        while (mysqli_stmt_fetch($stmt)) {
-            if ($month >= 1 && $month <= 12) { // Ensure valid month
-                $monthly_bookings[$month] = $total_bookings;
-            } else {
-                error_log("Invalid month returned: $month"); // Debug invalid month
-            }
+        // Store income data
+        if (!isset($monthly_data[$boarding_house])) {
+            $monthly_data[$boarding_house] = [];
         }
-    } else {
-        // Log execution error
-        error_log("Query execution failed: " . mysqli_error($dbconnection));
-    }
+        $monthly_data[$boarding_house][$month_name] = $monthly_income;
 
-    mysqli_stmt_close($stmt);
+        $total_income += $monthly_income; // Accumulate total income
+    }
 } else {
-    // Log query preparation error
-    error_log("Error preparing query: " . mysqli_error($dbconnection));
+    echo "Error fetching data: " . mysqli_error($dbconnection);
+}
+  
+ // Fetch Monthly Income Data
+$monthly_income_query = "
+    SELECT 
+        r.title AS boarding_house, 
+        MONTH(p.last_date_pay) AS month, 
+        IFNULL(SUM(p.amount), 0) AS monthly_income
+    FROM rental r
+    LEFT JOIN payment p ON r.rental_id = p.rental_id
+    LEFT JOIN booking b ON b.payment_id = p.payment_id 
+        AND b.status = 'Confirm'
+        AND YEAR(p.last_date_pay) = YEAR(CURRENT_DATE)
+    WHERE r.register1_id = ?
+    GROUP BY r.title, MONTH(p.last_date_pay)
+    ORDER BY r.title, MONTH(p.last_date_pay);
+";
+
+$stmt = $dbconnection->prepare($monthly_income_query);
+$stmt->bind_param("i", $login_session);
+$stmt->execute();
+$income_result = $stmt->get_result();
+
+$income_data = [];
+while ($row = $income_result->fetch_assoc()) {
+    $month = date('F', mktime(0, 0, 0, $row['month'], 1)); // Convert month number to name
+    $income_data[$month] = $row['monthly_income'];
 }
 
- 
+// Fetch Monthly Booking Data
+$monthly_booking_query = "
+    SELECT 
+        MONTH(b.date_posted) AS month, 
+        COUNT(*) AS booking_count
+    FROM booking b
+    INNER JOIN payment p ON b.payment_id = p.payment_id
+    INNER JOIN rental r ON p.rental_id = r.rental_id
+    WHERE r.register1_id = ?
+    AND YEAR(b.date_posted) = YEAR(CURRENT_DATE)
+    GROUP BY MONTH(b.date_posted)
+    ORDER BY MONTH(b.date_posted);
+";
+
+$stmt = $dbconnection->prepare($monthly_booking_query);
+$stmt->bind_param("i", $login_session);
+$stmt->execute();
+$booking_result = $stmt->get_result();
+
+$booking_data = [];
+while ($row = $booking_result->fetch_assoc()) {
+    $month = date('F', mktime(0, 0, 0, $row['month'], 1)); // Convert month number to name
+    $booking_data[$month] = $row['booking_count'];
+}
+
 ?>
 <!-- Modified HTML structure -->
 <style>
@@ -326,7 +249,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
         <?php include('sidebar.php'); ?>
     </div>
     
-    <div class="main-content"><br><br>
+    <div class="main-content">
         <h3>Dashboard</h3>
         
         <div class="dashboard-cards">
@@ -348,23 +271,35 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
                 </div>
             </div>
 
-            <!-- Requesting Card -->
-            <div class="card-box">
-                <div class="widget-style3">
-                    <div class="widget-data">
-                        <div class="font-24">
-                            <?php
-                            $result = mysqli_query($dbconnection, "SELECT count(*) FROM book WHERE register1_id='$login_session' AND status=''");
-                            echo $result ? mysqli_fetch_array($result)[0] : 0;
-                            ?>
-                        </div>
-                        <div class="font-14">Requesting</div>
-                    </div>
-                    <div class="widget-icon">
-                        <i class="fa fa-envelope"></i>
-                    </div>
-                </div>
+           <div class="card-box">
+    <div class="widget-style3">
+        <div class="widget-data">
+            <div class="font-24">
+                <?php
+                $query = "
+                    SELECT COUNT(*) 
+                    FROM booking 
+                    WHERE payment_id IN (
+                        SELECT payment_id 
+                        FROM payment 
+                        WHERE rental_id IN (
+                            SELECT rental_id 
+                            FROM rental 
+                            WHERE register1_id = '$login_session'
+                        )
+                    ) AND status = 'Pending'
+                ";
+                $result = mysqli_query($dbconnection, $query);
+                echo $result ? mysqli_fetch_array($result)[0] : 0;
+                ?>
             </div>
+            <div class="font-14">Requesting</div>
+        </div>
+        <div class="widget-icon">
+            <i class="fa fa-envelope"></i>
+        </div>
+    </div>
+</div>
 
             <!-- Confirmed Card -->
             <div class="card-box">
@@ -372,9 +307,22 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
                     <div class="widget-data">
                         <div class="font-24">
                             <?php
-                            $result = mysqli_query($dbconnection, "SELECT COUNT(*) FROM book WHERE register1_id='$login_session' AND status='Confirm'");
-                            echo $result ? mysqli_fetch_array($result)[0] : 0;
-                            ?>
+                $query = "
+                    SELECT COUNT(*) 
+                    FROM booking 
+                    WHERE payment_id IN (
+                        SELECT payment_id 
+                        FROM payment 
+                        WHERE rental_id IN (
+                            SELECT rental_id 
+                            FROM rental 
+                            WHERE register1_id = '$login_session'
+                        )
+                    ) AND status = 'Confirm'
+                ";
+                $result = mysqli_query($dbconnection, $query);
+                echo $result ? mysqli_fetch_array($result)[0] : 0;
+                ?>
                         </div>
                         <div class="font-14">Confirmed</div>
                     </div>
@@ -389,7 +337,7 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
                 <div class="widget-style3">
                     <div class="widget-data">
                         <div class="font-24">
-                            <?php echo number_format($total_income); ?>
+                            <?php echo number_format($monthly_income); ?>
                         </div>
                         <div class="font-14">Total Monthly Income</div>
                     </div>
@@ -406,84 +354,92 @@ if ($stmt = mysqli_prepare($dbconnection, $monthly_bookings_query)) {
         </div>
 
         <div class="chart-container2">
-            <h3>Boarding House Monthly Booking</h3>
+            <h3>Monthly Booking</h3>
             <canvas id="monthlyBookingsChart"></canvas>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Chart for Monthly Income
-    var ctxIncome = document.getElementById('monthlyIncomeChart').getContext('2d');
-    var monthlyIncomeChart = new Chart(ctxIncome, {
-        type: 'bar',
-        data: {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            datasets: [
-                <?php foreach ($monthly_data as $house => $months) { ?>
-                {
-                    label: '<?php echo $house; ?>',
-                                           data: [
-                            <?php 
-                            for ($i = 1; $i <= 12; $i++) {
-                                $month_name = date('F', mktime(0, 0, 0, $i, 1));
-                                echo isset($months[$month_name]) ? $months[$month_name] : 0;
-                                echo ($i < 12) ? ',' : '';  // Add a comma after each value except the last
-                            }
-                            ?>
-                        ],
-                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                },
-                <?php } ?>
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+ <script>
+// Data for the charts (populated from PHP)
+const incomeData = <?php echo json_encode($income_data); ?>;
+const bookingData = <?php echo json_encode($booking_data); ?>;
 
-    // Chart for Boarding House Ratings
-   var ctxBookings = document.getElementById('monthlyBookingsChart').getContext('2d');
+// Define all months of the year
+const allMonths = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+    'September', 'October', 'November', 'December'
+];
 
-// Create a linear gradient for the line chart
-var gradientLine = ctxBookings.createLinearGradient(0, 0, 0, 400);
-gradientLine.addColorStop(0, 'rgba(75, 192, 192, 1)'); // Top color (light blue)
-gradientLine.addColorStop(1, 'rgba(75, 192, 192, 0.2)'); // Bottom color (lighter blue)
+// Fill missing months with zero data for income and bookings
+const incomeDataFilled = allMonths.map(month => incomeData[month] || 0);
+const bookingDataFilled = allMonths.map(month => bookingData[month] || 0);
 
-var monthlyBookingsChart = new Chart(ctxBookings, {
-    type: 'line',
+// Bar Graph: Monthly Income
+const incomeChartCtx = document.getElementById('monthlyIncomeChart').getContext('2d');
+new Chart(incomeChartCtx, {
+    type: 'bar',
     data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        labels: allMonths,
         datasets: [{
-            label: 'Bookings',
-            data: <?php echo json_encode(array_values($monthly_bookings)); ?>,
-            fill: true, // Fill the area under the line
-            backgroundColor: gradientLine, // Apply the gradient background
-            borderColor: 'rgba(75, 192, 192, 1)', // Line color
-            pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Points color
-            pointHoverBackgroundColor: 'rgba(75, 192, 192, 1)', // Hover point color
-            pointBorderColor: '#fff', // Point border color
-            pointHoverBorderColor: '#fff', // Hover point border color
-            tension: 0.4 // Smooth curve of the line
+            label: 'Monthly Income',
+            data: incomeDataFilled,
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
         }]
     },
     options: {
         responsive: true,
+        plugins: {
+            legend: { display: true }
+        },
         scales: {
             y: {
-                beginAtZero: true
-            }
+                beginAtZero: true,
+                title: { display: true, text: 'Income ($)' }
+            },
+            x: { title: { display: true, text: 'Months' } }
         }
     }
 });
+
+// Line Graph: Monthly Bookings
+const bookingChartCtx = document.getElementById('monthlyBookingsChart').getContext('2d');
+
+// Create a gradient for the line color
+const gradient = bookingChartCtx.createLinearGradient(0, 0, 0, 400); // Vertical gradient
+gradient.addColorStop(0, 'rgba(153, 102, 255, 1)'); // Start color (purple)
+gradient.addColorStop(1, 'rgba(75, 192, 192, 1)'); // End color (light teal)
+
+new Chart(bookingChartCtx, {
+    type: 'line',
+    data: {
+        labels: allMonths,
+        datasets: [{
+            label: 'Monthly Bookings',
+            data: bookingDataFilled,
+            backgroundColor: gradient, // Use gradient for background
+            borderColor: gradient, // Use gradient for border
+            borderWidth: 2,
+            fill: true, // Fill the area below the line with the gradient
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: true }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: 'Bookings' }
+            },
+            x: { title: { display: true, text: 'Months' } }
+        }
+    }
 });
+
 </script>

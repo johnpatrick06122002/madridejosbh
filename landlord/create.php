@@ -17,7 +17,8 @@ if(isset($_POST["create"])) {
   $map = "https://maps.google.com/maps?q=".mysqli_real_escape_string($dbconnection, $_POST['latitude']).",".mysqli_real_escape_string($dbconnection, $_POST['longitude'])."&t=&z=15&ie=UTF8&iwloc=&output=embed";
   $description = mysqli_real_escape_string($dbconnection, $_POST['description']);
   $payment_policy = mysqli_real_escape_string($dbconnection, $_POST['payment_policy']);
- 
+  $notice = mysqli_real_escape_string($dbconnection, $_POST['notice']); // Notice field
+    
   $downpayment_amount = isset($_POST['downpayment_amount']) ? mysqli_real_escape_string($dbconnection, $_POST['downpayment_amount']) : null;
   $installment_months = isset($_POST['installment_months']) ? mysqli_real_escape_string($dbconnection, $_POST['installment_months']) : null;
   $installment_amount = isset($_POST['installment_amount']) ? mysqli_real_escape_string($dbconnection, $_POST['installment_amount']) : null;
@@ -43,9 +44,15 @@ if(isset($_POST["create"])) {
     $freekuryente = 'no';
   }
 
-  // Insert data into rental table
-  $sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, description, register1_id, monthly, wifi, water, kuryente, downpayment_amount, installment_months, installment_amount) 
-          VALUES ('$rental_id', '$title', '$address', '$slots', '$map', '$photo', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente', '$downpayment_amount', '$installment_months', '$installment_amount')";
+    // QR Code Upload
+    $qr_code = $_FILES['qr_code']['name'];
+    $qr_target = "../uploads/qrcodes/" . basename($qr_code);
+
+    if (!move_uploaded_file($_FILES['qr_code']['tmp_name'], $qr_target)) {
+        $qr_code = null; // If the QR code upload fails, set it to null
+    }
+    $sql = "INSERT INTO rental (rental_id, title, address, slots, map, photo, qr_code, description, register1_id, monthly, wifi, water, kuryente, downpayment_amount, installment_months, installment_amount, notice) 
+            VALUES ('$rental_id', '$title', '$address', '$slots', '$map', '$photo', '$qr_code', '$description', '$login_session', '$monthly', '$freewifi', '$freewater', '$freekuryente', '$downpayment_amount', '$installment_months', '$installment_amount', '$notice')";
 
   if ($dbconnection->query($sql) === TRUE) {
     move_uploaded_file($_FILES['photo']['tmp_name'], $target);
@@ -88,7 +95,6 @@ if(isset($_POST["create"])) {
   <!-- SweetAlert2 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <!-- Bootstrap CSS -->
-  <link rel="shortcut icon" type="x-icon" href="../b.png">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
@@ -166,6 +172,19 @@ if(isset($_POST["create"])) {
             <label>Gallery</label>
             <input type="file" name="gallery[]" class="form-control-file" multiple>
           </div>
+  <div class="form-group">
+            <label>QR Code</label>
+            <input type="file" name="qr_code" class="form-control-file">
+          </div>
+
+          <div class="form-group">
+    <label>Notice</label>
+    <textarea class="form-control" name="notice" rows="3" readonly>
+Scan the Qr Code or Use the contact number in the landlord info for sending payment
+Gcash Payment must not be least than the minumum downpayment amount(No refund for error sending payment)
+Kindly Secure the Screen Shot of the Gcash Receipt
+    </textarea>
+</div>
 
           <div class="form-group">
             <label>Payment Policy</label>
@@ -225,6 +244,7 @@ if(isset($_POST["create"])) {
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <!-- Add Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>

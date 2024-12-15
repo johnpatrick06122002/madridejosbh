@@ -1,89 +1,94 @@
 <?php include('header.php'); ?>
-
 <?php
+ 
+require_once '../connection.php'; // Ensure database connection file is included
 
-if(!isset($_SESSION['login_user'])){
-       header("location:../login.php");
-       die();
-     }
-// Initialize variables
-$total_income = 0;
-$start_date = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01'); // Default to the first day of the current month
-$end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-d'); // Default to today
-
-// Sanitize input dates and session data
-$start_date = mysqli_real_escape_string($dbconnection, $start_date); // Assuming $dbconnection is your database connection
-$end_date = mysqli_real_escape_string($dbconnection, $end_date);
-$login_session = mysqli_real_escape_string($dbconnection, $login_session);
-
-// Fetch data from the rental table and join with the book table, filtering by date range and status 'Confirm'
-$query = "
-    SELECT r.rental_id, r.title, r.monthly, b.firstname AS broker_name, b.paid_amount, b.last_payment_date
-    FROM rental AS r
-    LEFT JOIN book AS b ON r.rental_id = b.bhouse_id
-    WHERE b.status = 'Confirm'
-    AND b.register1_id = '$login_session' -- Filter by specific boarding house
-    AND (
-        (b.last_payment_date BETWEEN '$start_date' AND '$end_date')
-        OR (b.date_posted BETWEEN '$start_date' AND '$end_date')
-        OR (b.last_payment_date IS NULL AND b.date_posted <= '$end_date')
-    )
-";
-
-// Execute the query
-$result = mysqli_query($dbconnection, $query);
-
-if (!$result) {
-    die("Error: " . mysqli_error($dbconnection));
+// Redirect to login if not authenticated
+if (!isset($_SESSION['login_user'])) {
+    header("location:../login.php");
+    die();
 }
 
-$rows = [];
+$total_income = 0;
+$start_date = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01');
+$end_date = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-d');
 
-// Fetch data and organize it
-while ($row = mysqli_fetch_assoc($result)) {
-    $rental_id = $row['rental_id'];
-    $title = htmlspecialchars($row['title']);
-    $paid_amount = floatval($row['paid_amount']);
-    $broker_name = htmlspecialchars($row['broker_name']);
+// Sanitize and validate inputs
+$login_session = $_SESSION['login_user'];
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date)) {
+    die("Invalid date format.");
+}
 
-    // Organize the data by rental ID
-    if (!isset($rows[$rental_id])) {
-        $rows[$rental_id] = [
-            'title' => $title,
-            'brokers' => [],
-            'has_confirmed_booking' => false,
-            'total_paid_amount' => 0
-        ];
+try {
+    $stmt = $dbconnection->prepare("
+        SELECT 
+            r.rental_id, r.title, r.monthly, 
+            b.firstname, b.lastname, b.status, 
+            p.amount AS paid_amount, p.last_date_pay
+        FROM rental AS r
+        LEFT JOIN payment AS p ON r.rental_id = p.rental_id
+        LEFT JOIN booking AS b ON p.payment_id = b.payment_id
+        WHERE b.status = 'Confirm'
+          AND r.register1_id = ?
+          AND (
+              (p.last_date_pay BETWEEN ? AND ?)
+              OR (b.date_posted BETWEEN ? AND ?)
+              OR (p.last_date_pay IS NULL AND b.date_posted <= ?)
+          )
+    ");
+    $stmt->bind_param("ssssss", $login_session, $start_date, $end_date, $start_date, $end_date, $end_date);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $rows = [];
+    while ($row = $result->fetch_assoc()) {
+        $rental_id = $row['rental_id'];
+        $title = htmlspecialchars($row['title']);
+        $paid_amount = floatval($row['paid_amount']);
+        $firstname = htmlspecialchars($row['firstname']);
+        $lastname = htmlspecialchars($row['lastname']);
+
+        if (!isset($rows[$rental_id])) {
+            $rows[$rental_id] = [
+                'title' => $title,
+                'boarders' => [],
+                'total_paid_amount' => 0,
+            ];
+        }
+
+        if ($firstname && $lastname) {
+            $rows[$rental_id]['boarders'][] = [
+                'name' => "$firstname $lastname",
+                'paid_amount' => $paid_amount,
+            ];
+            $rows[$rental_id]['total_paid_amount'] += $paid_amount;
+            $total_income += $paid_amount;
+        }
     }
 
-    if ($broker_name) {
-        $rows[$rental_id]['brokers'][] = [
-            'name' => $broker_name,
-            'paid_amount' => $paid_amount
-        ];
-        $rows[$rental_id]['has_confirmed_booking'] = true;
-        $rows[$rental_id]['total_paid_amount'] += $paid_amount;
-        $total_income += $paid_amount;
-    }
+    $stmt->close();
+} catch (Exception $e) {
+    die("Error: " . $e->getMessage());
 }
 
 // Prepare rows for display
 $display_rows = [];
 foreach ($rows as $rental_id => $data) {
-    $broker_details = '';
+    $boarder_details = '';
     $paid_amount_details = '';
-    foreach ($data['brokers'] as $broker) {
-        $broker_details .= '<tr><td>' . $broker['name'] . '</td></tr>';
-        $paid_amount_details .= '<tr><td>₱' . number_format($broker['paid_amount'], 2) . '</td></tr>';
+    foreach ($data['boarders'] as $boarder) {
+        $boarder_details .= '<tr><td>' . $boarder['name'] . '</td></tr>';
+        $paid_amount_details .= '<tr><td>₱' . number_format($boarder['paid_amount'], 2) . '</td></tr>';
     }
     $display_rows[] = [
         'title' => $data['title'],
-        'broker_details' => $broker_details,
+        'boarder_details' => $boarder_details,
         'paid_amount_details' => $paid_amount_details,
-        'total_paid_amount' => $data['total_paid_amount']
+        'total_paid_amount' => $data['total_paid_amount'],
     ];
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -385,21 +390,17 @@ h3 {
 }
     </style>
 </head>
-<body>
+ <body>
 <div class="dashboard-container">
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-   
-    <div class="main-content"> <br><br><br>
+    <div class="main-content">
         <h3>
             Monthly Report
-            <button class="btn btn-primary btn-print" style="float: right;" onclick="window.print()">Print</button>
-            <button class="btn btn-primary btn-download" style="float: right; " onclick="generatePDF()">Download PDF</button>
+            <button class="btn btn-primary btn-print" onclick="window.print()">Print</button>
+            <button class="btn btn-primary btn-download" onclick="generatePDF()">Download PDF</button>
         </h3>
-        <br />
-
-        <!-- Date Range Selection Form -->
         <form method="GET" action="">
             <label for="start_date">Start Date:</label>
             <input type="date" name="start_date" value="<?php echo $start_date; ?>" required>
@@ -407,51 +408,39 @@ h3 {
             <input type="date" name="end_date" value="<?php echo $end_date; ?>" required>
             <button type="submit" class="btn btn-primary">Generate Report</button>
         </form>
-        <br />
-      <div class="printable-report">
-            <!-- Modify this section in the HTML -->
-<img src="../b.png" alt="Logo" class="print-logo" style="display: none;"> <!-- Logo hidden by default -->
-          
 
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Boarders Name</th>
-                    <th>Paid Amount</th>
-                    <th>Total Paid Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($display_rows)): ?>
-                    <tr><td colspan="4">No records found for the selected date range.</td></tr>
-                <?php else: ?>
-                    <?php foreach ($display_rows as $row): ?>
-                        <tr>
-                            <td><?php echo $row['title']; ?></td>
-                            <td>
-                                <table>
-                                    <?php echo $row['broker_details']; ?>
-                                </table>
-                            </td>
-                            <td>
-                                <table>
-                                    <?php echo $row['paid_amount_details']; ?>
-                                </table>
-                            </td>
-                            <td>₱<?php echo number_format($row['total_paid_amount'], 2); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-
-        <!-- Total Income -->
-        <div>
-            <strong style="margin-left: 20px;">Total Income: ₱<?php echo number_format($total_income, 2); ?></strong>
+        <div class="printable-report">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Boarders Name</th>
+                        <th>Paid Amount</th>
+                        <th>Total Paid Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($display_rows)): ?>
+                        <tr><td colspan="4">No records found for the selected date range.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($display_rows as $row): ?>
+                            <tr>
+                                <td><?php echo $row['title']; ?></td>
+                                <td><table><?php echo $row['boarder_details']; ?></table></td>
+                                <td><table><?php echo $row['paid_amount_details']; ?></table></td>
+                                <td>₱<?php echo number_format($row['total_paid_amount'], 2); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+            <div>
+                <strong>Total Income: ₱<?php echo number_format($total_income, 2); ?></strong>
+            </div>
         </div>
     </div>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
     function generatePDF() {
@@ -466,7 +455,6 @@ h3 {
         let yPos = 20;
 
         // Add logo (assuming b.png is your logo)
-        // Note: You'll need to convert this to base64 or use a full path
         const logoPath = '../b.png';
         doc.addImage(logoPath, 'PNG', doc.internal.pageSize.getWidth() / 2 - 25, yPos, 50, 50);
         
@@ -551,6 +539,7 @@ h3 {
         doc.save("monthly-report.pdf");
     }
 </script>
+
 <?php include('footer.php'); ?>
 </body>
 </html>

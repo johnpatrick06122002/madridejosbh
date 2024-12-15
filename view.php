@@ -8,7 +8,7 @@ include('encryption_helper.php'); // Include the encryption helper file
 $encryption_key = 'YourSecureKeyHere'; // Retrieve this from an environment variable or config file
 
 // Example: Decrypt the incoming bh_id to retrieve the rental_id
-$rental_id = isset($_GET['bh_id']) ? decrypt($_GET['bh_id'], $encryption_key) : 0;
+$rental_id = isset($_GET['rental_id']) ? decrypt($_GET['rental_id'], $encryption_key) : 0;
 if (!$rental_id) {
     die("Invalid rental ID");
 }
@@ -28,7 +28,7 @@ if (isset($_POST['submitfeedback'])) {
     $boarderEmail = mysqli_real_escape_string($dbconnection, $_POST['boarderemail']);
     
     // Step 2: Check if the email exists in the `book` table
-    $sqlfdbck = "SELECT * FROM book WHERE email = '$boarderEmail'";
+    $sqlfdbck = "SELECT * FROM booking WHERE email = '$boarderEmail'";
     $resultfdbck = mysqli_query($dbconnection, $sqlfdbck);
     
     if (!$resultfdbck) {
@@ -43,7 +43,7 @@ if (isset($_POST['submitfeedback'])) {
         $feedback = mysqli_real_escape_string($dbconnection, $_POST['feedbackmsg']);
         
         // Step 4: Update the rating and feedback based on `email`
-        $update_query = "UPDATE book SET ratings = '$ratings', feedback = '$feedback' WHERE email = '$boarderEmail'";
+        $update_query = "UPDATE booking SET ratings = '$ratings', feedback = '$feedback' WHERE email = '$boarderEmail'";
         
         if (mysqli_query($dbconnection, $update_query)) {
             echo '<script type="text/javascript">
@@ -118,13 +118,20 @@ while ($row = $result->fetch_assoc()) {
         }
     ?><br>
     <?php if ($row['downpayment_amount'] > 0): ?>
-        Amount: ₱ <?php echo number_format($row['downpayment_amount'], 2); ?>
+       Minimum Amount: ₱ <?php echo number_format($row['downpayment_amount'], 2); ?>
     <?php elseif ($row['installment_months'] > 0 && $row['installment_amount'] > 0): ?>
-        Amount: ₱ <?php echo number_format($row['installment_amount'], 2); ?><br>
+        Minimum Amount: ₱ <?php echo number_format($row['installment_amount'], 2); ?><br>
         Installment Months: <?php echo htmlspecialchars($row['installment_months']); ?>
     <?php endif; ?>
    
+
+<h6>
+    Notice: 
+    <blockquote>
+        <?php echo nl2br(htmlspecialchars($row['notice'])); ?>
+    </blockquote>
 </h6>
+ 
 
 
 
@@ -616,50 +623,62 @@ if ($stmt_rental = $dbconnection->prepare($sql_rental)) {
             <?php endif; ?>
         </div>
         
-        <!-- Display Name -->
-        <div class="row">
-            <div class="col-sm-3">
-                <p class="mb-0"><i class="fa fa-user" aria-hidden="true"></i></p>
-            </div>
-            <div class="col-sm-9">
-                <p class="text-muted mb-0"><?php echo htmlspecialchars($name); ?></p>
-            </div>
-        </div>
-        <hr>
+       <!-- Display Name -->
+<div class="row">
+    <div class="col-sm-3">
+        <p class="mb-0"><i class="fa fa-user" aria-hidden="true"></i></p>
+    </div>
+    <div class="col-sm-9">
+        <p class="text-muted mb-0"><?php echo htmlspecialchars($name); ?></p>
+    </div>
+</div>
+<hr>
 
-        <!-- Display Address -->
-        <div class="row">
-            <div class="col-sm-3">
-              <p class="mb-0"><i class="fa fa-map-marker" aria-hidden="true"></i></p>
+<!-- Display Address -->
+<div class="row">
+    <div class="col-sm-3">
+        <p class="mb-0"><i class="fa fa-map-marker" aria-hidden="true"></i></p>
+    </div>
+    <div class="col-sm-9">
+        <p class="text-muted mb-0"><?php echo htmlspecialchars($address); ?></p>
+    </div>
+</div>
+<hr>
 
-            </div>
-            <div class="col-sm-9">
-                <p class="text-muted mb-0"><?php echo htmlspecialchars($address); ?></p>
-            </div>
-        </div>
-        <hr>
+<!-- Display Contact Number -->
+<div class="row">
+    <div class="col-sm-3">
+        <p class="mb-0"><i class="fa fa-phone-square" aria-hidden="true"></i></p>
+    </div>
+    <div class="col-sm-9">
+        <p class="text-muted mb-0"><?php echo htmlspecialchars($contact_number); ?></p>
+    </div>
+</div>
+<hr>
 
-        <!-- Display Contact Number -->
-        <div class="row">
-            <div class="col-sm-3">
-                <p class="mb-0"><i class="fa fa-phone-square" aria-hidden="true"></i></p>
-            </div>
-            <div class="col-sm-9">
-                <p class="text-muted mb-0"><?php echo htmlspecialchars($contact_number); ?></p>
-            </div>
-        </div>
+<!-- QR Code Centered -->
+<div class="row">
+    <div class="col-sm-3 text-center">
+        <?php if (!empty($row['qr_code'])): ?>
+            <a href="uploads/qrcodes/<?php echo htmlspecialchars($row['qr_code']); ?>" target="_blank">
+                <img src="uploads/qrcodes/<?php echo htmlspecialchars($row['qr_code']); ?>" alt="QR Code" style="width: 150px; height: 150px; margin-left: 70px;">
+            </a>
+        <?php else: ?>
+            <span>No QR Code available</span>
+        <?php endif; ?>
     </div>
 </div>
 
 
+
   <?php
 // Encrypt the rental ID for the BOOK NOW link
-$encrypted_bh_id = encrypt($rental_id, $encryption_key);
+$encrypted_rental_id = encrypt($rental_id, $encryption_key);
 ?>
-<a href="book.php?bh_id=<?php echo urlencode($encrypted_bh_id); ?>" class="btn btn-primary">
+<a href="payment.php?rental_id=<?php echo htmlspecialchars($rental_id); ?>" class="btn btn-primary">
     BOOK NOW
 </a>
-    <button data-toggle="modal" data-target="#feedback" class="btn btn-danger">FEEDBACK</button>
+  <button type="button" data-toggle="modal" data-target="#feedback" class="btn btn-danger">FEEDBACK</button>
 </div>
     </div>
 </div>
@@ -671,18 +690,36 @@ $encrypted_bh_id = encrypt($rental_id, $encryption_key);
 <div class="reviews">
     <h2 class="text-center">Boarders Review</h2>
     <div class="row">
-        <?php
-        // Fetch reviews with ratings > 0
-        $sqlreview = "SELECT * FROM book WHERE ratings IS NOT NULL AND ratings > 0 AND bhouse_id = '$rental_id'";
-        $resultreview = mysqli_query($dbconnection, $sqlreview);
+       <?php
+// Fetch reviews with ratings > 0 for the current rental
+$sqlreview = "
+    SELECT 
+        b.firstname, 
+        b.lastname, 
+        b.feedback, 
+        b.date_posted, 
+        b.ratings 
+    FROM booking b
+    INNER JOIN payment p ON b.payment_id = p.payment_id
+    INNER JOIN rental r ON p.rental_id = r.rental_id
+    WHERE b.ratings IS NOT NULL 
+      AND b.ratings > 0 
+      AND r.rental_id = ?
+";
 
-        if (mysqli_num_rows($resultreview) > 0) {
-            while ($rowreview = $resultreview->fetch_assoc()) {
-                $name = $rowreview['firstname'] . ' ' . $rowreview['lastname'];
-                $feedback = $rowreview['feedback'];
-                $date = $rowreview['date_posted'];
-                $ratings = $rowreview['ratings'];
+$stmt = $dbconnection->prepare($sqlreview);
+$stmt->bind_param("i", $rental_id); // Bind the rental_id dynamically
+$stmt->execute();
+$resultreview = $stmt->get_result();
+
+if ($resultreview->num_rows > 0) {
+    while ($rowreview = $resultreview->fetch_assoc()) {
+        $name = $rowreview['firstname'] . ' ' . $rowreview['lastname'];
+        $feedback = $rowreview['feedback'];
+        $date = $rowreview['date_posted'];
+        $ratings = $rowreview['ratings'];
         ?>
+
         <div class="col-lg-6 col-md-6 col-sm-12">
             <div class="card card-review">
                 <div class="card-header">
@@ -726,20 +763,23 @@ $encrypted_bh_id = encrypt($rental_id, $encryption_key);
 <?php } ?>
 
 </div>
-<div class="modal" id="feedback">
-    <div class="modal-dialog">
+<div class="modal fade" id="feedback" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="text-center">GIVE US A FEEDBACK</h3>
+                <h5 class="modal-title" id="feedbackModalLabel">GIVE US A FEEDBACK</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <!-- Modal body -->
+            <!-- Modal Body -->
             <div class="modal-body">
                 <form action="" method="POST">
                     <div class="form-group">
-                        <span class="text-muted"><i class="fa fa-info-circle" aria-hidden="true"></i> We use your email to validate if you're a boarder</span>
-                        <div class="input-group">
-                            <input type="email" name="boarderemail" class="form-control" placeholder="Your Registered Email" required>
-                        </div>
+                        <span class="text-muted">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i> We use your email to validate if you're a boarder
+                        </span>
+                        <input type="email" name="boarderemail" class="form-control" placeholder="Your Registered Email" required>
                     </div>
                     <div class="form-group">
                         <center>
@@ -762,13 +802,12 @@ $encrypted_bh_id = encrypt($rental_id, $encryption_key);
                         <label class="text-muted">Feedback:</label>
                         <textarea class="form-control" name="feedbackmsg" placeholder="Write your feedback here..." required></textarea>
                     </div>
-                </div>
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                    <input type="submit" name="submitfeedback" class="btn btn-success" value="Submit Feedback">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times-circle" aria-hidden="true"></i> Close</button>
-                </div>
-            </form>
+                    <div class="form-group text-right">
+                        <input type="submit" name="submitfeedback" class="btn btn-success" value="Submit Feedback">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

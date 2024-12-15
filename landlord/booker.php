@@ -1,7 +1,10 @@
 <?php
 // Include database connection
 include('../connection.php');
+require '../vendor_copy/autoload.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 // Start session only if it hasn't started already
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -14,6 +17,56 @@ if (!isset($_SESSION['register1_id'])) {
 }
 
 $current_user_id = $_SESSION['register1_id'];
+// Function to update confirm_date to the next month's date if 30 days have passed
+function updateConfirmDate($bookingId) {
+    global $dbconnection;
+
+    // Fetch the current confirm_date for the booking
+    $query = "SELECT confirm_date FROM booking WHERE id = ?";
+    $stmt = $dbconnection->prepare($query);
+    if ($stmt === false) {
+        die("MySQL error: " . $dbconnection->error);
+    }
+
+    $stmt->bind_param("i", $bookingId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($row = $result->fetch_assoc()) {
+        $confirmDate = $row['confirm_date'];
+
+        // If confirm_date is not null, calculate if it needs to be updated
+        if ($confirmDate) {
+            $currentDate = new DateTime();
+            $confirmDateObj = new DateTime($confirmDate);
+
+            // Calculate the difference in days
+            $daysDifference = $confirmDateObj->diff($currentDate)->days;
+
+            // Check if 30 days have passed
+            if ($daysDifference >= 30) {
+                // Add 30 days to the confirm_date
+                $confirmDateObj->modify('+30 days');
+                $newConfirmDate = $confirmDateObj->format('Y-m-d');
+
+                // Update the booking table with the new confirm_date
+                $updateQuery = "UPDATE booking SET confirm_date = ? WHERE id = ?";
+                $updateStmt = $dbconnection->prepare($updateQuery);
+                if ($updateStmt === false) {
+                    die("MySQL error: " . $dbconnection->error);
+                }
+
+                $updateStmt->bind_param("si", $newConfirmDate, $bookingId);
+                if (!$updateStmt->execute()) {
+                    die("Update Query Error: " . $updateStmt->error);
+                }
+
+                return true; // Confirm date updated
+            }
+        }
+    }
+    return false; // No update needed
+}
 
 // Function to fetch the monthly rental rate for a specific rental
 function getMonthlyRateForRental($bhouseId) {
@@ -35,82 +88,118 @@ function getMonthlyRateForRental($bhouseId) {
     }
     return 0;
 }
-function calculateBalance($id, $monthlyRate, $paidAmount) {
+
+ 
+// Function to calculate balance
+function calculateBalance($bookingId, $monthlyRate) {
     global $dbconnection;
-
-    $query = "SELECT last_payment_date FROM book WHERE id = ?";
+    
+    // Get the total amount paid and last payment date
+    $query = "SELECT p.amount, p.last_date_pay, b.date_posted 
+              FROM payment p 
+              INNER JOIN booking b ON b.payment_id = p.payment_id 
+              WHERE b.id = ?";
+    
     $stmt = $dbconnection->prepare($query);
-
     if ($stmt === false) {
         die("MySQL error: " . $dbconnection->error);
     }
-
-    $stmt->bind_param("i", $id);
+    
+    $stmt->bind_param("i", $bookingId);
     $stmt->execute();
     $result = $stmt->get_result();
-
-    if ($row = $result->fetch_assoc()) {
-        $lastPaymentDate = $row['last_payment_date'];
-        $currentDate = date('Y-m-d');
-        $dateDifference = (strtotime($currentDate) - strtotime($lastPaymentDate)) / (60 * 60 * 24);
-
-        if ($dateDifference >= 30) {
-            if ($paidAmount < $monthlyRate) {
-                $balance = $monthlyRate - $paidAmount;
-                return $balance + $monthlyRate;
-            } else {
-                return $monthlyRate;
-            }
-        } else {
-            return $monthlyRate - $paidAmount;
-        }
+    $row = $result->fetch_assoc();
+    
+    if (!$row) {
+        return $monthlyRate; // Return full monthly rate if no payment record found
     }
-
-    return $monthlyRate - $paidAmount;
+    
+    $totalPaid = $row['amount'];
+    $startDate = new DateTime($row['date_posted']);
+    $currentDate = new DateTime();
+    
+    // Calculate months passed
+    $monthsPassed = $startDate->diff($currentDate)->m + ($startDate->diff($currentDate)->y * 12) + 1;
+    
+    // Calculate total amount due
+    $totalDue = $monthlyRate * $monthsPassed;
+    
+    // Calculate remaining balance
+    return max(0, $totalDue - $totalPaid);
 }
 
-// Check for payment or delete submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['id']) && isset($_POST['paid_amount'])) {
-        $id = $_POST['id'];
-        $paidAmount = $_POST['paid_amount'];
-
-        // Verify that this booking belongs to the current user's rental
-        $verifyQuery = "SELECT b.id 
-                       FROM book b 
-                       INNER JOIN rental r ON b.bhouse_id = r.rental_id 
-                       WHERE b.id = ? AND r.register1_id = ?";
-        $verifyStmt = $dbconnection->prepare($verifyQuery);
-        $verifyStmt->bind_param("ii", $id, $current_user_id);
-        $verifyStmt->execute();
-        $verifyResult = $verifyStmt->get_result();
-
-        if ($verifyResult->num_rows > 0) {
-            // Update the paid amount
-            $updateQuery = "UPDATE book SET paid_amount = paid_amount + ?, last_payment_date = CURRENT_DATE WHERE id = ?";
-            $stmt = $dbconnection->prepare($updateQuery);
-            $stmt->bind_param("di", $paidAmount, $id);
-            $stmt->execute();
+// Update the payment processing section
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && isset($_POST['amount'])) {
+    $bookingId = $_POST['id'];
+    $paymentAmount = $_POST['amount'];
+    
+    // Start transaction
+    $dbconnection->begin_transaction();
+    
+    try {
+        // Get payment_id for the booking
+        $query = "SELECT p.payment_id, p.amount as current_amount 
+                 FROM booking b 
+                 INNER JOIN payment p ON b.payment_id = p.payment_id 
+                 WHERE b.id = ?";
+        
+        $stmt = $dbconnection->prepare($query);
+        if ($stmt === false) {
+            throw new Exception("Prepare failed: " . $dbconnection->error);
         }
-
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit();
-    } elseif (isset($_POST['delete_id'])) {
+        
+        $stmt->bind_param("i", $bookingId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $paymentData = $result->fetch_assoc();
+        
+        if (!$paymentData) {
+            throw new Exception("Payment record not found");
+        }
+        
+        // Update payment amount and last payment date
+        $updateQuery = "UPDATE payment 
+                       SET amount = amount + ?, 
+                           last_date_pay = CURRENT_TIMESTAMP 
+                       WHERE payment_id = ?";
+        
+        $stmt = $dbconnection->prepare($updateQuery);
+        if ($stmt === false) {
+            throw new Exception("Prepare failed: " . $dbconnection->error);
+        }
+        
+        $stmt->bind_param("di", $paymentAmount, $paymentData['payment_id']);
+        if (!$stmt->execute()) {
+            throw new Exception("Execute failed: " . $stmt->error);
+        }
+        
+        $dbconnection->commit();
+        $_SESSION['success_message'] = "Payment updated successfully";
+        
+    } catch (Exception $e) {
+        $dbconnection->rollback();
+        $_SESSION['error_message'] = "Error processing payment: " . $e->getMessage();
+    }
+    
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+ } elseif (isset($_POST['delete_id'])) {
         $delete_id = $_POST['delete_id'];
 
         // Verify that this booking belongs to the current user's rental
         $verifyQuery = "SELECT b.id 
-                       FROM book b 
-                       INNER JOIN rental r ON b.bhouse_id = r.rental_id 
-                       WHERE b.id = ? AND r.register1_id = ?";
+                       FROM booking b 
+                       INNER JOIN payment p ON b.payment_id = p.payment_id 
+                    INNER  JOIN rental r ON p.rental_id = r.rental_id 
+                    WHERE b.id = ? AND r.register1_id = ?"; 
         $verifyStmt = $dbconnection->prepare($verifyQuery);
-        $verifyStmt->bind_param("ii", $delete_id, $current_user_id);
+        $verifyStmt->bind_param("is", $delete_id, $current_user_id);
         $verifyStmt->execute();
         $verifyResult = $verifyStmt->get_result();
 
         if ($verifyResult->num_rows > 0) {
-            // Delete the record
-            $deleteQuery = "DELETE FROM book WHERE id = ?";
+            // Delete the booking record
+            $deleteQuery = "DELETE FROM booking WHERE id = ?";
             $stmt = $dbconnection->prepare($deleteQuery);
             $stmt->bind_param("i", $delete_id);
             $stmt->execute();
@@ -119,8 +208,75 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
     }
-}
 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email_booking_id'])) {
+    $bookingId = $_POST['email_booking_id'];
+$query = "
+    SELECT b.book_ref_no, b.firstname, b.lastname, b.email, b.confirm_date, 
+           p.amount, p.last_date_pay, r.monthly
+    FROM booking b
+    INNER JOIN payment p ON b.payment_id = p.payment_id
+    INNER JOIN rental r ON p.rental_id = r.rental_id
+    WHERE b.id = ?
+";
+$stmt = $dbconnection->prepare($query);
+$stmt->bind_param("i", $bookingId);
+$stmt->execute();
+$result = $stmt->get_result();
+$bookingData = $result->fetch_assoc();
+
+
+    if ($bookingData) {
+    $confirmDate = new DateTime($bookingData['confirm_date']);
+    $currentDate = new DateTime();
+    $daysLeft = max(0, 30 - $confirmDate->diff($currentDate)->days);
+    $balance = max(0, $bookingData['monthly'] - $bookingData['amount']); // Calculate balance
+    $email = $bookingData['email'];
+        // Create email content
+        $emailSubject = "Booking Details: " . $bookingData['book_ref_no'];
+        $emailBody = "
+            Hello {$bookingData['firstname']} {$bookingData['lastname']},
+            
+            Here are your booking details:
+            - Booking Reference: {$bookingData['book_ref_no']}
+           - Balance: " . number_format($balance, 2) . "
+            - Last Payment Date: {$bookingData['last_date_pay']}
+            - Days Left in 30-Day Period: $daysLeft
+            
+            Please ensure your payments are up to date.
+
+            Thank you.
+        ";
+
+        // Send email using PHPMailer
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+          $mail->Username = 'madridejosbh2@gmail.com';
+        $mail->Password = 'ougf gwaw ezwh jmng';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('madridejosbh2@gmail.com', 'Landlord');
+            $mail->addAddress($email);
+
+            $mail->Subject = $emailSubject;
+            $mail->Body = $emailBody;
+
+            $mail->send();
+            $_SESSION['success_message'] = "Email sent successfully to $email.";
+        } catch (Exception $e) {
+            $_SESSION['error_message'] = "Email sending failed: " . $mail->ErrorInfo;
+        }
+    } else {
+        $_SESSION['error_message'] = "Booking not found.";
+    }
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
 // Include the header
 include('header.php');
 
@@ -133,36 +289,60 @@ $pageno = isset($_GET['pageno']) ? (int)$_GET['pageno'] : 1;
 // Calculate the offset for the SQL query
 $offset = ($pageno - 1) * $results_per_page;
 
-// Get the total number of records with status 'confirm' for current user's rentals
+// Get the total number of records for confirmed bookings
 $total_pages_sql = "
     SELECT COUNT(*) 
-    FROM book b
-    INNER JOIN rental r ON b.bhouse_id = r.rental_id
-    WHERE b.status = 'Confirm' 
-    AND r.register1_id = ?";
+    FROM booking b
+    INNER JOIN payment p ON b.payment_id = p.payment_id 
+    INNER JOIN rental r ON p.rental_id = r.rental_id 
+    WHERE r.register1_id = ? 
+    AND b.status != 'Confirm'
+    AND p.rental_id = ?";
 
 $stmt_count = $dbconnection->prepare($total_pages_sql);
-$stmt_count->bind_param("i", $current_user_id);
+
+// Bind two parameters: $current_user_id and $rental_id
+$stmt_count->bind_param("ss", $current_user_id, $rental_id);
+
+// Execute the statement
 $stmt_count->execute();
+
+// Fetch the result
 $total_rows = $stmt_count->get_result()->fetch_array()[0];
+
+// Calculate total pages
 $total_pages = ceil($total_rows / $results_per_page);
 
 // Fetch the records for the current page
+ 
+
 $query = "
-    SELECT b.id, b.firstname, b.middlename, b.lastname, b.email, 
-           b.age, b.gender, b.contact_number, b.Address, 
-           b.date_posted, b.paid_amount, b.bhouse_id
-    FROM book b
-    INNER JOIN rental r ON b.bhouse_id = r.rental_id
-    WHERE b.status = 'Confirm' 
-    AND r.register1_id = ?
+    SELECT b.id, b.book_ref_no, b.firstname, b.middlename, b.lastname, 
+           b.email, b.age, b.gender, b.contact_number, b.Address, 
+           p.gcash_picture, b.status, p.amount, p.gcash_reference,
+           p.rental_id, p.created_at
+    FROM booking b
+    INNER JOIN payment p ON b.payment_id = p.payment_id
+    INNER JOIN rental r ON p.rental_id = r.rental_id
+    WHERE r.register1_id = ? 
+      AND b.status != 'Confirm'
+    ORDER BY p.created_at DESC 
     LIMIT ?, ?";
 
 $stmt = $dbconnection->prepare($query);
-$stmt->bind_param("iii", $current_user_id, $offset, $results_per_page);
+
+// Check if the statement preparation failed
+if ($stmt === false) {
+    die("Error preparing statement: " . $dbconnection->error);
+}
+
+// Bind parameters and execute
+$stmt->bind_param("sii", $current_user_id, $offset, $results_per_page);
 $stmt->execute();
 $result = $stmt->get_result();
+
 ?>
+
 <style>
        
 /* Table styles */
@@ -458,9 +638,9 @@ h3{
                 if ($result && mysqli_num_rows($result) > 0) {
                     while ($rental_row = mysqli_fetch_assoc($result)) {
                         // Only add rental ID if it's not already in the array
-                        if (!in_array($rental_row['bhouse_id'], $unique_rental_ids)) {
-                            $unique_rental_ids[] = $rental_row['bhouse_id'];
-                            echo '<a href="add_walkin.php?rental_id=' . $rental_row['bhouse_id'] . '" class="btn btn-success me-2">Add Walk-In</a>';
+                        if (!in_array($rental_row['rental_id'], $unique_rental_ids)) {
+                            $unique_rental_ids[] = $rental_row['rental_id'];
+                            echo '<a href="add_walkin.php?rental_id=' . $rental_row['rental_id'] . '" class="btn btn-success me-2">Add Walk-In</a>';
                         }
                     }
                     // Reset the result pointer for the main data display
@@ -476,10 +656,10 @@ h3{
         <!-- Responsive Table -->
         <div class="table-responsive d-none d-md-block">  
               
-                
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <th>Book Ref</th>
                         <th>Firstname</th>
                         <th>Middlename</th>
                         <th>Lastname</th>
@@ -488,49 +668,72 @@ h3{
                         <th>Gender</th>
                         <th>Contact Number</th>
                         <th>Address</th>
-                        <th>Date Started</th>
+                        <th>Date Posted</th>
+                             <th>Start Date</th>
+            <th>Due Date</th> <!-- New column -->
                         <th>Balance</th>
                         <th>Paid Amount</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                     <?php
-                    // Handle search query
-        $search_query = isset($_GET['search_query']) ? '%' . $_GET['search_query'] . '%' : null;
+                  <?php
+                  // Handle search query
+                  $search_query = isset($_GET['search_query']) ? '%' . $_GET['search_query'] . '%' : null;
 
-        $query = "
-            SELECT b.id, b.firstname, b.middlename, b.lastname, b.email, 
-                   b.age, b.gender, b.contact_number, b.Address, 
-                   b.date_posted, b.paid_amount, b.bhouse_id
-            FROM book b
-            INNER JOIN rental r ON b.bhouse_id = r.rental_id
-            WHERE b.status = 'Confirm' 
-            AND r.register1_id = ?
-            " . ($search_query ? "AND b.firstname LIKE ?" : "") . "
-            LIMIT ?, ?";
+                 $query = "
+    SELECT b.id, b.book_ref_no, b.firstname, b.middlename, b.lastname, b.email, 
+           b.age, b.gender, b.contact_number, b.Address, 
+           b.date_posted, b.confirm_date, p.amount AS amount, p.rental_id, p.last_date_pay,
+           DATE_ADD(b.confirm_date, INTERVAL 30 DAY) AS due_date
+    FROM booking b
+    INNER JOIN payment p ON b.payment_id = p.payment_id
+    WHERE b.status = 'Confirm' 
+    AND p.rental_id IN (
+        SELECT r.rental_id 
+        FROM rental r 
+        WHERE r.register1_id = ?
+    )
+    " . ($search_query ? "AND b.firstname LIKE ?" : "") . "
+    LIMIT ?, ?";
 
-        $stmt = $dbconnection->prepare($query);
 
-        if ($search_query) {
-            $stmt->bind_param("isii", $current_user_id, $search_query, $offset, $results_per_page);
-        } else {
-            $stmt->bind_param("iii", $current_user_id, $offset, $results_per_page);
-        }
-        $stmt->execute();
-        $result = $stmt->get_result();
+                  // Prepare the query
+                  $stmt = $dbconnection->prepare($query);
 
-        // Reset URL if search_query is present
-        if (isset($_GET['search_query'])) {
-            echo '<script>
-                window.history.replaceState({}, document.title, "' . htmlspecialchars($_SERVER['PHP_SELF']) . '");
-            </script>';
-        }
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        $monthly_rental = getMonthlyRateForRental($row['bhouse_id']); 
-                        $balance = calculateBalance($row['id'], $monthly_rental, $row['paid_amount']); 
-                    ?>
+                  if ($stmt === false) {
+                      die("Error preparing statement: " . $dbconnection->error);
+                  }
+
+                  // Bind parameters
+                  if ($search_query) {
+                      $stmt->bind_param("ssii", $current_user_id, $search_query, $offset, $results_per_page);
+                  } else {
+                      $stmt->bind_param("sii", $current_user_id, $offset, $results_per_page);
+                  }
+
+                  // Execute the query
+                  if (!$stmt->execute()) {
+                      die("Execution failed: " . $stmt->error);
+                  }
+
+                  // Fetch the results
+                  $result = $stmt->get_result();
+
+                  // Reset URL if search_query is present
+                  if (isset($_GET['search_query'])) {
+                      echo '<script>
+                          window.history.replaceState({}, document.title, "' . htmlspecialchars($_SERVER['PHP_SELF']) . '");
+                      </script>';
+                  }
+
+                  // Loop through the results
+                  while ($row = $result->fetch_assoc()) {
+                      $monthly_rental = getMonthlyRateForRental($row['rental_id']); 
+                      $balance = calculateBalance($row['id'], $monthly_rental, $row['amount']); 
+                  ?>
                     <tr>
+                         <td><?php echo htmlspecialchars($row['book_ref_no']); ?></td>
                         <td><?php echo htmlspecialchars($row['firstname']); ?></td>
                         <td><?php echo htmlspecialchars($row['middlename']); ?></td>
                         <td><?php echo htmlspecialchars($row['lastname']); ?></td>
@@ -540,64 +743,81 @@ h3{
                         <td><?php echo htmlspecialchars($row['contact_number']); ?></td>
                         <td><?php echo htmlspecialchars($row['Address']); ?></td>
                         <td><?php echo date('F d, Y', strtotime($row['date_posted'])); ?></td>
+                            <td><?php echo $row['confirm_date'] ? date('F d, Y', strtotime($row['confirm_date'])) : 'N/A'; ?></td>
+            <td><?php echo $row['due_date'] ? date('F d, Y', strtotime($row['due_date'])) : 'N/A'; ?></td>
                         <td><?php echo htmlspecialchars(number_format($balance, 2)); ?></td>
                         <td>
                             <form method="post" action="">
                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                <input type="number" name="paid_amount" min="0" step="0.01" placeholder="Enter Amount" required>
+                                <input type="number" name="amount" min="0" step="0.01" placeholder="Enter Amount" required>
                                 <button type="submit" class="btn btn-primary">Submit</button>
                             </form>
+                            
                         </td>
                         <td>
                             <form method="post" action="">
                                 <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
+                            <form method="post" action="">
+        <input type="hidden" name="email_booking_id" value="<?php echo $row['id']; ?>">
+        <button type="submit" class="btn btn-secondary">Send Email</button>
+    </form>
                         </td>
                     </tr>
-                    <?php } ?>
+                  <?php } ?>
                 </tbody>
             </table>
         </div>
 
         <!-- Card layout for mobile view -->
-<div class="d-md-none">
-    <?php
-    mysqli_data_seek($result, 0); // Reset result pointer for mobile view
-    while ($row = mysqli_fetch_assoc($result)) {
-        $monthly_rental = getMonthlyRateForRental($row['bhouse_id']);
-        $balance = calculateBalance($row['id'], $monthly_rental, $row['paid_amount']);
-    ?>
-    <div class="card">
-        <div class="card-header">
-            <h5><?php echo htmlspecialchars($row['firstname']) . ' ' . htmlspecialchars($row['lastname']); ?></h5>
-        </div>
-        <div class="card-body">
-            <p><strong>Email:</strong> <?php echo htmlspecialchars($row['email']); ?></p>
-            <p><strong>Age:</strong> <?php echo htmlspecialchars($row['age']); ?></p>
-            <p><strong>Gender:</strong> <?php echo htmlspecialchars($row['gender']); ?></p>
-            <p><strong>Contact Number:</strong> <?php echo htmlspecialchars($row['contact_number']); ?></p>
-            <p><strong>Address:</strong> <?php echo htmlspecialchars($row['Address']); ?></p>
-            <p><strong>Date Started:</strong> <?php echo date('F d, Y', strtotime($row['date_posted'])); ?></p>
-            <p><strong>Balance:</strong> <?php echo htmlspecialchars(number_format($balance, 2)); ?></p>
-
-            <!-- Form to submit paid amount and delete record, side by side -->
-            <div class="d-flex justify-content-between mt-2">
-                <form method="post" action="">
-                    <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                    <input type="number" name="paid_amount" min="0" step="0.01" placeholder="Enter Amount" required>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-                <form method="post" action="">
-                    <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
+        <div class="d-md-none">
+            <?php
+            mysqli_data_seek($result, 0); // Reset result pointer for mobile view
+            while ($row = $result->fetch_assoc()) {
+                $monthly_rental = getMonthlyRateForRental($row['rental_id']);
+                $balance = calculateBalance($row['id'], $monthly_rental, $row['amount']);
+            ?>
+            <div class="card">
+                <div class="card-header">
+                    <h5><?php echo htmlspecialchars($row['firstname']) . ' ' . htmlspecialchars($row['lastname']); ?></h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Book Ref:</strong> <?php echo htmlspecialchars($row['book_ref_no']); ?></p>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars($row['email']); ?></p>
+                    <p><strong>Age:</strong> <?php echo htmlspecialchars($row['age']); ?></p>
+                    <p><strong>Gender:</strong> <?php echo htmlspecialchars($row['gender']); ?></p>
+                    <p><strong>Contact Number:</strong> <?php echo htmlspecialchars($row['contact_number']); ?></p>
+                    <p><strong>Address:</strong> <?php echo htmlspecialchars($row['Address']); ?></p>
+                    <p><strong>Date Posted:</strong> <?php echo date('F d, Y', strtotime($row['date_posted'])); ?></p>
+                     <p><strong>Start Date:</strong> <?php echo $row['confirm_date'] ? date('F d, Y', strtotime($row['confirm_date'])) : 'N/A'; ?></p>
+             <p><strong>Due Date:</strong><?php echo $row['due_date'] ? date('F d, Y', strtotime($row['due_date'])) : 'N/A'; ?></p>
+                    <p><strong>Balance:</strong> <?php echo htmlspecialchars(number_format($balance, 2)); ?></p>
+                       <td>
+                            <form method="post" action="">
+                                <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                                <input type="number" name="amount" min="0" step="0.01" placeholder="Enter Amount" required>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                            
+                        </td>
+                         <td>
+                            <form method="post" action="">
+                                <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                            <form method="post" action="">
+        <input type="hidden" name="email_booking_id" value="<?php echo $row['id']; ?>">
+        <button type="submit" class="btn btn-secondary">Send Email</button>
+    </form>
+                        </td>
+                </div>
             </div>
+            <?php } ?>
         </div>
-    </div>
-    <?php } ?>
-</div><br>
+   
 
+<br>
         <div class="pagination">
             <a href="?pageno=1" class="btn btn-info">First</a>
             <a href="?pageno=<?php echo max(1, $pageno - 1); ?>" class="btn btn-info">Previous</a>
@@ -606,7 +826,7 @@ h3{
             <a href="?pageno=<?php echo $total_pages; ?>" class="btn btn-info">Last</a>
         </div>
     </div>
-</div>
+</div></div> </div>
 
 <?php include('footer.php'); ?>
 
