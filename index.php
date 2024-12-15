@@ -340,7 +340,7 @@ $encryption_key = 'YourSecureKeyHere';
         ?>
     </span>
     <a class="btn <?php echo $available_slots == 0 ? 'disabled' : ''; ?>" 
-       href="<?php echo $available_slots > 0 ? 'view.php?bh_id=' . urlencode($encrypted_rental_id) : '#'; ?>">
+       href="<?php echo $available_slots > 0 ? 'view.php?rental_id=' . urlencode($encrypted_rental_id) : '#'; ?>">
        <?php echo $available_slots == 0 ? 'Fully Booked' : 'Book Now'; ?>
     </a>
 </div>
