@@ -173,8 +173,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && isset($_POST[
             throw new Exception("Execute failed: " . $stmt->error);
         }
         
+        // Insert a record into the paid table
+        $insertPaidQuery = "INSERT INTO paid (payment_id, amount, last_date_pay) 
+                            VALUES (?, ?, CURRENT_TIMESTAMP)";
+        
+        $stmt = $dbconnection->prepare($insertPaidQuery);
+        if ($stmt === false) {
+            throw new Exception("Prepare failed: " . $dbconnection->error);
+        }
+        
+        $stmt->bind_param("id", $paymentData['payment_id'], $paymentAmount);
+        if (!$stmt->execute()) {
+            throw new Exception("Execute failed: " . $stmt->error);
+        }
+        
+        // Commit transaction
         $dbconnection->commit();
-        $_SESSION['success_message'] = "Payment updated successfully";
+        $_SESSION['success_message'] = "Payment updated and recorded successfully";
         
     } catch (Exception $e) {
         $dbconnection->rollback();
@@ -183,31 +198,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && isset($_POST[
     
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
- } elseif (isset($_POST['delete_id'])) {
-        $delete_id = $_POST['delete_id'];
+} elseif (isset($_POST['delete_id'])) {
+    $delete_id = $_POST['delete_id'];
 
-        // Verify that this booking belongs to the current user's rental
-        $verifyQuery = "SELECT b.id 
-                       FROM booking b 
-                       INNER JOIN payment p ON b.payment_id = p.payment_id 
-                    INNER  JOIN rental r ON p.rental_id = r.rental_id 
-                    WHERE b.id = ? AND r.register1_id = ?"; 
-        $verifyStmt = $dbconnection->prepare($verifyQuery);
-        $verifyStmt->bind_param("is", $delete_id, $current_user_id);
-        $verifyStmt->execute();
-        $verifyResult = $verifyStmt->get_result();
+    // Verify that this booking belongs to the current user's rental
+    $verifyQuery = "SELECT b.id 
+                   FROM booking b 
+                   INNER JOIN payment p ON b.payment_id = p.payment_id 
+                INNER  JOIN rental r ON p.rental_id = r.rental_id 
+                WHERE b.id = ? AND r.register1_id = ?"; 
+    $verifyStmt = $dbconnection->prepare($verifyQuery);
+    $verifyStmt->bind_param("is", $delete_id, $current_user_id);
+    $verifyStmt->execute();
+    $verifyResult = $verifyStmt->get_result();
 
-        if ($verifyResult->num_rows > 0) {
-            // Delete the booking record
-            $deleteQuery = "DELETE FROM booking WHERE id = ?";
-            $stmt = $dbconnection->prepare($deleteQuery);
-            $stmt->bind_param("i", $delete_id);
-            $stmt->execute();
-        }
-
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit();
+    if ($verifyResult->num_rows > 0) {
+        // Delete the booking record
+        $deleteQuery = "DELETE FROM booking WHERE id = ?";
+        $stmt = $dbconnection->prepare($deleteQuery);
+        $stmt->bind_param("i", $delete_id);
+        $stmt->execute();
     }
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email_booking_id'])) {
     $bookingId = $_POST['email_booking_id'];
@@ -619,16 +635,78 @@ h3{
     }
 }
 </style>
-
 <div class="dashboard-container">
     <div class="sidebar-container">
         <?php include('sidebar.php'); ?>
     </div>
-   
+
     <div class="main-content"> <br><br>
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3>Book Information</h3>
         </div>
+
+        <?php
+        $soaDetails = [];
+        $soaBookRef = null;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['soa_book_ref'])) {
+            $soaBookRef = $_POST['soa_book_ref'];
+
+            $query = "
+                SELECT p.payment_id 
+                FROM booking b
+                INNER JOIN payment p ON b.payment_id = p.payment_id
+                WHERE b.book_ref_no = ?";
+            $stmt = $dbconnection->prepare($query);
+            $stmt->bind_param('s', $soaBookRef);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $booking = $result->fetch_assoc();
+
+            if ($booking) {
+                $paymentId = $booking['payment_id'];
+
+                $paidQuery = "SELECT amount, last_date_pay FROM paid WHERE payment_id = ?";
+                $paidStmt = $dbconnection->prepare($paidQuery);
+                $paidStmt->bind_param('i', $paymentId);
+                $paidStmt->execute();
+                $paidResult = $paidStmt->get_result();
+
+                while ($row = $paidResult->fetch_assoc()) {
+                    $soaDetails[] = $row;
+                }
+            } else {
+                $soaDetails = null;
+            }
+        }
+        ?>
+
+        <!-- Display SOA -->
+        <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['soa_book_ref'])): ?>
+            <div class="mt-4">
+                <h4>Statement of Account for Booking Reference: <?php echo htmlspecialchars($soaBookRef); ?></h4>
+                <?php if ($soaDetails): ?>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Amount</th>
+                                <th>Payment Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($soaDetails as $detail): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars(number_format($detail['amount'], 2)); ?></td>
+                                    <td><?php echo htmlspecialchars($detail['last_date_pay']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <p>No payments found for this booking reference.</p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -669,11 +747,12 @@ h3{
                         <th>Contact Number</th>
                         <th>Address</th>
                         <th>Date Posted</th>
-                             <th>Start Date</th>
-            <th>Due Date</th> <!-- New column -->
+                        <th>Start Date</th>
+                        <th>Due Date</th>
                         <th>Balance</th>
                         <th>Paid Amount</th>
                         <th>Actions</th>
+                        <th>SOA</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -760,10 +839,17 @@ h3{
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
                             <form method="post" action="">
-        <input type="hidden" name="email_booking_id" value="<?php echo $row['id']; ?>">
-        <button type="submit" class="btn btn-secondary">Send Email</button>
-    </form>
+                            <input type="hidden" name="email_booking_id" value="<?php echo $row['id']; ?>">
+                            <button type="submit" class="btn btn-secondary">Send Email</button>
+                            </form>
                         </td>
+                        <td>
+                            <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+                            <input type="hidden" name="soa_book_ref" value="<?php echo htmlspecialchars($row['book_ref_no']); ?>">
+                            <button type="submit" class="btn btn-info">View SOA</button>
+                            </form>
+                        </td>
+
                     </tr>
                   <?php } ?>
                 </tbody>
