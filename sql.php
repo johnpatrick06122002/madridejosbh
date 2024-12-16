@@ -23,17 +23,41 @@ $dbconnection = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
+// Query to fetch all rows from the 'rental' table
+$sql = "SELECT * FROM rental";
 
-// SQL to modify the 'notice' column
-$sql = "ALTER TABLE `rental` MODIFY COLUMN `notice` VARCHAR(1000) DEFAULT NULL;";
+$result = mysqli_query($dbconnection, $sql);
 
-// Execute the query
-if (mysqli_query($dbconnection, $sql)) {
-    echo "Column 'notice' updated successfully to VARCHAR(1000).";
-} else {
-    echo "ERROR: Could not update column 'notice'. " . mysqli_error($dbconnection);
+if (!$result) {
+    die("Query failed: " . mysqli_error($dbconnection));
 }
 
-// Close the connection
+// Fetch column names dynamically
+$fields = mysqli_fetch_fields($result);
+
+echo "<h2>Rental Table Data</h2>";
+echo "<table border='1' style='border-collapse: collapse; width: 100%;'>";
+echo "<thead><tr>";
+
+// Display column headers
+foreach ($fields as $field) {
+    echo "<th>" . htmlspecialchars($field->name) . "</th>";
+}
+
+echo "</tr></thead><tbody>";
+
+// Display table data
+while ($row = mysqli_fetch_assoc($result)) {
+    echo "<tr>";
+    foreach ($row as $value) {
+        echo "<td>" . htmlspecialchars($value) . "</td>";
+    }
+    echo "</tr>";
+}
+
+echo "</tbody></table>";
+
+// Free result set and close the connection
+mysqli_free_result($result);
 mysqli_close($dbconnection);
 ?>
