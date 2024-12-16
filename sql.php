@@ -24,7 +24,7 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 // Query to fetch all rows from the 'rental' table
-$sql = "SELECT * FROM rental";
+$sql = "SELECT * FROM paid";
 
 $result = mysqli_query($dbconnection, $sql);
 
