@@ -487,6 +487,71 @@ html, body {
         transform: scale(1.05); /* Slight zoom on hover */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Depth on hover */
     }
+    
+.card-review {
+    background: #ffffff;
+    transition: all 0.3s ease;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.card-review:hover {
+    transform: translateY(-2px);
+}
+
+.ratings {
+    font-size: 1.2rem;
+    color: #ffc107;
+    width: auto;
+    background: none;
+    border: none;
+    outline: none;
+}
+
+.ratings option {
+    color: #ffc107;
+}
+
+.ratings:disabled {
+    background: none;
+    opacity: 1;
+}
+
+.text-secondary {
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+}
+
+.hover\:shadow-md:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
+.transition-shadow {
+    transition: box-shadow 0.3s ease;
+}
+
+/* Added responsive container width */
+.col-12 {
+    padding: 0 15px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .col-12 {
+        max-width: 90%;
+    }
+}
+
+@media (min-width: 992px) {
+    .col-12 {
+        max-width: 100%;
+    }
+}
 </style>
 </head>
 <body>
@@ -720,35 +785,43 @@ if ($resultreview->num_rows > 0) {
         $ratings = $rowreview['ratings'];
         ?>
 
-        <div class="col-lg-6 col-md-6 col-sm-12">
-            <div class="card card-review">
-                <div class="card-header">
-                    <div class="d-flex align-items-center">
-                        <img class="rounded-circle me-2" 
+       <div class="col-12">
+    <div class="card card-review shadow-sm hover:shadow-md transition-shadow duration-300 rounded-lg overflow-hidden border-0 mb-4">
+        <div class="card-header bg-white border-bottom border-light p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="position-relative">
+                        <img class="rounded-circle shadow-sm" 
                              src="https://www.worldfuturecouncil.org/wp-content/uploads/2020/06/blank-profile-picture-973460_1280-1-705x705.png" 
-                             alt="Reviewer Image">
-                        <div class="ms-2">
+                             alt="Reviewer Image"
+                             style="width: 50px; height: 50px; object-fit: cover;">
+                    </div> 
+                    <div class="ms-2"><br><br>
                             <b><?php echo $name; ?></b>
-                            <br>
-                            <small><?php echo $date; ?></small>
+                            <br> 
+                            <small class="text-muted"><?php echo date('F j, Y', strtotime($date)); ?></small>
+                             
                         </div>
-                    </div>
-                    <div>
-                        <select name="star_rating_option" class="ratings" data-fratings="<?php echo $ratings; ?>" disabled>
-                            <option value="1" <?php if ($ratings == 1) echo 'selected'; ?>>★☆☆☆☆</option>
-                            <option value="2" <?php if ($ratings == 2) echo 'selected'; ?>>★★☆☆☆</option>
-                            <option value="3" <?php if ($ratings == 3) echo 'selected'; ?>>★★★☆☆</option>
-                            <option value="4" <?php if ($ratings == 4) echo 'selected'; ?>>★★★★☆</option>
-                            <option value="5" <?php if ($ratings == 5) echo 'selected'; ?>>★★★★★</option>
-                        </select>
-                    </div>
+                    
                 </div>
-                <div class="card-body">
-                    <p><?php echo htmlspecialchars($feedback); ?></p>   
+                <div class="ratings-container">
+                    <select name="star_rating_option" class="ratings form-select bg-transparent border-0" data-fratings="<?php echo $ratings; ?>" disabled style="pointer-events: none;">
+                        <option value="1" <?php if ($ratings == 1) echo 'selected'; ?>>★☆☆☆☆</option>
+                        <option value="2" <?php if ($ratings == 2) echo 'selected'; ?>>★★☆☆☆</option>
+                        <option value="3" <?php if ($ratings == 3) echo 'selected'; ?>>★★★☆☆</option>
+                        <option value="4" <?php if ($ratings == 4) echo 'selected'; ?>>★★★★☆</option>
+                        <option value="5" <?php if ($ratings == 5) echo 'selected'; ?>>★★★★★</option>
+                    </select>
                 </div>
-                <a href="#" class="stretched-link"></a>
             </div>
         </div>
+        <div class="card-body p-4">
+            <p class="mb-0 text-secondary"><?php echo htmlspecialchars($feedback); ?></p>   
+        </div>
+        <a href="#" class="stretched-link"></a>
+    </div>
+</div>
+
         <?php 
             }
         } else {
