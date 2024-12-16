@@ -129,6 +129,7 @@ function calculateBalance($bookingId, $monthlyRate) {
 }
 
 // Update the payment processing section
+// Update the payment processing section
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id']) && isset($_POST['amount'])) {
     $bookingId = $_POST['id'];
     $paymentAmount = $_POST['amount'];
