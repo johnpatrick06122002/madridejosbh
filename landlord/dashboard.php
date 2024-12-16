@@ -135,6 +135,36 @@ while ($row = $booking_result->fetch_assoc()) {
     $booking_data[$month] = $row['booking_count'];
 }
 
+// Fetch boarders' names and ratings
+$ratings_query = "
+    SELECT 
+        CONCAT(b.firstname, ' ', b.lastname) AS boarder_name, 
+        b.ratings AS rating
+    FROM booking b
+    INNER JOIN payment p ON b.payment_id = p.payment_id
+    INNER JOIN rental r ON p.rental_id = r.rental_id
+    WHERE b.ratings > 0
+    ORDER BY b.ratings DESC; -- Sort by ratings for better visualization
+";
+
+$result = $dbconnection->query($ratings_query);
+
+if (!$result) {
+    die("Query Failed: " . $dbconnection->error);
+}
+
+// Prepare data for the chart
+$boarders = [];
+$ratings = [];
+
+while ($row = $result->fetch_assoc()) {
+    $boarders[] = $row['boarder_name']; // Collect boarders' names
+    $ratings[] = $row['rating'];       // Collect ratings
+}
+
+// Convert data to JSON for Chart.js
+$boarders_json = json_encode($boarders);
+$ratings_json = json_encode($ratings);
 ?>
 <!-- Modified HTML structure -->
 <style>
@@ -357,6 +387,11 @@ while ($row = $booking_result->fetch_assoc()) {
             <h3>Monthly Booking</h3>
             <canvas id="monthlyBookingsChart"></canvas>
         </div>
+        <div class="chart-container3">
+    <h3>Ratings Per Boarder</h3>
+    <canvas id="boarderRatingsChart"></canvas>
+</div>
+
     </div>
 </div>
 
@@ -441,5 +476,44 @@ new Chart(bookingChartCtx, {
         }
     }
 });
+// Ratings data from PHP
+const boarders = <?php echo $boarders_json; ?>;
+const ratings = <?php echo $ratings_json; ?>;
 
+// Bar Chart: Ratings Per Boarder
+const ratingsChartCtx = document.getElementById('boarderRatingsChart').getContext('2d');
+new Chart(ratingsChartCtx, {
+    type: 'bar',
+    data: {
+        labels: boarders, // Boarders' names as labels
+        datasets: [{
+            label: 'Ratings',
+            data: ratings,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)', // Light blue
+            borderColor: 'rgba(54, 162, 235, 1)',       // Dark blue
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: true }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 5, // Ratings range from 0 to 5
+                title: { display: true, text: 'Ratings (0 to 5)' }
+            },
+            x: {
+                title: { display: true, text: 'Boarders' },
+                ticks: {
+                    autoSkip: false, // Show all boarders
+                    maxRotation: 90, // Rotate labels if they overlap
+                    minRotation: 45  // Minimum rotation for better visibility
+                }
+            }
+        }
+    }
+});
 </script>
