@@ -24,57 +24,34 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Query to fetch all tables from the database
-$sql = "SHOW TABLES";
+// Query to describe the 'otp' table
+$sql = "DESCRIBE otp";
 $result = mysqli_query($dbconnection, $sql);
 
 if (!$result) {
     die("Query failed: " . mysqli_error($dbconnection));
 }
 
-// Display tables and their data
-echo "<h2>Database Tables</h2>";
+// Display column details
+echo "<h2>OTP Table Fields</h2>";
+echo "<table border='1' style='border-collapse: collapse; width: 100%;'>";
+echo "<thead><tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr></thead><tbody>";
 
-while ($table = mysqli_fetch_row($result)) {
-    $tableName = $table[0];
-    echo "<h3>Table: $tableName</h3>";
-
-    // Query to fetch all rows from the current table
-    $dataQuery = "SELECT * FROM $tableName";
-    $dataResult = mysqli_query($dbconnection, $dataQuery);
-
-    if ($dataResult) {
-        // Fetch column names dynamically
-        $fields = mysqli_fetch_fields($dataResult);
-
-        echo "<table border='1' style='border-collapse: collapse; width: 100%;'>";
-        echo "<thead><tr>";
-
-        // Display column headers
-        foreach ($fields as $field) {
-            echo "<th>" . htmlspecialchars($field->name) . "</th>";
-        }
-
-        echo "</tr></thead><tbody>";
-
-        // Display table data
-        while ($row = mysqli_fetch_assoc($dataResult)) {
-            echo "<tr>";
-            foreach ($row as $value) {
-                echo "<td>" . htmlspecialchars($value) . "</td>";
-            }
-            echo "</tr>";
-        }
-
-        echo "</tbody></table><br>";
-        // Free result set for this table
-        mysqli_free_result($dataResult);
-    } else {
-        echo "ERROR: Could not fetch data from $tableName.<br>";
-    }
+// Fetch and display column details
+while ($row = mysqli_fetch_assoc($result)) {
+    echo "<tr>";
+    echo "<td>" . htmlspecialchars($row['Field']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['Type']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['Null']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['Key']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['Default']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['Extra']) . "</td>";
+    echo "</tr>";
 }
 
-// Free result set for tables list and close the connection
+echo "</tbody></table>";
+
+// Free result set and close the connection
 mysqli_free_result($result);
 mysqli_close($dbconnection);
 ?>
