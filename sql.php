@@ -23,6 +23,7 @@ $dbconnection = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
+
 $sql = "CREATE TABLE `paid` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `payment_id` int(11) NOT NULL,
@@ -32,14 +33,13 @@ $sql = "CREATE TABLE `paid` (
   FOREIGN KEY (`payment_id`) REFERENCES `payments`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
 
+// Execute query to create the table
 if (mysqli_query($dbconnection, $sql)) {
     echo "Table 'paid' created successfully.";
 } else {
     echo "ERROR: Could not execute $sql. " . mysqli_error($dbconnection);
 }
 
-
-// Free result set and close the connection
-mysqli_free_result($result);
+// Close the connection
 mysqli_close($dbconnection);
 ?>
