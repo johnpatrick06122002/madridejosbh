@@ -24,27 +24,6 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Step 1: Rename the 'landlords' table to 'paid' and alter its structure
-$alterTableSql = "
-    RENAME TABLE landlords TO paid;
-    ALTER TABLE paid
-    DROP COLUMN IF EXISTS `name`,
-    DROP COLUMN IF EXISTS `username`,
-    DROP COLUMN IF EXISTS `password`,
-    DROP COLUMN IF EXISTS `type`,
-    DROP COLUMN IF EXISTS `photo`,
-    DROP COLUMN IF EXISTS `address`,
-    DROP COLUMN IF EXISTS `contact_number`,
-    DROP COLUMN IF EXISTS `facebook_account`,
-   
-";
-
-if (mysqli_multi_query($dbconnection, $alterTableSql)) {
-    echo "Table 'landlords' renamed to 'paid' and altered successfully.<br>";
-} else {
-    echo "ERROR: Could not rename and alter table. " . mysqli_error($dbconnection) . "<br>";
-}
-
 // Query to fetch all tables from the database
 $sql = "SHOW TABLES";
 $result = mysqli_query($dbconnection, $sql);
