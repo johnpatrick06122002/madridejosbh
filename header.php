@@ -472,6 +472,9 @@ ul.pagination li:last-child {
                 <li class="nav-item">
                     <a href="contact.php" class="nav-link active">Contact</a>
                 </li>
+                 <li class="nav-item">
+                    <a href="soa.php" class="nav-link active">SOA</a>
+                </li>
                 <?php if(empty($login_session)) { ?>
                 <li class="nav-item">
                     <a class="nav-link active" href="login.php">
