@@ -24,18 +24,14 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// SQL query to add 'qr_code' and 'notice' columns to the 'rental' table
-$sql = "
-ALTER TABLE `rental`
-ADD COLUMN `qr_code` varchar(1000) DEFAULT NULL,
-ADD COLUMN `notice` varchar(225) DEFAULT NULL;
-";
+// SQL to modify the 'notice' column
+$sql = "ALTER TABLE `rental` MODIFY COLUMN `notice` VARCHAR(1000) DEFAULT NULL;";
 
 // Execute the query
 if (mysqli_query($dbconnection, $sql)) {
-    echo "Columns 'qr_code' and 'notice' added successfully to the 'rental' table.";
+    echo "Column 'notice' updated successfully to VARCHAR(1000).";
 } else {
-    echo "ERROR: Could not modify table. " . mysqli_error($dbconnection);
+    echo "ERROR: Could not update column 'notice'. " . mysqli_error($dbconnection);
 }
 
 // Close the connection
