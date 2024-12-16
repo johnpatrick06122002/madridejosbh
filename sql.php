@@ -24,21 +24,18 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// SQL query to create the 'booking' table
+// SQL query to add 'qr_code' and 'notice' columns to the 'rental' table
 $sql = "
-CREATE TABLE IF NOT EXISTS  `otp` (
-  `otp_id` int(11) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `otp` varchar(6) NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ALTER TABLE `rental`
+ADD COLUMN `qr_code` varchar(1000) DEFAULT NULL,
+ADD COLUMN `notice` varchar(225) DEFAULT NULL;
 ";
 
 // Execute the query
 if (mysqli_query($dbconnection, $sql)) {
-    echo "Table 'otp' created successfully.";
+    echo "Columns 'qr_code' and 'notice' added successfully to the 'rental' table.";
 } else {
-    echo "ERROR: Could not create table. " . mysqli_error($dbconnection);
+    echo "ERROR: Could not modify table. " . mysqli_error($dbconnection);
 }
 
 // Close the connection
