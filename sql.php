@@ -24,30 +24,6 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Step 1: Drop the login_attempts table if it exists
-$dropTableSql = "DROP TABLE IF EXISTS login_attempts";
-if (mysqli_query($dbconnection, $dropTableSql)) {
-    echo "Table 'login_attempts' dropped successfully.<br>";
-} else {
-    echo "ERROR: Could not drop table 'login_attempts'. " . mysqli_error($dbconnection) . "<br>";
-}
-
-// Step 2: Create the 'paid' table
-$createTableSql = "CREATE TABLE `paid` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `payment_id` int(11) NOT NULL,
-    `amount` decimal(10,2) NOT NULL,
-    `last_date_pay` datetime NOT NULL,
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`payment_id`) REFERENCES `payments`(`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
-
-if (mysqli_query($dbconnection, $createTableSql)) {
-    echo "Table 'paid' created successfully.<br>";
-} else {
-    echo "ERROR: Could not create table 'paid'. " . mysqli_error($dbconnection) . "<br>";
-}
-
 // Query to fetch all tables from the database
 $sql = "SHOW TABLES";
 $result = mysqli_query($dbconnection, $sql);
