@@ -24,26 +24,6 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Step 1: Alter the 'landlords' table to match the new structure
-$alterTableSql = "
-    ALTER TABLE paid
-    DROP COLUMN IF EXISTS `fname`,
-    DROP COLUMN IF EXISTS `mname`,
-    DROP COLUMN IF EXISTS `lname`,
-    DROP COLUMN IF EXISTS `email`,
-    DROP COLUMN IF EXISTS `profile_photo`,
-    DROP COLUMN IF EXISTS `facebook`,
-    DROP COLUMN IF EXISTS `status`,
-    
-   
-";
-
-if (mysqli_query($dbconnection, $alterTableSql)) {
-    echo "Table 'landlords' altered successfully to match 'paid' structure.<br>";
-} else {
-    echo "ERROR: Could not alter table 'landlords'. " . mysqli_error($dbconnection) . "<br>";
-}
-
 // Query to fetch all tables from the database
 $sql = "SHOW TABLES";
 $result = mysqli_query($dbconnection, $sql);
