@@ -24,6 +24,23 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
+// Query to create the 'paid' table
+$sql_create_paid = "CREATE TABLE IF NOT EXISTS `paid` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `payment_id` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `last_date_pay` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`payment_id`) REFERENCES `payments`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
+
+// Execute the query to create the 'paid' table
+if (mysqli_query($dbconnection, $sql_create_paid)) {
+    echo "Table 'paid' created (if not already exists).<br>";
+} else {
+    echo "ERROR: Could not create 'paid' table. " . mysqli_error($dbconnection) . "<br>";
+}
+
 // Query to fetch all tables from the database
 $sql = "SHOW TABLES";
 $result = mysqli_query($dbconnection, $sql);
