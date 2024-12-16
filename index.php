@@ -312,9 +312,16 @@ $encryption_key = 'YourSecureKeyHere';
                <div class="course_card_footer">
     <?php
     // Fetch the sum and count of ratings for the current rental
-    $sql_rating = "SELECT SUM(ratings) AS totalrating, COUNT(ratings) AS ratingcount 
-                   FROM book 
-                   WHERE bhouse_id='$rent_id' AND ratings > 0";
+   $sql_rating = "
+    SELECT 
+        SUM(b.ratings) AS totalrating, 
+        COUNT(b.ratings) AS ratingcount 
+    FROM booking b
+    INNER JOIN payment p ON b.payment_id = p.payment_id
+    INNER JOIN rental r ON p.rental_id = r.rental_id
+    WHERE r.rental_id = '$rent_id' AND b.ratings > 0;
+";
+
     $result_rating = $dbconnection->query($sql_rating);
     
     $totalrating = 0;
