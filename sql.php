@@ -23,34 +23,16 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// Query to get the fields of the 'booking' table
-$query = "DESCRIBE booking";
+// SQL query to modify the column to NOT NULL
+$sql = "ALTER TABLE booking MODIFY firstname VARCHAR(100) NOT NULL";
 
-$result = mysqli_query($dbconnection, $query);
-
-if (!$result) {
-    die("ERROR: Could not retrieve table fields. " . mysqli_error($dbconnection));
+// Execute the query
+if (mysqli_query($dbconnection, $sql)) {
+    echo "The column 'firstname' has been successfully altered to NOT NULL.";
+} else {
+    echo "ERROR: Could not alter the column. " . mysqli_error($dbconnection);
 }
 
-// Display the fields in a table
-echo "<h2>Fields of the 'booking' Table</h2>";
-echo "<table border='1' style='border-collapse: collapse; width: 100%;'>";
-echo "<thead><tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr></thead><tbody>";
-
-while ($row = mysqli_fetch_assoc($result)) {
-    echo "<tr>";
-    echo "<td>" . htmlspecialchars($row['Field']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Type']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Null']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Key']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Default']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Extra']) . "</td>";
-    echo "</tr>";
-}
-
-echo "</tbody></table>";
-
-// Free the result and close the connection
-mysqli_free_result($result);
+// Close the connection
 mysqli_close($dbconnection);
 ?>
