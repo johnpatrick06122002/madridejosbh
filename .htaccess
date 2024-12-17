@@ -12,6 +12,7 @@ RewriteRule ^([^\.]+)$ $1.php [NC,L]
 
 # Redirect .php URLs to non-extension versions (except for form actions)
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.php [NC]
+RewriteCond %{REQUEST_URI} !^/register_step1\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/register_step2\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/subscription\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/forgot_pass\.php$ [NC]
