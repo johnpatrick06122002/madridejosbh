@@ -83,8 +83,7 @@ if ($result) {
     echo "Error fetching data: " . mysqli_error($dbconnection);
 }
   
- // Fetch Monthly Income Data
-$monthly_income_query = "
+ $monthly_income_query = "
     SELECT 
         r.title AS boarding_house, 
         MONTH(p.last_date_pay) AS month, 
@@ -92,9 +91,9 @@ $monthly_income_query = "
     FROM rental r
     LEFT JOIN payment p ON r.rental_id = p.rental_id
     LEFT JOIN booking b ON b.payment_id = p.payment_id 
-        AND b.status = 'Confirm'
-        AND YEAR(p.last_date_pay) = YEAR(CURRENT_DATE)
-    WHERE r.register1_id = ?
+        AND b.status = 'Confirm'  -- Only confirmed bookings
+    WHERE r.register1_id = ? 
+        AND YEAR(p.last_date_pay) = YEAR(CURRENT_DATE)  -- Current year filter
     GROUP BY r.title, MONTH(p.last_date_pay)
     ORDER BY r.title, MONTH(p.last_date_pay);
 ";
