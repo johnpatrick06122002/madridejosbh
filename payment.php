@@ -16,7 +16,6 @@ function sanitizeInput($data, $type) {
     }
 }
 
-
 // Validate rental_id from GET parameter
 $rental_id = isset($_GET['rental_id']) ? sanitizeInput($_GET['rental_id'], 'int') : null;
 if (!$rental_id) {
@@ -81,32 +80,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Start transaction
     $dbconnection->begin_transaction();
     try {
+        // Insert into payment table
         $sql_payment = "INSERT INTO payment (rental_id, gcash_reference, amount, gcash_picture, created_at) 
                         VALUES (?, ?, ?, ?, NOW())";
         $stmt = $dbconnection->prepare($sql_payment);
         if (!$stmt) {
             throw new Exception("Failed to prepare payment insertion: " . $dbconnection->error);
         }
+        $stmt->bind_param('isds', $rental_id, $gcash_reference, $amount, $target_file);
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to execute payment insertion: " . $stmt->error);
+        }
 
-        // Inside your try block in payment.php:
-$stmt->bind_param('isds', $rental_id, $gcash_reference, $amount, $target_file);
-if (!$stmt->execute()) {
-    throw new Exception("Failed to execute payment insertion: " . $stmt->error);
-}
+        // Get the last inserted payment ID
+        $payment_id = $dbconnection->insert_id;
 
-// Get the last inserted payment ID - note we're using payment_id now
-$payment_id = $dbconnection->insert_id;
+        // Insert into paid table
+        $sql_paid = "INSERT INTO paid (payment_id, amount, last_date_pay) VALUES (?, ?, NOW())";
+        $stmt_paid = $dbconnection->prepare($sql_paid);
+        if (!$stmt_paid) {
+            throw new Exception("Failed to prepare paid insertion: " . $dbconnection->error);
+        }
+        $stmt_paid->bind_param('id', $payment_id, $amount);
+        if (!$stmt_paid->execute()) {
+            throw new Exception("Failed to execute paid insertion: " . $stmt_paid->error);
+        }
 
-$dbconnection->commit();
-header("Location: booking.php?payment_id=" . $payment_id);
-exit();
+        // Commit transaction
+        $dbconnection->commit();
+        header("Location: booking.php?payment_id=" . $payment_id);
+        exit();
     } catch (Exception $e) {
+        // Rollback transaction on error
         $dbconnection->rollback();
         error_log("Payment processing error: " . $e->getMessage());
         echo '<script>Swal.fire("Error", "Failed to process payment. Please try again.", "error");</script>';
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
