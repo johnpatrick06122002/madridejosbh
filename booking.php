@@ -533,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 Swal.fire({
                     icon: 'success',
                     title: 'Booking Confirmed!',
-                    text: 'Redirecting to home page...',
+                    text: 'Kindly check youe email for Booking Reference NO.',
                     timer: 2000,
                     showConfirmButton: false
                 }).then(() => {
