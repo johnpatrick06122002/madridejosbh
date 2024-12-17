@@ -49,19 +49,14 @@ $query = "
     FROM rental r
     LEFT JOIN payment p ON r.rental_id = p.rental_id
     LEFT JOIN booking b ON b.payment_id = p.payment_id 
-        AND b.status = 'Confirm' -- Only confirmed bookings
-    WHERE r.register1_id = ? 
-        AND YEAR(p.last_date_pay) = YEAR(CURRENT_DATE) -- Filter payments from the current year
+        AND b.status = 'Confirm'
+        AND YEAR(p.last_date_pay) = YEAR(CURRENT_DATE)
+    WHERE r.register1_id = ?
     GROUP BY r.title, MONTH(p.last_date_pay)
     ORDER BY r.title, MONTH(p.last_date_pay);
 ";
 
-
 $stmt = $dbconnection->prepare($query);
-if (!$stmt) {
-    die("Query preparation failed: " . $dbconnection->error);
-}
-
 $stmt->bind_param("i", $login_session);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -76,31 +71,17 @@ if ($result) {
         $month_name = date('F', mktime(0, 0, 0, $row['month'], 1)); // Convert month number to name
         $monthly_income = $row['monthly_income'];
 
-        // Store income data for the current boarding house and month
+        // Store income data
         if (!isset($monthly_data[$boarding_house])) {
             $monthly_data[$boarding_house] = [];
         }
         $monthly_data[$boarding_house][$month_name] = $monthly_income;
 
-        // Accumulate total income across all boarding houses
-        $total_income += $monthly_income;
+        $total_income += $monthly_income; // Accumulate total income
     }
-
-    // Output processed data (for debugging or display)
-    foreach ($monthly_data as $house => $months) {
-        echo "Boarding House: $house\n";
-        foreach ($months as $month => $income) {
-            echo "  $month: $income\n";
-        }
-    }
-    echo "Total Income: $total_income\n";
-
 } else {
-    echo "Error fetching data: " . $dbconnection->error;
+    echo "Error fetching data: " . mysqli_error($dbconnection);
 }
-
-$stmt->close();
-
   
  // Fetch Monthly Income Data
 $monthly_income_query = "
