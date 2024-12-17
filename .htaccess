@@ -19,7 +19,7 @@ RewriteCond %{REQUEST_URI} !^/forgot_pass\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/admin/forgot_password\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/admin/reset_password\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/payment\.php$ [NC]
-
+RewriteCond %{REQUEST_URI} !^/booking\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/book\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/landlord/booker\.php$ [NC]
 RewriteCond %{REQUEST_URI} !^/soa\.php$ [NC]
