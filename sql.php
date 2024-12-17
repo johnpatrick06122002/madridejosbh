@@ -1,56 +1,80 @@
-<?php
-// Database connection constants
-if (!defined('DB_SERVER')) {
-    define('DB_SERVER', '127.0.0.1');
-}
+    <?php
+    // Check if constants are already defined before defining them
+    if (!defined('DB_SERVER')) {
+        define('DB_SERVER', '127.0.0.1');
+    }
 
-if (!defined('DB_USERNAME')) {
-    define('DB_USERNAME', 'u510162695_bhouse_root');
-}
+    if (!defined('DB_USERNAME')) {
+        define('DB_USERNAME', 'u510162695_bhouse_root');
+    }
 
-if (!defined('DB_PASSWORD')) {
-    define('DB_PASSWORD', '1Bhouse_root');
-}
+    if (!defined('DB_PASSWORD')) {
+        define('DB_PASSWORD', '1Bhouse_root');
+    }
 
-if (!defined('DB_NAME')) {
-    define('DB_NAME', 'u510162695_bhouse');
-}
+    if (!defined('DB_NAME')) {
+        define('DB_NAME', 'u510162695_bhouse');
+    }
 
-// Connect to the database
-$dbconnection = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+    // Establish database connection
+    $dbconnection = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
-if ($dbconnection === false) {
-    die("ERROR: Could not connect. " . mysqli_connect_error());
-}
+    // Check connection
+    if ($dbconnection === false) {
+        die("ERROR: Could not connect. " . mysqli_connect_error());
+    }
 
-// Query to get the fields of the 'booking' table
-$query = "DESCRIBE booking";
+    // Query to fetch all tables from the database
+    $sql = "SHOW TABLES";
+    $result = mysqli_query($dbconnection, $sql);
 
-$result = mysqli_query($dbconnection, $query);
+    if (!$result) {
+        die("Query failed: " . mysqli_error($dbconnection));
+    }
 
-if (!$result) {
-    die("ERROR: Could not retrieve table fields. " . mysqli_error($dbconnection));
-}
+    // Display tables and their data
+    echo "<h2>Database Tables</h2>";
 
-// Display the fields in a table
-echo "<h2>Fields of the 'booking' Table</h2>";
-echo "<table border='1' style='border-collapse: collapse; width: 100%;'>";
-echo "<thead><tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr></thead><tbody>";
+    while ($table = mysqli_fetch_row($result)) {
+        $tableName = $table[0];
+        echo "<h3>Table: $tableName</h3>";
 
-while ($row = mysqli_fetch_assoc($result)) {
-    echo "<tr>";
-    echo "<td>" . htmlspecialchars($row['Field']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Type']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Null']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Key']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Default']) . "</td>";
-    echo "<td>" . htmlspecialchars($row['Extra']) . "</td>";
-    echo "</tr>";
-}
+        // Query to fetch all rows from the current table
+        $dataQuery = "SELECT * FROM $tableName";
+        $dataResult = mysqli_query($dbconnection, $dataQuery);
 
-echo "</tbody></table>";
+        if ($dataResult) {
+            // Fetch column names dynamically
+            $fields = mysqli_fetch_fields($dataResult);
 
-// Free the result and close the connection
-mysqli_free_result($result);
-mysqli_close($dbconnection);
-?>
+            echo "<table border='1' style='border-collapse: collapse; width: 100%;'>";
+            echo "<thead><tr>";
+
+            // Display column headers
+            foreach ($fields as $field) {
+                echo "<th>" . htmlspecialchars($field->name) . "</th>";
+            }
+
+            echo "</tr></thead><tbody>";
+
+            // Display table data
+            while ($row = mysqli_fetch_assoc($dataResult)) {
+                echo "<tr>";
+                foreach ($row as $value) {
+                    echo "<td>" . htmlspecialchars($value) . "</td>";
+                }
+                echo "</tr>";
+            }
+
+            echo "</tbody></table><br>";
+            // Free result set for this table
+            mysqli_free_result($dataResult);
+        } else {
+            echo "ERROR: Could not fetch data from $tableName.<br>";
+        }
+    }
+
+    // Free result set for tables list and close the connection
+    mysqli_free_result($result);
+    mysqli_close($dbconnection);
+    ?>
