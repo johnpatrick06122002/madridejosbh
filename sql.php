@@ -24,7 +24,7 @@ if ($dbconnection === false) {
 }
 
 // SQL query to modify the column to NOT NULL
-$sql = "ALTER TABLE booking MODIFY firstname datetime";
+$sql = "ALTER TABLE booking MODIFY firstname varchar(225) Not NULL";
 
 // Execute the query
 if (mysqli_query($dbconnection, $sql)) {
