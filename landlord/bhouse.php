@@ -219,24 +219,27 @@ h3 {
                     while ($row = $result->fetch_assoc()) {
                         $rent_id = $row['rental_id'];
                         $encrypted_bh_id = encrypt($rent_id, $encryption_key);
+
+                        $sql_book = "SELECT COUNT(*) AS booked_count FROM booking b 
+                                      JOIN payment p ON b.payment_id = p.payment_id
+                                      WHERE p.rental_id = ? AND b.status='Confirm'";
+                        $stmt_book = $dbconnection->prepare($sql_book);
+                        $stmt_book->bind_param("i", $rent_id);
+                        $stmt_book->execute();
+                        $result_book = $stmt_book->get_result();
+                        $occupied = $result_book->fetch_array()['booked_count'];
+                        $stmt_book->close();
+
+                        $vacant_slots = $row['slots'] - $occupied;
                     ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row['title']); ?></td>
                             <td class="col-md-1">
-                                <?php
-                                $sql_book = "SELECT COUNT(*) FROM book WHERE bhouse_id=? AND register1_id=? AND status='Confirm'";
-                                $stmt_book = $dbconnection->prepare($sql_book);
-                                $stmt_book->bind_param("ii", $rent_id, $login_session);
-                                $stmt_book->execute();
-                                $result_book = $stmt_book->get_result();
-                                $occupied = $result_book->fetch_array()[0];
-                                $stmt_book->close();
-
-                                $vacant_slots = $row['slots'] - $occupied;
-                                echo htmlspecialchars($vacant_slots);
-                                ?>
+                                <?php echo htmlspecialchars($vacant_slots); ?>
                             </td>
-                            <td class="col-md-1"><?php echo htmlspecialchars($occupied); ?></td>
+                            <td class="col-md-1">
+                                <?php echo htmlspecialchars($occupied); ?>
+                            </td>
                             <td class="col-md-1">
                                 <a href="../view.php?bh_id=<?php echo urlencode($encrypted_bh_id); ?>" class="btn btn-success">
                                     <i class="fa fa-eye" aria-hidden="true"></i>

@@ -288,10 +288,19 @@ $encryption_key = 'YourSecureKeyHere';
     $rent_id = $row['rental_id'];
 
     // Calculate available slots
-    $result_book = mysqli_query($dbconnection, "SELECT COUNT(1) FROM book WHERE bhouse_id='$rent_id' AND status='Confirm'");
-    $row_book = mysqli_fetch_array($result_book);
-    $reserved = $row_book[0];
-    $available_slots = $row['slots'] - $reserved;
+$sql_book = "SELECT COUNT(*) AS booked_count FROM booking b 
+              JOIN payment p ON b.payment_id = p.payment_id
+              WHERE p.rental_id = ? AND b.status='Confirm'";
+$stmt_book = $dbconnection->prepare($sql_book);
+$stmt_book->bind_param("i", $rent_id);
+$stmt_book->execute();
+$result_book = $stmt_book->get_result();
+$row_book = $result_book->fetch_array();
+$reserved = $row_book['booked_count'];
+$stmt_book->close();
+
+$available_slots = $row['slots'] - $reserved;
+
 
     // Encrypt the rental_id for the link
     $encrypted_rental_id = encrypt($rent_id, $encryption_key);
