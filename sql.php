@@ -21,38 +21,48 @@ if ($dbconnection === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-// SQL to describe the `booking` table
-$sql = "DESCRIBE booking";
+// Get the list of all tables in the database
+$sql_tables = "SHOW TABLES";
+if ($result_tables = mysqli_query($dbconnection, $sql_tables)) {
+    echo "<h2>Database: " . DB_NAME . "</h2>";
+    while ($row_table = mysqli_fetch_row($result_tables)) {
+        $table_name = $row_table[0];
+        echo "<h3>Table: $table_name</h3>";
+        
+        // Get the data from the current table
+        $sql_data = "SELECT * FROM `$table_name`";
+        if ($result_data = mysqli_query($dbconnection, $sql_data)) {
+            if (mysqli_num_rows($result_data) > 0) {
+                echo "<table border='1' cellpadding='5' cellspacing='0'>";
+                
+                // Display column headers
+                $fields = mysqli_fetch_fields($result_data);
+                echo "<tr>";
+                foreach ($fields as $field) {
+                    echo "<th>" . htmlspecialchars($field->name) . "</th>";
+                }
+                echo "</tr>";
 
-if ($result = mysqli_query($dbconnection, $sql)) {
-    echo "<table border='1' cellpadding='5' cellspacing='0'>";
-    echo "<tr>
-            <th>Field</th>
-            <th>Type</th>
-            <th>Null</th>
-            <th>Key</th>
-            <th>Default</th>
-            <th>Extra</th>
-          </tr>";
-
-    // Fetch and display each row of the table structure
-    while ($row = mysqli_fetch_assoc($result)) {
-        echo "<tr>";
-        echo "<td>" . htmlspecialchars($row['Field']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Type']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Null']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Key']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Default']) . "</td>";
-        echo "<td>" . htmlspecialchars($row['Extra']) . "</td>";
-        echo "</tr>";
+                // Display rows of data
+                while ($row_data = mysqli_fetch_assoc($result_data)) {
+                    echo "<tr>";
+                    foreach ($row_data as $cell) {
+                        echo "<td>" . htmlspecialchars($cell) . "</td>";
+                    }
+                    echo "</tr>";
+                }
+                echo "</table>";
+            } else {
+                echo "<p>No data found in this table.</p>";
+            }
+            mysqli_free_result($result_data);
+        } else {
+            echo "ERROR: Could not execute $sql_data. " . mysqli_error($dbconnection);
+        }
     }
-
-    echo "</table>";
-
-    // Free result set
-    mysqli_free_result($result);
+    mysqli_free_result($result_tables);
 } else {
-    echo "ERROR: Could not execute $sql. " . mysqli_error($dbconnection);
+    echo "ERROR: Could not execute $sql_tables. " . mysqli_error($dbconnection);
 }
 
 // Close the database connection
